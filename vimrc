@@ -219,12 +219,14 @@ function! RunCode()
   endif
   let report = empty(msg) ? [] : s:Report(0, msg) + [s:dim . '──────── 開始執行 ────────' . s:reset]
   " 程式不是正常結束(exit code 不是 0)就用紅字標示,常見的幾種順便說明原因;按 Ctrl+C 停止(130)只淡淡提示
+  " C++ 的 main 裡 return 1 這類也會走到最後一種,所以不說「出錯」,改說回傳值不是 0
+  let other = &filetype ==# 'cpp' ? '程式結束時回傳的不是 0,例如 main 裡 return 了 1,或程式出錯' : '程式執行時出錯,看上面的錯誤訊息'
   let run .= '; s=$?; why=; case $s in 0) ;;'
         \ . ' 130) printf ''\n\033[2m(已用 Ctrl+C 停止程式)\033[0m\n'' ;;'
         \ . ' 134) why="程式中止了,例如有例外(exception)沒有被處理" ;;'
         \ . ' 136) why="算術錯誤,例如整數除以 0" ;;'
         \ . ' 138|139) why="記憶體存取錯誤,例如陣列索引超出範圍、指標沒有設定好,或遞迴太深" ;;'
-        \ . ' *) why="程式執行時出錯" ;; esac;'
+        \ . ' *) why="' . other . '" ;; esac;'
         \ . ' [ -n "$why" ] && printf ''\n\033[1;31m✗ code is error\033[0m(%s,exit code %s)\n'' "$why" $s'
   call s:ShowInPane(report, run, 1)
 endfunction
@@ -270,6 +272,76 @@ function! s:HasClosingBrace()
   let skip = 'synIDattr(synID(line("."), col("."), 0), "name") =~? "string\\|comment\\|character"'
   let lnum = searchpair('{', '', '}', 'nW', skip)
   return lnum > 0 && indent(lnum) == indent('.')
+endfunction
+
+" ===== 跟 Windows 上的 C++ 編輯器一樣的操作習慣(2026-10-12 加) =====
+" Ctrl+S 存檔、Ctrl+Z 復原、Ctrl+Y 重做
+" (原本 Ctrl+Z 會讓 vim 縮到背景不見,Ctrl+S 在打字時會插入看不見的字元,害程式編譯不過)
+nnoremap <silent> <C-s> :update<CR>
+inoremap <silent> <C-s> <C-o>:update<CR>
+xnoremap <silent> <C-s> <Esc>:update<CR>
+snoremap <silent> <C-s> <Esc>:update<CR>
+nnoremap <C-z> u
+inoremap <C-z> <C-o>u
+xnoremap <C-z> <Esc>u
+snoremap <C-z> <Esc>u
+nnoremap <C-y> <C-r>
+inoremap <C-y> <C-o><C-r>
+
+" 用滑鼠拖曳或 Shift+方向鍵選取文字;選取後直接打字會取代它,Backspace 刪掉(不會被當成 vim 指令)
+set selectmode=mouse,key
+set keymodel=startsel,stopsel
+" 選取範圍跟 Windows 一樣:按幾下 Shift+→ 就選幾個字
+set selection=exclusive
+" 在行首按 ← 跳到上一行結尾,在行尾按 → 跳到下一行開頭
+set whichwrap+=<,>,[,]
+
+" 選取後 Ctrl+C 複製、Ctrl+X 剪下,Ctrl+V 貼上,跟 Mac 的剪貼簿共用(Cmd+V 也可以貼上)
+xnoremap <C-c> "*y
+snoremap <C-c> <C-g>"*y
+xnoremap <C-x> "*d
+snoremap <C-x> <C-g>"*d
+xnoremap <C-v> "_c<C-r><C-o>*
+snoremap <C-v> <C-g>"_c<C-r><C-o>*
+inoremap <C-v> <C-r><C-o>*
+nnoremap <C-v> "*P
+
+" 選取多行後按 Tab / Shift+Tab 整塊增加 / 減少縮排;打字時 Shift+Tab 減少這一行的縮排
+xnoremap <Tab> >gv
+xnoremap <S-Tab> <gv
+snoremap <Tab> <C-g>>gv<C-g>
+snoremap <S-Tab> <C-g><gv<C-g>
+inoremap <S-Tab> <C-d>
+nnoremap <S-Tab> <<
+
+" Ctrl+F 搜尋:打要找的字按 Enter,按 n 找下一個(打字的時候就會先跳過去)
+set incsearch
+nnoremap <C-f> /
+inoremap <C-f> <Esc>/
+
+" 打 ( [ " 自動補上另一半;右邊已經是同一個字時,打 ) ] " 直接跳過去;
+" 在一對空的括號或引號中間按 Backspace,兩個一起刪掉(貼上的程式碼不受影響)
+inoremap ( ()<C-g>U<Left>
+inoremap [ []<C-g>U<Left>
+inoremap <expr> ) <SID>SkipClose(')')
+inoremap <expr> ] <SID>SkipClose(']')
+inoremap <expr> " <SID>Quote()
+inoremap <expr> <BS> <SID>PairBackspace()
+function! s:CharAt(offset)
+  return getline('.')[col('.') - 1 + a:offset]
+endfunction
+function! s:SkipClose(c)
+  return s:CharAt(0) ==# a:c ? "\<C-g>U\<Right>" : a:c
+endfunction
+" 引號:右邊已經是 " 就跳過;左邊是字母、數字、反斜線或引號時(例如 \" 或 """),只打一個
+function! s:Quote()
+  if s:CharAt(0) ==# '"'
+    return "\<C-g>U\<Right>"
+  endif
+  return s:CharAt(-1) =~# '[[:alnum:]_\\"]' ? '"' : "\"\"\<C-g>U\<Left>"
+endfunction
+function! s:PairBackspace()
+  return index(['()', '[]', '""', '{}'], s:CharAt(-1) . s:CharAt(0)) >= 0 ? "\<BS>\<Del>" : "\<BS>"
 endfunction
 
 " ===== 貼上程式碼時縮排不會亂掉(2026-10-11 加) =====
