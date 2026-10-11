@@ -1,11 +1,53 @@
-# ===== codenv:程式練習環境(左 AI 或終端機、右上 vim、右下 F10 執行結果) =====
+# ===== codenv:程式練習環境(vim 寫程式 + F10 執行結果,可選兩格或三格) =====
 # 用法:在任何地方輸入 codenv,用數字選資料夾和檔案
+#       codenv layout      重新選畫面要兩格還是三格(也可以直接打 codenv layout 2 或 3)
 CODENV_ROOT=~/programming_language
-# 左半邊要自動執行的 AI 指令(例如 claude);留空就是普通的終端機
+# 三格時左半邊要自動執行的 AI 指令(例如 claude);留空就是普通的終端機
 CODENV_AI=''
+# 畫面:2 = 左邊寫程式、右邊看結果;3 = 左邊 AI 或終端機、右上寫程式、右下看結果
+# 留空的話,第一次輸入 codenv 時會問,選完記在這裡
+CODENV_LAYOUT=''
+
+# 選畫面要幾格,並記到 ~/.codenv.zsh,下次開 codenv 就照這個排
+_codenv_choose_layout() {
+  local n=$1
+  while [[ $n != [23] ]]; do
+    print ""
+    print "  要用哪一種畫面?"
+    print ""
+    print "   2) 兩格:左邊寫程式、右邊看執行結果(沒有用 AI 的話選這個)"
+    print "   3) 三格:左邊放 AI 或終端機,右上寫程式、右下看執行結果"
+    print ""
+    print "   q) 取消"
+    print ""
+    n=""; read "n?  > " || return 1
+    [[ $n == [qQ] ]] && { print "  已取消"; return 1 }
+    [[ $n == [23] ]] || print "  請輸入 2 或 3"
+  done
+  CODENV_LAYOUT=$n
+  local conf=~/.codenv.zsh
+  if [[ -f $conf ]]; then
+    if grep -q '^CODENV_LAYOUT=' $conf; then
+      sed -i '' "s/^CODENV_LAYOUT=.*/CODENV_LAYOUT=$n/" $conf
+    else
+      print "CODENV_LAYOUT=$n" >> $conf
+    fi
+  fi
+  print "  已設定成$( (( n == 2 )) && print 兩格 || print 三格)。之後想換,輸入 codenv layout"
+}
+
 codenv() {
+  if [[ $1 == layout ]]; then
+    _codenv_choose_layout $2
+    return
+  fi
   local root=$CODENV_ROOT dir file choice name ans i
   local -a dirs files
+  # 第一次使用:先問畫面要幾格
+  if [[ $CODENV_LAYOUT != [23] ]]; then
+    print "\n  第一次使用 codenv,先選畫面的排法。"
+    _codenv_choose_layout || return
+  fi
   [[ -d $root ]] || mkdir -p -- $root
   # 1) 選資料夾
   while true; do
@@ -69,6 +111,7 @@ codenv() {
 }
 
 # 排版面:新開一個 tmux 視窗(不在 tmux 裡就開新的 session)
+# 兩格:左 vim、右執行結果;三格:左 AI 或終端機、右上 vim、右下執行結果
 _codenv_layout() {
   local dir=$1 file=$2 left top
   if [[ -n $TMUX ]]; then
@@ -76,9 +119,16 @@ _codenv_layout() {
   else
     left=$(tmux new-session -d -P -F '#{pane_id}' -c "$dir" -n "${dir:t}") || return
   fi
-  top=$(tmux split-window -h -P -F '#{pane_id}' -t "$left" -c "$dir")
-  tmux split-window -v -d -t "$top" -c "$dir"
-  [[ -n $CODENV_AI ]] && tmux send-keys -t "$left" "$CODENV_AI" Enter
+  if [[ $CODENV_LAYOUT == 2 ]]; then
+    top=$left
+    tmux split-window -h -d -l 40% -t "$left" -c "$dir"
+  else
+    top=$(tmux split-window -h -P -F '#{pane_id}' -t "$left" -c "$dir")
+    tmux split-window -v -d -t "$top" -c "$dir"
+    [[ -n $CODENV_AI ]] && tmux send-keys -t "$left" "$CODENV_AI" Enter
+  fi
+  # 記下這個視窗是幾格,執行結果那格被關掉時 vim 才知道要在哪裡重開
+  tmux set -w -t "$left" @codenv_layout "${CODENV_LAYOUT:-3}"
   if [[ -n $file ]]; then
     tmux send-keys -t "$top" "vim ${(q)file}" Enter
   else

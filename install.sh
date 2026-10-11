@@ -1,7 +1,7 @@
 #!/bin/zsh
 # codenv 安裝 / 更新:複製 vim / tmux 設定,並讓 zsh 認得 codenv 指令
 # 原本就有的設定檔會先備份成 檔名.bak-日期時間,不會直接蓋掉
-# 已經裝過的話,~/.codenv.zsh 裡自己改過的 CODENV_ROOT、CODENV_AI 會保留
+# 已經裝過的話,~/.codenv.zsh 裡自己改過的 CODENV_ROOT、CODENV_AI、CODENV_LAYOUT 會保留
 cd "${0:A:h}" || exit 1
 stamp=$(date +%Y%m%d-%H%M%S)
 
@@ -16,10 +16,10 @@ for f in vimrc tmux.conf; do
   cp $f ~/.$f && print "已安裝 ~/.$f"
 done
 
-# codenv 指令:新版覆蓋前,先記下自己設定過的資料夾位置和 AI 指令,裝好後填回去
+# codenv 指令:新版覆蓋前,先記下自己設定過的資料夾位置、AI 指令和畫面格數,裝好後填回去
 keep=()
 if [[ -e ~/.codenv.zsh ]]; then
-  keep=( ${(f)"$(grep -E '^CODENV_(ROOT|AI)=' ~/.codenv.zsh)"} )
+  keep=( ${(f)"$(grep -E '^CODENV_(ROOT|AI|LAYOUT)=' ~/.codenv.zsh)"} )
 fi
 new=()
 while IFS= read -r line || [[ -n $line ]]; do
@@ -31,7 +31,7 @@ done < codenv.zsh
 if [[ -e ~/.codenv.zsh ]] && [[ "$(print -rl -- "${new[@]}")" == "$(<~/.codenv.zsh)" ]]; then
   print "~/.codenv.zsh 已經是最新版"
 else
-  [[ -e ~/.codenv.zsh ]] && cp ~/.codenv.zsh ~/.codenv.zsh.bak-$stamp && print "已備份原本的 ~/.codenv.zsh → ~/.codenv.zsh.bak-$stamp(你設定的資料夾和 AI 指令會保留)"
+  [[ -e ~/.codenv.zsh ]] && cp ~/.codenv.zsh ~/.codenv.zsh.bak-$stamp && print "已備份原本的 ~/.codenv.zsh → ~/.codenv.zsh.bak-$stamp(你設定的資料夾、AI 指令和畫面格數會保留)"
   print -rl -- "${new[@]}" > ~/.codenv.zsh && print "已安裝 ~/.codenv.zsh"
 fi
 if ! grep -q 'source ~/.codenv.zsh' ~/.zshrc 2>/dev/null; then

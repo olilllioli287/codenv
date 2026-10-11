@@ -145,8 +145,9 @@ endfunction
 function! s:ShowInPane(lines, after, focus)
   let target = trim(system("tmux display -p -t '{bottom-right}' '#{pane_id}'"))
   if target ==# $TMUX_PANE
-    " 右下那格不見了(例如被關掉)就在 vim 下面重開一格,排法跟 codenv 一樣
-    let target = trim(system('tmux split-window -v -d -l 40% -P -F "#{pane_id}"'))
+    " 執行結果那格不見了(例如被關掉)就重開一格,排法跟 codenv 一樣:兩格模式開在右邊,其他開在 vim 下面
+    let side = trim(system('tmux show -wv @codenv_layout')) ==# '2' ? '-h' : '-v'
+    let target = trim(system('tmux split-window ' . side . ' -d -l 40% -P -F "#{pane_id}"'))
   endif
   " trap:按 Ctrl+C 只停掉程式,外面這層 shell 留著,這格才不會跟著消失
   let cmd = 'trap : INT; '
