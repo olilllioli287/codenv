@@ -16,6 +16,16 @@ for f in vimrc tmux.conf; do
   cp $f ~/.$f && print "已安裝 ~/.$f"
 done
 
+# 中文輸入法開著時 Ctrl+A 也能用:編譯切換輸入法的小程式 ~/.codenv-ime(要用第 1 步裝的編譯器;原始碼沒變就不重編)
+if [[ -x ~/.codenv-ime ]] && cmp -s codenv-ime.swift ~/.codenv-ime.swift; then
+  print "~/.codenv-ime 已經是最新版"
+elif command -v swiftc >/dev/null && swiftc -O codenv-ime.swift -o ~/.codenv-ime 2>/dev/null; then
+  cp codenv-ime.swift ~/.codenv-ime.swift
+  print "已安裝 ~/.codenv-ime(中文輸入法開著時,Ctrl+A 也能用)"
+else
+  print "~/.codenv-ime 沒有裝成(需要第 1 步的編譯器):中文輸入法開著時,Ctrl+A 之後改用連按兩次 Ctrl+A 的選單"
+fi
+
 # codenv 指令:新版覆蓋前,先記下自己設定過的資料夾位置、AI 指令和畫面格數,裝好後填回去
 keep=()
 if [[ -e ~/.codenv.zsh ]]; then
