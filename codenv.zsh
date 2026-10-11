@@ -50,10 +50,17 @@ codenv() {
       ("") file=""; break ;;
       (n|N) name=""; read "name?  新檔名(例如 hw1.py、hw1.cpp): "
             [[ -z $name ]] && continue
+            # 沒有副檔名的話 F9、F10 不知道是 C++ 還是 Python,選單也不會列出它
+            if [[ $name != *.* ]]; then
+              print "  檔名要有副檔名,例如 $name.cpp 或 $name.py"
+              continue
+            fi
             file=$name; break ;;
       (<->) if (( choice >= 1 && choice <= $#files )); then file="${files[choice]}"; break; fi
             print "  沒有第 $choice 個檔案" ;;
-      (*)   file=$choice; break ;;  # 直接打檔名(例如 hello.cpp)也可以,沒有的話 vim 會新建
+      # 直接打完整檔名(例如 hello.cpp)也可以,沒有的話會新建;沒有副檔名的多半是打錯字,不要建出空檔案
+      (*.*) file=$choice; break ;;
+      (*)   print "  請輸入檔案前面的數字、n、q,或完整的檔名(例如 hello.cpp)" ;;
     esac
   done
   # 新檔名先建立空檔案,不用等 vim 存檔才出現(已經有的檔案不會被清空)

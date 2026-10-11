@@ -145,9 +145,11 @@ endfunction
 function! s:ShowInPane(lines, after, focus)
   let target = trim(system("tmux display -p -t '{bottom-right}' '#{pane_id}'"))
   if target ==# $TMUX_PANE
-    let target = trim(system('tmux split-window -h -d -l 40% -P -F "#{pane_id}"'))
+    " 右下那格不見了(例如被關掉)就在 vim 下面重開一格,排法跟 codenv 一樣
+    let target = trim(system('tmux split-window -v -d -l 40% -P -F "#{pane_id}"'))
   endif
-  let cmd = ''
+  " trap:按 Ctrl+C 只停掉程式,外面這層 shell 留著,這格才不會跟著消失
+  let cmd = 'trap : INT; '
   if !empty(a:lines)
     " 要印的內容先寫進暫存檔再 cat,顏色才會保留
     let tmp = tempname()
@@ -165,7 +167,17 @@ function! s:ShowInPane(lines, after, focus)
   redraw!
 endfunction
 
+" 還沒有檔名(例如 codenv 選「先不開檔案」)就沒辦法存檔,先提醒怎麼取名
+function! s:NeedName()
+  if !empty(expand('%'))
+    return 0
+  endif
+  echohl WarningMsg | echo '還沒有檔名:先輸入 :w 檔名 存檔(例如 :w hw1.cpp 或 :w hw1.py),再按 F9 / F10' | echohl None
+  return 1
+endfunction
+
 function! CheckCode()
+  if s:NeedName() | return | endif
   write
   if &filetype !=# 'cpp' && &filetype !=# 'python'
     echo 'F9 檢查只支援 .cpp 和 .py 檔(已存檔)'
@@ -181,6 +193,7 @@ function! CheckCode()
 endfunction
 
 function! RunCode()
+  if s:NeedName() | return | endif
   write
   if &filetype !=# 'cpp' && &filetype !=# 'python'
     echo 'F10 只支援 .cpp 和 .py 檔'
@@ -204,8 +217,14 @@ function! RunCode()
     return
   endif
   let report = empty(msg) ? [] : s:Report(0, msg) + [s:dim . '──────── 開始執行 ────────' . s:reset]
-  " 程式不是正常結束(exit code 不是 0)就用紅字標示;按 Ctrl+C 中斷(130)不算
-  let run .= '; s=$?; [ $s -ne 0 ] && [ $s -ne 130 ] && printf ''\n\033[1;31m✗ code is error\033[0m(程式執行時出錯,exit code %s)\n'' $s'
+  " 程式不是正常結束(exit code 不是 0)就用紅字標示,常見的幾種順便說明原因;按 Ctrl+C 停止(130)只淡淡提示
+  let run .= '; s=$?; why=; case $s in 0) ;;'
+        \ . ' 130) printf ''\n\033[2m(已用 Ctrl+C 停止程式)\033[0m\n'' ;;'
+        \ . ' 134) why="程式中止了,例如有例外(exception)沒有被處理" ;;'
+        \ . ' 136) why="算術錯誤,例如整數除以 0" ;;'
+        \ . ' 138|139) why="記憶體存取錯誤,例如陣列索引超出範圍、指標沒有設定好,或遞迴太深" ;;'
+        \ . ' *) why="程式執行時出錯" ;; esac;'
+        \ . ' [ -n "$why" ] && printf ''\n\033[1;31m✗ code is error\033[0m(%s,exit code %s)\n'' "$why" $s'
   call s:ShowInPane(report, run, 1)
 endfunction
 
