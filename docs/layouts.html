@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<style>
+:root {
+  --page: #0f1217;
+  --frame: #1a1f27;
+  --term: #11151b;
+  --line: #2c3440;
+  --fg: #d8dee6;
+  --dim: #6b7685;
+  --num: #4b5563;
+  --kw: #c792ea;
+  --str: #9fdc8f;
+  --typ: #82aaff;
+  --ok: #58e790;
+  --chip: #2f6fed;
+  --chip-ai: #b06ae0;
+  --chip-run: #1f9d63;
+  --mono: "SF Mono", Menlo, monospace;
+  --sans: "PingFang TC", "Hiragino Sans GB", sans-serif;
+}
+* { box-sizing: border-box; margin: 0; }
+body { background: var(--page); font-family: var(--sans); color: var(--fg); width: 1200px; padding: 28px 32px 32px; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; }
+.col { display: grid; gap: 14px; }
+.title { font-size: 22px; font-weight: 700; display: flex; align-items: baseline; gap: 10px; }
+.title small { font-size: 15px; font-weight: 500; color: var(--dim); }
+.win { background: var(--frame); border-radius: 12px; padding: 10px; border: 1px solid var(--line); }
+.bar { display: flex; gap: 7px; padding: 2px 4px 10px; }
+.bar i { width: 11px; height: 11px; border-radius: 50%; background: #ff5f57; }
+.bar i:nth-child(2) { background: #febc2e; } .bar i:nth-child(3) { background: #28c840; }
+.screen { height: 330px; display: grid; gap: 3px; background: var(--line); border-radius: 6px; overflow: hidden; }
+.two { grid-template-columns: 3fr 2fr; }
+.three { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+.three .ai { grid-row: 1 / 3; }
+.pane div { white-space: pre; }
+.pane { background: var(--term); padding: 10px 12px; font: 13px/1.6 var(--mono); position: relative; overflow: hidden; }
+.chip { position: absolute; right: 10px; bottom: 10px; font: 700 14px var(--sans); color: #fff; background: var(--chip); padding: 4px 10px; border-radius: 6px; }
+.ai .chip { background: var(--chip-ai); } .run .chip { background: var(--chip-run); }
+.n { color: var(--num); display: inline-block; width: 22px; }
+.k { color: var(--kw); } .s { color: var(--str); } .t { color: var(--typ); }
+.d { color: var(--dim); } .ok { color: var(--ok); font-weight: 700; } .p { color: var(--ok); }
+</style></head><body>
+<div class="row">
+  <div class="col">
+    <div class="title">兩格 <small>沒有用 AI 的話選這個</small></div>
+    <div class="win"><div class="bar"><i></i><i></i><i></i></div>
+      <div class="screen two">
+        <div class="pane vim">
+          <div><span class="n">1</span><span class="k">#include</span> <span class="s">&lt;iostream&gt;</span></div>
+          <div><span class="n">2</span><span class="k">using namespace</span> std;</div>
+          <div><span class="n">3</span><span class="t">int</span> main()</div>
+          <div><span class="n">4</span>{</div>
+          <div><span class="n">5</span>    cout &lt;&lt; <span class="s">"Hello C++"</span> &lt;&lt; endl;</div>
+          <div><span class="n">6</span>    <span class="k">return</span> 0;</div>
+          <div><span class="n">7</span>}</div>
+          <span class="chip">vim 寫程式</span>
+        </div>
+        <div class="pane run">
+          <div>Hello C++</div>
+          <div><span class="p">%</span></div>
+          <span class="chip">F10 執行結果</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="title">三格 <small>左邊多一格放 AI 或終端機</small></div>
+    <div class="win"><div class="bar"><i></i><i></i><i></i></div>
+      <div class="screen three">
+        <div class="pane ai">
+          <div><span class="p">%</span> claude</div>
+          <div class="d">&gt; 第 5 行為什麼有錯？</div>
+          <div class="d">…</div>
+          <span class="chip">AI 或終端機</span>
+        </div>
+        <div class="pane vim">
+          <div><span class="n">1</span><span class="k">#include</span> <span class="s">&lt;iostream&gt;</span></div>
+          <div><span class="n">2</span><span class="k">using namespace</span> std;</div>
+          <div><span class="n">3</span><span class="t">int</span> main()</div>
+          <div><span class="n">4</span>{</div>
+          <div><span class="n">5</span>    cout &lt;&lt; <span class="s">"Hello"</span>;</div>
+          <span class="chip">vim 寫程式</span>
+        </div>
+        <div class="pane run">
+          <div>Hello</div>
+          <div><span class="p">%</span></div>
+          <span class="chip">F10 執行結果</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body></html>
