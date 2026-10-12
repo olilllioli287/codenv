@@ -1,6 +1,6 @@
 codenv 程式練習環境(macOS)
 vim 寫程式、按 F10 看執行結果;畫面可選兩格或三格(三格多一格放 AI 或終端機)
-圖文版安裝手冊:https://claude.ai/artifact/5K4MCZhcnMFUFyY8qmifeb
+圖文版網站:https://olilllioli287.github.io/codenv/
 GitHub:https://github.com/olilllioli287/codenv
 
 

@@ -10,7 +10,7 @@ macOS 上寫 C++ / Python 作業用的終端機環境。輸入 `codenv` 選好�
 - 打 `(` `[` `"` 自動補上另一半，`{` 再按 Enter 自動補上 `}`；貼上程式碼縮排不會亂
 - 執行檔放在旁邊的 `bin` 資料夾，跟程式碼分開
 
-圖文版安裝手冊：https://claude.ai/artifact/5K4MCZhcnMFUFyY8qmifeb
+圖文版網站：https://olilllioli287.github.io/codenv/ （純文字版給 AI 讀：[docs/guide.md](docs/guide.md)）
 純文字版（可以下載離線看）：[說明.txt](說明.txt)
 
 ## 安裝
