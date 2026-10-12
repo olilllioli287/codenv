@@ -172,6 +172,8 @@ Release Notes
 
 - 【修正】用 Ctrl+A 選單把 vim 那格放大後按 F9 / F10，結果原本會開在新的一格，每按一次多一格。現在會先還原，結果照樣顯示在原本那格。
 
+- 【新功能】跟 Windows 一樣用 Ctrl+Z 結束輸入（例如 `while (cin >> x)` 一直讀數字的迴圈）。Mac 上原本要按 Ctrl+D，按 Ctrl+Z 程式會一直等；現在在執行結果那格按 Ctrl+Z 會自動換成 Ctrl+D。
+
 - 【修正】在執行結果那格或命令列按 Ctrl+S（Windows 的存檔習慣），終端機會停止輸出，看起來像當掉（要按 Ctrl+Q 才恢復）。現在只有 vim 會收到 Ctrl+S，其他格按下去會顯示「要存程式請回到 vim 按 Ctrl+S」。
 
 - 【改進】F10 出現英文的 `Undefined symbols`（連結錯誤）時，下面用中文說明：`main` 打錯字（例如 `mian`），或是哪個函式只有宣告、沒有寫出內容。
@@ -550,6 +552,10 @@ FAQ
 **問：** 程式停不下來，一直印東西
 
 在執行結果那格按 [Ctrl]+[C] 停止程式，會出現「已用 Ctrl+C 停止程式」。通常是迴圈的條件永遠成立，例如 `for` 的第二格寫錯。
+
+**問：** 程式一直在讀輸入，要怎麼告訴它「輸入完了」
+
+例如 `while (cin >> x)` 或 Python 的 `for line in sys.stdin`。輸入完最後一筆按 [Enter]，再按 [Ctrl]+[Z]（跟 Windows 一樣；Mac 原本的按法是 [Ctrl]+[D]，兩個都可以）。
 
 **問：** 執行結果那格不見了
 
@@ -1020,6 +1026,7 @@ codenv 沒有用 TPM 之類的第三方外掛，全部的改動都寫在 `~/.tmu
 | 捲動模式的按鍵 | emacs 風格 | vi 風格（跟 vim 一樣用 h j k l） |
 | 狀態列 | 綠色，右邊有時鐘 | 黑底，左邊藍底顯示工作階段名稱；分頁名稱不會自動改掉 |
 | Esc | 直接傳給程式 | 在執行結果那格按 Esc 跳回 vim（`@cpprun` / `@cppvim`；vim 那格不在了就照常送出），其他格子照常 |
+| Ctrl+Z | 傳給程式 | 在執行結果那格、程式還在跑時換成 Ctrl+D（結束輸入，跟 Windows 的 Ctrl+Z 一樣） |
 | Ctrl+S | 傳給程式（終端機會停止輸出，Ctrl+Q 才恢復） | 只傳給 vim、Claude 等編輯器；其他格顯示中文說明 |
 | Home / End | 直接傳給程式 | 轉成 Ctrl+A / Ctrl+E，vim 和命令列都會跳到行首 / 行尾 |
 | Ctrl+Enter 這類組合鍵 | 不一定傳得到 | 開啟延伸按鍵（`extended-keys on`），給 Claude Code 用 |
