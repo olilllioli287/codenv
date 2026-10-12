@@ -1029,7 +1029,7 @@ int main()
           <li><code>get.sh</code> 從 GitHub 下載 main 分支的壓縮檔，解到 <code>~/.codenv-kit</code>（舊的會先移除），再執行裡面的 <code>install.sh</code>。</li>
           <li><code>install.sh</code> 比對 <code>vimrc</code>、<code>tmux.conf</code>：內容一樣就跳過，不一樣就先備份再覆蓋。</li>
           <li>用 <code>swiftc</code> 編譯 <code>codenv-ime.swift</code>；原始碼沒變就不重編，沒有編譯器就跳過（其他功能不受影響）。</li>
-          <li>把 <code>compat/</code> 複製到 <code>~/.codenv-compat</code>（內容一樣就跳過）。</li>
+          <li>把 <code>compat/</code> 複製成 <code>~/.codenv-compat</code>（內容一樣就跳過；不一樣就整個資料夾換成新版，新版刪掉的檔案不會留下來）。</li>
           <li>安裝新的 <code>codenv.zsh</code> 前，先讀出舊檔裡的 <code>CODENV_ROOT</code>、<code>CODENV_AI</code>、<code>CODENV_LAYOUT</code>，裝好後填回去。</li>
           <li>tmux 正在執行的話，直接 <code>source-file</code> 載入新設定。</li>
         </ol>

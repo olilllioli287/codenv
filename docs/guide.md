@@ -970,7 +970,7 @@ Technical Docs
 
 - 用 `swiftc` 編譯 `codenv-ime.swift`；原始碼沒變就不重編，沒有編譯器就跳過（其他功能不受影響）。
 
-- 把 `compat/` 複製到 `~/.codenv-compat`（內容一樣就跳過）。
+- 把 `compat/` 複製成 `~/.codenv-compat`（內容一樣就跳過；不一樣就整個資料夾換成新版，新版刪掉的檔案不會留下來）。
 
 - 安裝新的 `codenv.zsh` 前，先讀出舊檔裡的 `CODENV_ROOT`、`CODENV_AI`、`CODENV_LAYOUT`，裝好後填回去。
 
