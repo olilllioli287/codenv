@@ -282,7 +282,8 @@ function! RunCode()
   " 程式不是正常結束(exit code 不是 0)就用紅字標示,常見的幾種順便說明原因;按 Ctrl+C 停止(130)只淡淡提示
   " C++ 的 main 裡 return 1 這類也會走到最後一種,所以不說「出錯」,改說回傳值不是 0
   let other = &filetype ==# 'cpp' ? '程式結束時回傳的不是 0,例如 main 裡 return 了 1,或程式出錯' : '程式執行時出錯,看上面的錯誤訊息'
-  let run .= '; s=$?; why=; case $s in 0) ;;'
+  " 程式用 system("color") 換過文字顏色的話,結束後換回來
+  let run .= '; s=$?; printf ''\033[0m''; why=; case $s in 0) ;;'
         \ . ' 130) printf ''\n\033[2m(已用 Ctrl+C 停止程式)\033[0m\n'' ;;'
         \ . ' 134) why="程式中止了,例如有例外(exception)沒有被處理" ;;'
         \ . ' 136) why="算術錯誤,例如整數除以 0" ;;'

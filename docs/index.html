@@ -344,6 +344,7 @@ footer { border-top: 1px solid var(--line); }
         <li><span class="tag fix">修正</span>Apple Silicon 的 Mac 上，整數除以 0 不會當掉，只會默默得到錯的答案（Windows 會當掉）。現在 F10 執行時會停下來，印出 <code>runtime error: division by zero</code> 和第幾行。固定大小的陣列索引超出範圍（例如 <code>int a[3]</code> 用到 <code>a[5]</code>）也一樣。整數溢位照常跑，跟 Windows 一樣。</li>
         <li><span class="tag fix">修正</span>用 Ctrl+A 選單把 vim 那格放大後按 F9 / F10，結果原本會開在新的一格，每按一次多一格。現在會先還原，結果照樣顯示在原本那格。</li>
         <li><span class="tag new">新功能</span><code>#include &lt;conio.h&gt;</code> 也能用了：<code>getch()</code>（按一個鍵就繼續，不用按 Enter）、<code>getche()</code>、<code>kbhit()</code>、<code>clrscr()</code> 跟 Windows 一樣。方向鍵這類特殊鍵送出的代碼跟 Windows 不同。</li>
+        <li><span class="tag new">新功能</span><code>system("color 0A")</code> 會換文字顏色（背景不換），程式結束後自動換回來；<code>system("title …")</code> 不再出現 command not found。</li>
         <li><span class="tag new">新功能</span>跟 Windows 一樣用 Ctrl+Z 結束輸入（例如 <code>while (cin &gt;&gt; x)</code> 一直讀數字的迴圈）。Mac 上原本要按 Ctrl+D，按 Ctrl+Z 程式會一直等；現在在執行結果那格按 Ctrl+Z 會自動換成 Ctrl+D。</li>
         <li><span class="tag fix">修正</span>在執行結果那格或命令列按 Ctrl+S（Windows 的存檔習慣），終端機會停止輸出，看起來像當掉（要按 Ctrl+Q 才恢復）。現在只有 vim 會收到 Ctrl+S，其他格按下去會顯示「要存程式請回到 vim 按 Ctrl+S」。</li>
         <li><span class="tag fix">改進</span>F10 出現英文的 <code>Undefined symbols</code>（連結錯誤）時，下面用中文說明：<code>main</code> 打錯字（例如 <code>mian</code>），或是哪個函式只有宣告、沒有寫出內容。</li>
@@ -655,7 +656,7 @@ int main()
         <details><summary>老師給的程式（Windows 寫的）在 Mac 上不能跑</summary><div>
           <p><code>#include &lt;bits/stdc++.h&gt;</code>、<code>system("pause")</code>、<code>system("cls")</code> 在 codenv 裡跟 Windows 一樣能用（要更新到最新版）。<code>pause</code> 會顯示「請按任意鍵繼續 . . .」，在執行結果那格按任意鍵繼續。</p>
           <p>打開時中文是一堆亂碼的話，更新到最新版再打開：codenv 認得 Windows 的 Big5 編碼，會正常顯示，按 <kbd>Ctrl</kbd>+<kbd>S</kbd> 或 F9 / F10 存檔時轉成 Mac 用的格式。</p>
-          <p><code>conio.h</code> 的 <code>getch()</code>、<code>kbhit()</code> 在 codenv 裡也能用（要更新到最新版）。<code>windows.h</code>（<code>Sleep()</code> 等）是 Windows 才有的，Mac 上沒有；按 F9 時錯誤訊息下面會用黃字說明要改成什麼。</p>
+          <p><code>system("color 0A")</code> 會換文字顏色，<code>system("title …")</code> 不會出錯。<code>conio.h</code> 的 <code>getch()</code>、<code>kbhit()</code> 在 codenv 裡也能用（要更新到最新版）。<code>windows.h</code>（<code>Sleep()</code> 等）是 Windows 才有的，Mac 上沒有；按 F9 時錯誤訊息下面會用黃字說明要改成什麼。</p>
         </div></details>
         <details><summary>選檔案時打了檔名，它說「請輸入檔案前面的數字…」</summary><div>
           <p>檔名要有副檔名，例如 <code>hw1.cpp</code> 或 <code>hw1.py</code>。沒有副檔名的話，F9、F10 不知道該用 C++ 還是 Python。</p>
@@ -1015,7 +1016,7 @@ int main()
             <tr><td><code>~/.codenv.zsh</code></td><td><code>codenv</code> 指令本體，以及 <code>CODENV_ROOT</code>、<code>CODENV_AI</code>、<code>CODENV_LAYOUT</code> 三個設定</td></tr>
             <tr><td><code>~/.zshrc</code></td><td>加上一行 <code>source ~/.codenv.zsh</code>，讓終端機認得 codenv</td></tr>
             <tr><td><code>~/.codenv-ime</code></td><td>切換輸入法的小程式（安裝時從 <code>codenv-ime.swift</code> 編譯），原始碼副本在 <code>~/.codenv-ime.swift</code></td></tr>
-            <tr><td><code>~/.codenv-compat/</code></td><td>讓 Windows 寫的程式也能跑：<code>include/bits/stdc++.h</code>、<code>include/conio.h</code>（<code>getch()</code>、<code>kbhit()</code>）、讓輸出馬上顯示的 <code>include/codenv-unbuffered.h</code>，以及 <code>system("pause")</code>、<code>system("cls")</code> 用到的 <code>bin/pause</code>、<code>bin/cls</code></td></tr>
+            <tr><td><code>~/.codenv-compat/</code></td><td>讓 Windows 寫的程式也能跑：<code>include/bits/stdc++.h</code>、<code>include/conio.h</code>（<code>getch()</code>、<code>kbhit()</code>）、讓輸出馬上顯示的 <code>include/codenv-unbuffered.h</code>，以及 <code>system("pause")</code>、<code>system("cls")</code>、<code>system("color …")</code>、<code>system("title …")</code> 用到的 <code>bin/pause</code>、<code>bin/cls</code>、<code>bin/color</code>、<code>bin/title</code></td></tr>
             <tr><td><code>~/.vimrc.local</code>、<code>~/.tmux.conf.local</code></td><td>自己的設定（自己建立；codenv 不會動到）</td></tr>
             <tr><td><code>~/.codenv-kit/</code></td><td>一行安裝下載的完整安裝包，iTerm 配色檔也在這裡</td></tr>
           </tbody>

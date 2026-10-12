@@ -174,6 +174,8 @@ Release Notes
 
 - 【新功能】`#include <conio.h>` 也能用了：`getch()`（按一個鍵就繼續，不用按 Enter）、`getche()`、`kbhit()`、`clrscr()` 跟 Windows 一樣。方向鍵這類特殊鍵送出的代碼跟 Windows 不同。
 
+- 【新功能】`system("color 0A")` 會換文字顏色（背景不換），程式結束後自動換回來；`system("title …")` 不再出現 command not found。
+
 - 【新功能】跟 Windows 一樣用 Ctrl+Z 結束輸入（例如 `while (cin >> x)` 一直讀數字的迴圈）。Mac 上原本要按 Ctrl+D，按 Ctrl+Z 程式會一直等；現在在執行結果那格按 Ctrl+Z 會自動換成 Ctrl+D。
 
 - 【修正】在執行結果那格或命令列按 Ctrl+S（Windows 的存檔習慣），終端機會停止輸出，看起來像當掉（要按 Ctrl+Q 才恢復）。現在只有 vim 會收到 Ctrl+S，其他格按下去會顯示「要存程式請回到 vim 按 Ctrl+S」。
@@ -573,7 +575,7 @@ FAQ
 
 打開時中文是一堆亂碼的話，更新到最新版再打開：codenv 認得 Windows 的 Big5 編碼，會正常顯示，按 [Ctrl]+[S] 或 F9 / F10 存檔時轉成 Mac 用的格式。
 
-`conio.h` 的 `getch()`、`kbhit()` 在 codenv 裡也能用（要更新到最新版）。`windows.h`（`Sleep()` 等）是 Windows 才有的，Mac 上沒有；按 F9 時錯誤訊息下面會用黃字說明要改成什麼。
+`system("color 0A")` 會換文字顏色，`system("title …")` 不會出錯。`conio.h` 的 `getch()`、`kbhit()` 在 codenv 裡也能用（要更新到最新版）。`windows.h`（`Sleep()` 等）是 Windows 才有的，Mac 上沒有；按 F9 時錯誤訊息下面會用黃字說明要改成什麼。
 
 **問：** 選檔案時打了檔名，它說「請輸入檔案前面的數字…」
 
@@ -954,7 +956,7 @@ Technical Docs
 | `~/.codenv.zsh` | `codenv` 指令本體，以及 `CODENV_ROOT`、`CODENV_AI`、`CODENV_LAYOUT` 三個設定 |
 | `~/.zshrc` | 加上一行 `source ~/.codenv.zsh`，讓終端機認得 codenv |
 | `~/.codenv-ime` | 切換輸入法的小程式（安裝時從 `codenv-ime.swift` 編譯），原始碼副本在 `~/.codenv-ime.swift` |
-| `~/.codenv-compat/` | 讓 Windows 寫的程式也能跑：`include/bits/stdc++.h`、`include/conio.h`（`getch()`、`kbhit()`）、讓輸出馬上顯示的 `include/codenv-unbuffered.h`，以及 `system("pause")`、`system("cls")` 用到的 `bin/pause`、`bin/cls` |
+| `~/.codenv-compat/` | 讓 Windows 寫的程式也能跑：`include/bits/stdc++.h`、`include/conio.h`（`getch()`、`kbhit()`）、讓輸出馬上顯示的 `include/codenv-unbuffered.h`，以及 `system("pause")`、`system("cls")`、`system("color …")`、`system("title …")` 用到的 `bin/pause`、`bin/cls`、`bin/color`、`bin/title` |
 | `~/.vimrc.local`、`~/.tmux.conf.local` | 自己的設定（自己建立；codenv 不會動到） |
 | `~/.codenv-kit/` | 一行安裝下載的完整安裝包，iTerm 配色檔也在這裡 |
 
