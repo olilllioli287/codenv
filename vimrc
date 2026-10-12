@@ -55,7 +55,7 @@ function! s:Compile(compile)
   let mkbin = a:compile ? 'mkdir -p bin && ' : ''
   let msg = system(cd . mkbin . 'g++ -std=c++17 -Wall' . s:compat_inc . color . ' ' . src . output . ' 2>&1')
   let err = v:shell_error
-  return [err, s:OnlyMyFile(msg, err) . s:WindowsOnly(msg)]
+  return [err, s:OnlyMyFile(msg, err) . s:WindowsOnly(msg) . s:LinkHint(msg)]
 endfunction
 
 " 編譯器的訊息裡只留下跟自己檔案有關的部分
@@ -108,6 +108,22 @@ function! s:WindowsOnly(msg)
       let out .= "\n" . s:yellow . '→ ' . hint . s:reset
     endif
   endfor
+  return out
+endfunction
+
+" 連結錯誤(Undefined symbols)全是英文,用中文說是哪個函式找不到內容(2026-10-12 加)
+function! s:LinkHint(msg)
+  if a:msg !~# 'Undefined symbols'
+    return ''
+  endif
+  let out = ''
+  if a:msg =~# '"_main", referenced from'
+    let out .= "\n" . s:yellow . '→ 找不到 main:檢查 int main() 有沒有打錯字(例如 mian、Main)' . s:reset
+  endif
+  let names = filter(map(split(a:msg, "\n"), 'matchstr(v:val, ''^\s*"\zs[^"]*\ze", referenced from'')'), '!empty(v:val) && v:val !=# "_main"')
+  if !empty(names)
+    let out .= "\n" . s:yellow . '→ ' . join(names, '、') . ' 只有宣告、沒有寫出內容,或是名字、參數跟宣告的不一樣' . s:reset
+  endif
   return out
 endfunction
 
