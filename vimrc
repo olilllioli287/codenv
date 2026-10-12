@@ -21,6 +21,14 @@ let s:green = "\e[1;32m"
 let s:dim = "\e[2m"
 let s:reset = "\e[0m"
 
+" Windows(Dev-C++ 等)寫的程式在 Mac 上也能跑(2026-10-12 加,install.sh 會裝到 ~/.codenv-compat):
+"   include/bits/stdc++.h  讓 #include <bits/stdc++.h> 能編譯
+"   bin/pause、bin/cls     讓 system("pause")、system("cls") 跟 Windows 一樣
+"   include/codenv-unbuffered.h  輸出不等換行就馬上顯示(跟 Windows 一樣,程式當掉前印的字也看得到)
+let s:compat = expand('~/.codenv-compat')
+let s:compat_inc = isdirectory(s:compat . '/include') ? ' -I ' . shellescape(s:compat . '/include') . ' -include codenv-unbuffered.h' : ''
+let s:compat_path = 'PYTHONUNBUFFERED=1 ' . (isdirectory(s:compat . '/bin') ? 'PATH=' . shellescape(s:compat . '/bin') . ':"$PATH" ' : '')
+
 " 檢查程式有沒有錯(compile 為 1 時順便產生執行檔),回傳 [有沒有錯, 錯誤訊息]
 " 在檔案所在的資料夾執行,錯誤訊息只會顯示檔名,不會是一長串路徑
 " 錯在哪裡會在 vim 裡畫底線(錯誤紅色、警告黃色),見下面的 s:Mark
@@ -39,9 +47,9 @@ function! s:Compile(compile)
   " 執行檔放到旁邊的 bin 資料夾,跟程式碼分開(2026-10-11 改;沒有 bin 會自動建)
   let output = a:compile ? ' -o ' . shellescape('bin/' . expand('%:t:r')) : ' -fsyntax-only'
   let mkbin = a:compile ? 'mkdir -p bin && ' : ''
-  let msg = system(cd . mkbin . 'g++ -std=c++17 -Wall' . color . ' ' . src . output . ' 2>&1')
+  let msg = system(cd . mkbin . 'g++ -std=c++17 -Wall' . s:compat_inc . color . ' ' . src . output . ' 2>&1')
   let err = v:shell_error
-  return [err, s:OnlyMyFile(msg, err)]
+  return [err, s:OnlyMyFile(msg, err) . s:WindowsOnly(msg)]
 endfunction
 
 " 編譯器的訊息裡只留下跟自己檔案有關的部分
@@ -80,6 +88,21 @@ function! s:OnlyMyFile(msg, err)
   endif
   call s:Mark(marks)
   return join(lines, "\n")
+endfunction
+
+" 用到 Windows 才有的檔案(Mac 上沒有)時,多一行中文說明要怎麼改
+function! s:WindowsOnly(msg)
+  let hints = {
+        \ 'conio.h': 'conio.h 是 Windows 才有的。getch() 可以改成 cin.get()(要按 Enter);清畫面用 system("cls")',
+        \ 'windows.h': 'windows.h 是 Windows 才有的。Sleep(毫秒) 可以改成 this_thread::sleep_for(chrono::milliseconds(毫秒)),要 #include <thread>',
+        \ }
+  let out = ''
+  for [name, hint] in items(hints)
+    if a:msg =~# "'" . escape(name, '.') . "' file not found"
+      let out .= "\n" . s:yellow . '→ ' . hint . s:reset
+    endif
+  endfor
+  return out
 endfunction
 
 " 在 vim 裡把出錯的地方畫底線:marks 是 [[行, 字, 是不是錯誤], ...]
@@ -201,10 +224,10 @@ function! RunCode()
     return
   endif
   let out = expand('%:p:h') . '/bin/' . expand('%:t:r')
-  let run = &filetype ==# 'python' ? 'python3 ' . shellescape(expand('%:p')) : shellescape(out)
+  let run = s:compat_path . (&filetype ==# 'python' ? 'python3 ' . shellescape(expand('%:p')) : shellescape(out))
   if empty($TMUX)
     if &filetype ==# 'cpp'
-      execute '!clear && mkdir -p ' . shellescape(expand('%:p:h') . '/bin', 1) . ' && g++ -std=c++17 -Wall ' . shellescape(expand('%:p'), 1) . ' -o ' . shellescape(out, 1) . ' && ' . shellescape(out, 1)
+      execute '!clear && mkdir -p ' . shellescape(expand('%:p:h') . '/bin', 1) . ' && g++ -std=c++17 -Wall' . escape(s:compat_inc, '%#!') . ' ' . shellescape(expand('%:p'), 1) . ' -o ' . shellescape(out, 1) . ' && ' . escape(s:compat_path, '%#!') . shellescape(out, 1)
     else
       execute '!clear && ' . escape(run, '%#!')
     endif

@@ -254,6 +254,7 @@ footer { border-top: 1px solid var(--line); }
 已安裝 ~/.vimrc
 已安裝 ~/.tmux.conf
 已安裝 ~/.codenv-ime(中文輸入法開著時,Ctrl+A 也能用)
+已安裝 ~/.codenv-compat(Windows 寫的程式也能跑,例如 bits/stdc++.h、system("pause"))
 已安裝 ~/.codenv.zsh
 已在 ~/.zshrc 加上 source ~/.codenv.zsh
 
@@ -335,6 +336,18 @@ footer { border-top: 1px solid var(--line); }
     <h1>發行日誌</h1>
     <p class="lede">每次更新多了什麼、修了什麼。想更新到最新版，看<a href="#dl-update">下載頁的更新</a>。</p>
   </div>
+  <article class="release" id="log-1012d">
+    <time>2026-10-12</time>
+    <div class="body">
+      <h2>Windows 寫的程式也能跑</h2>
+      <ul>
+        <li><span class="tag new">新功能</span><code>#include &lt;bits/stdc++.h&gt;</code> 在 Mac 上也能編譯（Dev-C++、Code::Blocks 常用，Mac 的編譯器原本沒有）。</li>
+        <li><span class="tag new">新功能</span><code>system("pause")</code> 跟 Windows 一樣顯示「請按任意鍵繼續 . . .」並等你按鍵；<code>system("cls")</code> 會清除畫面。原本會出現英文的 command not found。</li>
+        <li><span class="tag fix">改進</span>程式的輸出不等換行就馬上顯示：<code>cout</code> 後面沒接 <code>endl</code> 的字不會跑到「請按任意鍵繼續」後面，程式當掉前印的字也看得到。</li>
+        <li><span class="tag fix">改進</span>用到 <code>conio.h</code>、<code>windows.h</code> 這些 Windows 才有的檔案時，錯誤訊息下面用中文說明要改成什麼。</li>
+      </ul>
+    </div>
+  </article>
   <article class="release" id="log-1012c">
     <time>2026-10-12</time>
     <div class="body">
@@ -503,6 +516,7 @@ eval "$(/opt/homebrew/bin/brew shellenv zsh)"</pre><button type="button">複製<
 <pre class="out">已安裝 ~/.vimrc
 已安裝 ~/.tmux.conf
 已安裝 ~/.codenv-ime(中文輸入法開著時,Ctrl+A 也能用)
+已安裝 ~/.codenv-compat(Windows 寫的程式也能跑,例如 bits/stdc++.h、system("pause"))
 已安裝 ~/.codenv.zsh
 已在 ~/.zshrc 加上 source ~/.codenv.zsh
 
@@ -604,6 +618,10 @@ int main()
         </div></details>
         <details><summary>出現紅字 code is error，後面還有 exit code</summary><div>
           <p>代表程式有執行，但不是正常結束。常見的幾種在<a href="#manual-exit">使用手冊</a>有對照表，例如 139 是記憶體存取錯誤（陣列索引超出範圍、指標沒設定好）。</p>
+        </div></details>
+        <details><summary>老師給的程式（Windows 寫的）在 Mac 上不能跑</summary><div>
+          <p><code>#include &lt;bits/stdc++.h&gt;</code>、<code>system("pause")</code>、<code>system("cls")</code> 在 codenv 裡跟 Windows 一樣能用（要更新到最新版）。<code>pause</code> 會顯示「請按任意鍵繼續 . . .」，在執行結果那格按任意鍵繼續。</p>
+          <p><code>conio.h</code>（<code>getch()</code>）和 <code>windows.h</code>（<code>Sleep()</code>）是 Windows 才有的，Mac 上沒有。按 F9 時錯誤訊息下面會用黃字說明要改成什麼。</p>
         </div></details>
         <details><summary>選檔案時打了檔名，它說「請輸入檔案前面的數字…」</summary><div>
           <p>檔名要有副檔名，例如 <code>hw1.cpp</code> 或 <code>hw1.py</code>。沒有副檔名的話，F9、F10 不知道該用 C++ 還是 Python。</p>
@@ -922,7 +940,7 @@ int main()
       <div class="block" id="manual-uninstall">
         <h2><span class="no">14</span>解除安裝</h2>
         <p>下面的做法是把 codenv 的檔案搬到家目錄的 <code>codenv-removed</code> 資料夾，不是直接刪除，想恢復時再搬回來就好。</p>
-        <div class="cmd"><pre>mkdir -p ~/codenv-removed &amp;&amp; mv ~/.codenv.zsh ~/.codenv-ime ~/.codenv-ime.swift ~/.codenv-kit ~/codenv-removed/</pre><button type="button">複製</button></div>
+        <div class="cmd"><pre>mkdir -p ~/codenv-removed &amp;&amp; mv ~/.codenv.zsh ~/.codenv-ime ~/.codenv-ime.swift ~/.codenv-compat ~/.codenv-kit ~/codenv-removed/</pre><button type="button">複製</button></div>
         <ol>
           <li>執行 <code>open -e ~/.zshrc</code>，刪掉 <code># codenv 程式練習環境</code> 和 <code>source ~/.codenv.zsh</code> 這兩行，存檔。</li>
           <li><code>~/.vimrc</code> 和 <code>~/.tmux.conf</code> 想換回安裝前的樣子，照<a href="#manual-restore">換回舊版設定</a>把最早的那份備份複製回來；安裝前本來沒有的話，可以把它們也搬進 <code>codenv-removed</code>。</li>
@@ -963,6 +981,7 @@ int main()
             <tr><td><code>~/.codenv.zsh</code></td><td><code>codenv</code> 指令本體，以及 <code>CODENV_ROOT</code>、<code>CODENV_AI</code>、<code>CODENV_LAYOUT</code> 三個設定</td></tr>
             <tr><td><code>~/.zshrc</code></td><td>加上一行 <code>source ~/.codenv.zsh</code>，讓終端機認得 codenv</td></tr>
             <tr><td><code>~/.codenv-ime</code></td><td>切換輸入法的小程式（安裝時從 <code>codenv-ime.swift</code> 編譯），原始碼副本在 <code>~/.codenv-ime.swift</code></td></tr>
+            <tr><td><code>~/.codenv-compat/</code></td><td>讓 Windows 寫的程式也能跑：<code>include/bits/stdc++.h</code>、讓輸出馬上顯示的 <code>include/codenv-unbuffered.h</code>，以及 <code>system("pause")</code>、<code>system("cls")</code> 用到的 <code>bin/pause</code>、<code>bin/cls</code></td></tr>
             <tr><td><code>~/.vimrc.local</code>、<code>~/.tmux.conf.local</code></td><td>自己的設定（自己建立；codenv 不會動到）</td></tr>
             <tr><td><code>~/.codenv-kit/</code></td><td>一行安裝下載的完整安裝包，iTerm 配色檔也在這裡</td></tr>
           </tbody>
@@ -975,6 +994,7 @@ int main()
           <li><code>get.sh</code> 從 GitHub 下載 main 分支的壓縮檔，解到 <code>~/.codenv-kit</code>（舊的會先移除），再執行裡面的 <code>install.sh</code>。</li>
           <li><code>install.sh</code> 比對 <code>vimrc</code>、<code>tmux.conf</code>：內容一樣就跳過，不一樣就先備份再覆蓋。</li>
           <li>用 <code>swiftc</code> 編譯 <code>codenv-ime.swift</code>；原始碼沒變就不重編，沒有編譯器就跳過（其他功能不受影響）。</li>
+          <li>把 <code>compat/</code> 複製到 <code>~/.codenv-compat</code>（內容一樣就跳過）。</li>
           <li>安裝新的 <code>codenv.zsh</code> 前，先讀出舊檔裡的 <code>CODENV_ROOT</code>、<code>CODENV_AI</code>、<code>CODENV_LAYOUT</code>，裝好後填回去。</li>
           <li>tmux 正在執行的話，直接 <code>source-file</code> 載入新設定。</li>
         </ol>
@@ -988,6 +1008,7 @@ int main()
           <li>執行結果那格是 tmux 右下（或右邊）的 pane，用 <code>respawn-pane</code> 重開並執行程式，跑完回到 shell。pane 被關掉時會依 <code>@codenv_layout</code> 在右邊或下面重開。</li>
           <li>執行指令前先 <code>trap : INT</code>：Ctrl+C 只停掉程式，外層 shell 留著，那格才不會跟著消失。</li>
           <li>程式結束後檢查 exit code，130 以外的非 0 值用紅字標示，並說明常見原因。</li>
+          <li>Windows 相容：編譯時加 <code>-I ~/.codenv-compat/include</code>（提供 <code>bits/stdc++.h</code>）和 <code>-include codenv-unbuffered.h</code>（程式開始前 <code>setvbuf(stdout, nullptr, _IONBF, 0)</code>，輸出不等換行就顯示）；執行時把 <code>~/.codenv-compat/bin</code> 放進 <code>PATH</code>，<code>system("pause")</code>、<code>system("cls")</code> 才找得到指令。Python 加 <code>PYTHONUNBUFFERED=1</code>。用到 <code>conio.h</code>、<code>windows.h</code> 時在錯誤訊息下面加一行中文說明。</li>
         </ul>
       </div>
 
@@ -1054,6 +1075,7 @@ int main()
             <tr><td><code>install.sh</code></td><td>安裝 / 更新</td></tr>
             <tr><td><code>vimrc</code>、<code>tmux.conf</code>、<code>codenv.zsh</code></td><td>三個主要設定檔</td></tr>
             <tr><td><code>codenv-ime.swift</code></td><td>輸入法切換小程式的原始碼</td></tr>
+            <tr><td><code>compat/</code></td><td>Windows 相容：<code>bits/stdc++.h</code>、<code>pause</code>、<code>cls</code></td></tr>
             <tr><td><code>iterm-profile.json</code></td><td>iTerm 配色</td></tr>
             <tr><td><code>docs/</code></td><td>README 用的示意圖與它的原始檔</td></tr>
           </tbody>

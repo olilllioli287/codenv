@@ -70,6 +70,7 @@ zsh -c "$(curl -fsSL https://raw.githubusercontent.com/olilllioli287/codenv/main
 已安裝 ~/.vimrc
 已安裝 ~/.tmux.conf
 已安裝 ~/.codenv-ime(中文輸入法開著時,Ctrl+A 也能用)
+已安裝 ~/.codenv-compat(Windows 寫的程式也能跑,例如 bits/stdc++.h、system("pause"))
 已安裝 ~/.codenv.zsh
 已在 ~/.zshrc 加上 source ~/.codenv.zsh
 
@@ -162,6 +163,18 @@ Release Notes
 # 發行日誌
 
 每次更新多了什麼、修了什麼。想更新到最新版，看下載頁的更新。
+
+2026-10-12
+
+## Windows 寫的程式也能跑
+
+- 【新功能】`#include <bits/stdc++.h>` 在 Mac 上也能編譯（Dev-C++、Code::Blocks 常用，Mac 的編譯器原本沒有）。
+
+- 【新功能】`system("pause")` 跟 Windows 一樣顯示「請按任意鍵繼續 . . .」並等你按鍵；`system("cls")` 會清除畫面。原本會出現英文的 command not found。
+
+- 【改進】程式的輸出不等換行就馬上顯示：`cout` 後面沒接 `endl` 的字不會跑到「請按任意鍵繼續」後面，程式當掉前印的字也看得到。
+
+- 【改進】用到 `conio.h`、`windows.h` 這些 Windows 才有的檔案時，錯誤訊息下面用中文說明要改成什麼。
 
 2026-10-12
 
@@ -394,6 +407,7 @@ zsh -c "$(curl -fsSL https://raw.githubusercontent.com/olilllioli287/codenv/main
 已安裝 ~/.vimrc
 已安裝 ~/.tmux.conf
 已安裝 ~/.codenv-ime(中文輸入法開著時,Ctrl+A 也能用)
+已安裝 ~/.codenv-compat(Windows 寫的程式也能跑,例如 bits/stdc++.h、system("pause"))
 已安裝 ~/.codenv.zsh
 已在 ~/.zshrc 加上 source ~/.codenv.zsh
 
@@ -512,6 +526,12 @@ FAQ
 **問：** 出現紅字 code is error，後面還有 exit code
 
 代表程式有執行，但不是正常結束。常見的幾種在使用手冊有對照表，例如 139 是記憶體存取錯誤（陣列索引超出範圍、指標沒設定好）。
+
+**問：** 老師給的程式（Windows 寫的）在 Mac 上不能跑
+
+`#include <bits/stdc++.h>`、`system("pause")`、`system("cls")` 在 codenv 裡跟 Windows 一樣能用（要更新到最新版）。`pause` 會顯示「請按任意鍵繼續 . . .」，在執行結果那格按任意鍵繼續。
+
+`conio.h`（`getch()`）和 `windows.h`（`Sleep()`）是 Windows 才有的，Mac 上沒有。按 F9 時錯誤訊息下面會用黃字說明要改成什麼。
 
 **問：** 選檔案時打了檔名，它說「請輸入檔案前面的數字…」
 
@@ -862,7 +882,7 @@ cp ~/.vimrc.bak-日期時間 ~/.vimrc
 下面的做法是把 codenv 的檔案搬到家目錄的 `codenv-removed` 資料夾，不是直接刪除，想恢復時再搬回來就好。
 
 ```
-mkdir -p ~/codenv-removed && mv ~/.codenv.zsh ~/.codenv-ime ~/.codenv-ime.swift ~/.codenv-kit ~/codenv-removed/
+mkdir -p ~/codenv-removed && mv ~/.codenv.zsh ~/.codenv-ime ~/.codenv-ime.swift ~/.codenv-compat ~/.codenv-kit ~/codenv-removed/
 ```
 
 - 執行 `open -e ~/.zshrc`，刪掉 `# codenv 程式練習環境` 和 `source ~/.codenv.zsh` 這兩行，存檔。
@@ -892,6 +912,7 @@ Technical Docs
 | `~/.codenv.zsh` | `codenv` 指令本體，以及 `CODENV_ROOT`、`CODENV_AI`、`CODENV_LAYOUT` 三個設定 |
 | `~/.zshrc` | 加上一行 `source ~/.codenv.zsh`，讓終端機認得 codenv |
 | `~/.codenv-ime` | 切換輸入法的小程式（安裝時從 `codenv-ime.swift` 編譯），原始碼副本在 `~/.codenv-ime.swift` |
+| `~/.codenv-compat/` | 讓 Windows 寫的程式也能跑：`include/bits/stdc++.h`、讓輸出馬上顯示的 `include/codenv-unbuffered.h`，以及 `system("pause")`、`system("cls")` 用到的 `bin/pause`、`bin/cls` |
 | `~/.vimrc.local`、`~/.tmux.conf.local` | 自己的設定（自己建立；codenv 不會動到） |
 | `~/.codenv-kit/` | 一行安裝下載的完整安裝包，iTerm 配色檔也在這裡 |
 
@@ -904,6 +925,8 @@ Technical Docs
 - `install.sh` 比對 `vimrc`、`tmux.conf`：內容一樣就跳過，不一樣就先備份再覆蓋。
 
 - 用 `swiftc` 編譯 `codenv-ime.swift`；原始碼沒變就不重編，沒有編譯器就跳過（其他功能不受影響）。
+
+- 把 `compat/` 複製到 `~/.codenv-compat`（內容一樣就跳過）。
 
 - 安裝新的 `codenv.zsh` 前，先讀出舊檔裡的 `CODENV_ROOT`、`CODENV_AI`、`CODENV_LAYOUT`，裝好後填回去。
 
@@ -922,6 +945,8 @@ Technical Docs
 - 執行指令前先 `trap : INT`：Ctrl+C 只停掉程式，外層 shell 留著，那格才不會跟著消失。
 
 - 程式結束後檢查 exit code，130 以外的非 0 值用紅字標示，並說明常見原因。
+
+- Windows 相容：編譯時加 `-I ~/.codenv-compat/include`（提供 `bits/stdc++.h`）和 `-include codenv-unbuffered.h`（程式開始前 `setvbuf(stdout, nullptr, _IONBF, 0)`，輸出不等換行就顯示）；執行時把 `~/.codenv-compat/bin` 放進 `PATH`，`system("pause")`、`system("cls")` 才找得到指令。Python 加 `PYTHONUNBUFFERED=1`。用到 `conio.h`、`windows.h` 時在錯誤訊息下面加一行中文說明。
 
 4
 
@@ -995,5 +1020,6 @@ codenv 沒有用 TPM 之類的第三方外掛，全部的改動都寫在 `~/.tmu
 | `install.sh` | 安裝 / 更新 |
 | `vimrc`、`tmux.conf`、`codenv.zsh` | 三個主要設定檔 |
 | `codenv-ime.swift` | 輸入法切換小程式的原始碼 |
+| `compat/` | Windows 相容：`bits/stdc++.h`、`pause`、`cls` |
 | `iterm-profile.json` | iTerm 配色 |
 | `docs/` | README 用的示意圖與它的原始檔 |

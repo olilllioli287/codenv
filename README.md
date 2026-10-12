@@ -6,6 +6,7 @@ macOS 上寫 C++ / Python 作業用的終端機環境。輸入 `codenv` 選好�
 
 - **F9** 存檔並檢查有沒有打錯，**F10** 編譯並執行，結果顯示在旁邊的執行結果那格
 - 錯的地方在 vim 裡畫紅色底線，錯誤訊息開頭直接寫「第 幾 行」
+- Windows 寫的程式（Dev-C++ 等）也能跑：`#include <bits/stdc++.h>`、`system("pause")`、`system("cls")`
 - 操作習慣跟 Windows 上的 C++ 編輯器一樣：Ctrl+S 存檔、Ctrl+Z 復原、滑鼠或 Shift+方向鍵選取、Ctrl+C / Ctrl+V 複製貼上、Tab 整塊縮排
 - 打 `(` `[` `"` 自動補上另一半，`{` 再按 Enter 自動補上 `}`；貼上程式碼縮排不會亂
 - 執行檔放在旁邊的 `bin` 資料夾，跟程式碼分開

@@ -26,6 +26,13 @@ else
   print "~/.codenv-ime 沒有裝成(需要第 1 步的編譯器):中文輸入法開著時,Ctrl+A 之後改用連按兩次 Ctrl+A 的選單"
 fi
 
+# Windows 寫的程式在 Mac 上也能跑:bits/stdc++.h、system("pause")、system("cls")(F9 / F10 會用到)
+if diff -rq compat ~/.codenv-compat >/dev/null 2>&1; then
+  print "~/.codenv-compat 已經是最新版"
+else
+  mkdir -p ~/.codenv-compat && cp -R compat/ ~/.codenv-compat/ && print "已安裝 ~/.codenv-compat(Windows 寫的程式也能跑,例如 bits/stdc++.h、system(\"pause\"))"
+fi
+
 # codenv 指令:新版覆蓋前,先記下自己設定過的資料夾位置、AI 指令和畫面格數,裝好後填回去
 keep=()
 if [[ -e ~/.codenv.zsh ]]; then
