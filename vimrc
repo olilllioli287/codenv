@@ -321,8 +321,9 @@ inoremap <C-f> <Esc>/
 
 " 打 ( [ " 自動補上另一半;右邊已經是同一個字時,打 ) ] " 直接跳過去;
 " 在一對空的括號或引號中間按 Backspace,兩個一起刪掉(貼上的程式碼不受影響)
-inoremap ( ()<C-g>U<Left>
-inoremap [ []<C-g>U<Left>
+" 只有在行尾、空白或右括號前面才補另一半;右邊還有別的字時(例如在字串 "A[ 裡面)只打一個(2026-10-12 改)
+inoremap <expr> ( <SID>OpenPair('(', ')')
+inoremap <expr> [ <SID>OpenPair('[', ']')
 inoremap <expr> ) <SID>SkipClose(')')
 inoremap <expr> ] <SID>SkipClose(']')
 inoremap <expr> " <SID>Quote()
@@ -330,15 +331,21 @@ inoremap <expr> <BS> <SID>PairBackspace()
 function! s:CharAt(offset)
   return getline('.')[col('.') - 1 + a:offset]
 endfunction
+function! s:CanPair()
+  return s:CharAt(0) =~# '^$\|[[:space:])\]};,]'
+endfunction
+function! s:OpenPair(open, close)
+  return s:CanPair() ? a:open . a:close . "\<C-g>U\<Left>" : a:open
+endfunction
 function! s:SkipClose(c)
   return s:CharAt(0) ==# a:c ? "\<C-g>U\<Right>" : a:c
 endfunction
-" 引號:右邊已經是 " 就跳過;左邊是字母、數字、反斜線或引號時(例如 \" 或 """),只打一個
+" 引號:右邊已經是 " 就跳過;左邊是字母、數字、反斜線或引號時(例如 \" 或 """),或右邊還有別的字時,只打一個
 function! s:Quote()
   if s:CharAt(0) ==# '"'
     return "\<C-g>U\<Right>"
   endif
-  return s:CharAt(-1) =~# '[[:alnum:]_\\"]' ? '"' : "\"\"\<C-g>U\<Left>"
+  return s:CharAt(-1) =~# '[[:alnum:]_\\"]' || !s:CanPair() ? '"' : "\"\"\<C-g>U\<Left>"
 endfunction
 function! s:PairBackspace()
   return index(['()', '[]', '""', '{}'], s:CharAt(-1) . s:CharAt(0)) >= 0 ? "\<BS>\<Del>" : "\<BS>"
