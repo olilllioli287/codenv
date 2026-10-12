@@ -168,17 +168,17 @@ function! s:ShowInPane(lines, after, focus)
   redraw!
 endfunction
 
-" 還沒有檔名(例如 codenv 選「先不開檔案」)就沒辦法存檔,先提醒怎麼取名
-function! s:NeedName()
+" 還沒有檔名(例如 codenv 選「先不開檔案」)就沒辦法存檔,先提醒怎麼取名;then 是提示最後要接的話
+function! s:NeedName(then)
   if !empty(expand('%'))
     return 0
   endif
-  echohl WarningMsg | echo '還沒有檔名:先輸入 :w 檔名 存檔(例如 :w hw1.cpp 或 :w hw1.py),再按 F9 / F10' | echohl None
+  echohl WarningMsg | echo '還沒有檔名:先輸入 :w 檔名 存檔(例如 :w hw1.cpp 或 :w hw1.py)' . a:then | echohl None
   return 1
 endfunction
 
 function! CheckCode()
-  if s:NeedName() | return | endif
+  if s:NeedName(',再按 F9 / F10') | return | endif
   write
   if &filetype !=# 'cpp' && &filetype !=# 'python'
     echo 'F9 檢查只支援 .cpp 和 .py 檔(已存檔)'
@@ -194,7 +194,7 @@ function! CheckCode()
 endfunction
 
 function! RunCode()
-  if s:NeedName() | return | endif
+  if s:NeedName(',再按 F9 / F10') | return | endif
   write
   if &filetype !=# 'cpp' && &filetype !=# 'python'
     echo 'F10 只支援 .cpp 和 .py 檔'
@@ -277,10 +277,21 @@ endfunction
 " ===== 跟 Windows 上的 C++ 編輯器一樣的操作習慣(2026-10-12 加) =====
 " Ctrl+S 存檔、Ctrl+Z 復原、Ctrl+Y 重做
 " (原本 Ctrl+Z 會讓 vim 縮到背景不見,Ctrl+S 在打字時會插入看不見的字元,害程式編譯不過)
-nnoremap <silent> <C-s> :update<CR>
-inoremap <silent> <C-s> <C-o>:update<CR>
-xnoremap <silent> <C-s> <Esc>:update<CR>
-snoremap <silent> <C-s> <Esc>:update<CR>
+nnoremap <silent> <C-s> :call SaveCode()<CR>
+xnoremap <silent> <C-s> <Esc>:call SaveCode()<CR>
+snoremap <silent> <C-s> <Esc>:call SaveCode()<CR>
+" 打字時還沒有檔名或是唯讀:先回到一般模式再提示,不然提示會被底下的 -- INSERT -- 蓋掉
+inoremap <silent> <expr> <C-s> empty(expand('%')) \|\| &readonly ? "\<Esc>:call SaveCode()\<CR>" : "\<C-o>:update\<CR>"
+" 還沒有檔名時改顯示中文提示,不會跳出英文的 E32: No file name
+function! SaveCode()
+  if s:NeedName('')
+    return
+  elseif &readonly
+    echohl WarningMsg | echo '這裡是唯讀,不能存檔:另一個 vim 正在編輯這個檔案' | echohl None
+    return
+  endif
+  update
+endfunction
 nnoremap <C-z> u
 inoremap <C-z> <C-o>u
 xnoremap <C-z> <Esc>u
@@ -340,15 +351,54 @@ endfunction
 function! s:SkipClose(c)
   return s:CharAt(0) ==# a:c ? "\<C-g>U\<Right>" : a:c
 endfunction
-" 引號:右邊已經是 " 就跳過;左邊是字母、數字、反斜線或引號時(例如 \" 或 """),或右邊還有別的字時,只打一個
+" 引號:先數游標前面有幾個 "(\" 和 '"' 不算),單數表示正在字串裡,這個 " 是收尾:
+" 右邊已經是 " 就跳過,不然只打一個;雙數表示要開新字串,才補另一半(2026-10-12 改)
+" (原本只看左右一個字,打 print(f"x = {x}") 或 '"' 時會多出 ")
 function! s:Quote()
-  if s:CharAt(0) ==# '"'
-    return "\<C-g>U\<Right>"
+  let before = substitute(strpart(getline('.'), 0, col('.') - 1), '\\.', '', 'g')
+  if before =~# '\\$'
+    return '"'
   endif
-  return s:CharAt(-1) =~# '[[:alnum:]_\\"]' || !s:CanPair() ? '"' : "\"\"\<C-g>U\<Left>"
+  if len(substitute(substitute(before, '''"''', '', 'g'), '[^"]', '', 'g')) % 2
+    return s:CharAt(0) ==# '"' ? "\<C-g>U\<Right>" : '"'
+  endif
+  " 左邊是 ' 或 " 時(例如 '"' 或 Python 的 """),或右邊還有別的字時,只打一個
+  return s:CharAt(-1) =~# '[''"]' || !s:CanPair() ? '"' : "\"\"\<C-g>U\<Left>"
 endfunction
 function! s:PairBackspace()
   return index(['()', '[]', '""', '{}'], s:CharAt(-1) . s:CharAt(0)) >= 0 ? "\<BS>\<Del>" : "\<BS>"
+endfunction
+
+" ===== 打開檔案時發現上次留下的暫存檔(2026-10-12 加) =====
+" vim 編輯時會在旁邊留一個 .檔名.swp,正常關掉時會刪掉。直接關掉 iTerm,或同一個檔案開了兩次,
+" 再打開時原本會跳出一大段英文(E325: ATTENTION),這裡改成自動處理或用中文問:
+"   另一個 vim 還開著這個檔案      → 這裡用唯讀打開(不能存檔),提醒回原本那個 vim 去改
+"   上次沒正常關掉,沒有沒存的修改 → 直接刪掉暫存檔,照常打開
+"   上次沒正常關掉,有沒存的修改   → 問要不要救回來
+autocmd SwapExists * call s:SwapExists()
+function! s:SwapExists()
+  let info = swapinfo(v:swapname)
+  if has_key(info, 'error')
+    return
+  endif
+  call system('kill -0 ' . info.pid)
+  if !v:shell_error
+    let v:swapchoice = 'o'
+    call s:LaterMsg('另一個 vim 正在編輯這個檔案,這裡只能看(唯讀),要改請回到那個 vim')
+  elseif !info.dirty
+    let v:swapchoice = 'd'
+  elseif confirm('上次 vim 沒有正常關掉(例如直接關掉 iTerm),「' . expand('<afile>:t') . '」有還沒存檔的修改。要救回來嗎?' . "\n" . '(救回來時會接著出現一段英文說明,按 Enter 就好;回到檔案確認沒問題後按 Ctrl+S 存檔)', "&1 救回來\n&2 不要,用存好的內容", 1) == 1
+    let v:swapchoice = 'r'
+    " 救回來、存檔之後,舊的暫存檔就用不到了,刪掉它,下次打開才不會再問一次
+    let s:old_swap = v:swapname
+    autocmd BufWritePost * ++once call delete(s:old_swap)
+  else
+    let v:swapchoice = 'd'
+  endif
+endfunction
+" 等檔案打開、vim 顯示完自己的訊息後再顯示,才不會被蓋掉
+function! s:LaterMsg(msg)
+  call timer_start(100, {-> execute('echohl WarningMsg | echo ' . string(a:msg) . ' | echohl None', '')})
 endfunction
 
 " ===== 貼上程式碼時縮排不會亂掉(2026-10-11 加) =====

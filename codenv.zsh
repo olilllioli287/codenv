@@ -43,6 +43,11 @@ codenv() {
   fi
   local root=$CODENV_ROOT dir file choice name ans i
   local -a dirs files
+  # 還沒裝 tmux 就先說要怎麼裝,不然選完檔案才會跳出看不懂的 command not found
+  if (( ! $+commands[tmux] )); then
+    print "  還沒裝 tmux:先執行 brew install tmux(安裝步驟第 3 步),裝好再輸入 codenv"
+    return 1
+  fi
   # 第一次使用:先問畫面要幾格
   if [[ $CODENV_LAYOUT != [23] ]]; then
     print "\n  第一次使用 codenv,先選畫面的排法。"

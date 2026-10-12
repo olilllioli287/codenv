@@ -335,6 +335,18 @@ footer { border-top: 1px solid var(--line); }
     <h1>發行日誌</h1>
     <p class="lede">每次更新多了什麼、修了什麼。想更新到最新版，看<a href="#dl-update">下載頁的更新</a>。</p>
   </div>
+  <article class="release" id="log-1012c">
+    <time>2026-10-12</time>
+    <div class="body">
+      <h2>引號自動補全、vim 沒正常關掉時的處理</h2>
+      <ul>
+        <li><span class="tag fix">修正</span>打 Python 的 <code>print(f"x = {x}")</code> 或 C++ 的 <code>'"'</code> 時，自動補的引號會多出一個。現在會看游標是不是在字串裡，在字串裡打 <code>"</code> 就是收尾。</li>
+        <li><span class="tag fix">改進</span>vim 沒有正常關掉（例如直接關掉 iTerm）之後再打開同一個檔案，不會再跳出一大段英文：沒有沒存的修改就直接打開；有的話用中文問要不要救回來。同一個檔案在別的格子還開著時，這裡改成唯讀打開並提醒。</li>
+        <li><span class="tag fix">改進</span>還沒有檔名，或檔案是唯讀時按 Ctrl+S，改用中文說明，不再出現英文的 E32 / E45。</li>
+        <li><span class="tag fix">改進</span>還沒裝 tmux 時輸入 <code>codenv</code>，一開始就告訴你怎麼裝（原本要選完檔案才出現英文錯誤）。</li>
+      </ul>
+    </div>
+  </article>
   <article class="release" id="log-1012b">
     <time>2026-10-12</time>
     <div class="body">
@@ -606,8 +618,10 @@ int main()
         <details><summary>vim 突然不見了，畫面出現 zsh: suspended vim</summary><div>
           <p>這是舊版按到 Ctrl+Z 的結果，vim 只是被丟到背景。輸入 <code>fg</code> 按 <kbd>Enter</kbd> 就會回來。更新到最新版後，Ctrl+Z 改成「復原」，不會再發生。</p>
         </div></details>
-        <details><summary>打開檔案時出現 Swap file … already exists</summary><div>
-          <p>代表上次 vim 沒有正常關掉（或同一個檔案在別的格子還開著）。如果確定沒有在別處開著：上次有沒存的修改想救回來就按 <kbd>R</kbd>，不需要的話按 <kbd>D</kbd> 刪掉舊的暫存檔再開。</p>
+        <details><summary>打開檔案時問「要救回來嗎?」，或出現 Swap file … already exists</summary><div>
+          <p>代表上次 vim 沒有正常關掉（例如直接關掉 iTerm），留下了還沒存檔的修改。按 <kbd>1</kbd> 救回來（接著出現的英文說明按 <kbd>Enter</kbd> 就好，確認內容沒問題再按 <kbd>Ctrl</kbd>+<kbd>S</kbd> 存檔），按 <kbd>2</kbd> 不要，用之前存好的內容。</p>
+          <p>打開時顯示「另一個 vim 正在編輯這個檔案」，代表同一個檔案在別的格子或分頁還開著，這裡只能看不能存。回到那個 vim 去改，或先把它關掉（<code>:q</code>）再開。</p>
+          <p>還在用舊版、看到一大段英文（Swap file … already exists）的話：確定沒有在別處開著，想救回修改按 <kbd>R</kbd>，不需要就按 <kbd>D</kbd>。更新到最新版就不會再出現這段英文。</p>
         </div></details>
         <details><summary>想把程式碼複製到別的地方（例如上傳作業）</summary><div>
           <p>在 vim 裡用滑鼠選取，或用 <kbd>Shift</kbd>+方向鍵選取，再按 <kbd>Ctrl</kbd>+<kbd>C</kbd>，就會複製到 Mac 的剪貼簿，到別的 App 按 <kbd>⌘ Cmd</kbd>+<kbd>V</kbd> 貼上。不要用 Option 拖曳整個畫面，那樣會連行號和旁邊的格子一起複製。</p>
