@@ -336,6 +336,17 @@ footer { border-top: 1px solid var(--line); }
     <h1>發行日誌</h1>
     <p class="lede">每次更新多了什麼、修了什麼。想更新到最新版，看<a href="#dl-update">下載頁的更新</a>。</p>
   </div>
+  <article class="release" id="log-1012f">
+    <time>2026-10-12</time>
+    <div class="body">
+      <h2>整數除以 0 會提示、放大畫面時的 F9 / F10</h2>
+      <ul>
+        <li><span class="tag fix">修正</span>Apple Silicon 的 Mac 上，整數除以 0 不會當掉，只會默默得到錯的答案（Windows 會當掉）。現在 F10 執行時會停下來，印出 <code>runtime error: division by zero</code> 和第幾行。固定大小的陣列索引超出範圍（例如 <code>int a[3]</code> 用到 <code>a[5]</code>）也一樣。整數溢位照常跑，跟 Windows 一樣。</li>
+        <li><span class="tag fix">修正</span>用 Ctrl+A 選單把 vim 那格放大後按 F9 / F10，結果原本會開在新的一格，每按一次多一格。現在會先還原，結果照樣顯示在原本那格。</li>
+        <li><span class="tag fix">修正</span>關掉 iTerm 再輸入 <code>codenv</code> 接回原本的畫面時，「這個檔案在下方 [1] 分頁已經開著」的提示會被畫面放大清掉。現在會顯示在最下面，動一下游標就消失。</li>
+      </ul>
+    </div>
+  </article>
   <article class="release" id="log-1012e">
     <time>2026-10-12</time>
     <div class="body">
@@ -739,7 +750,7 @@ int main()
           <tbody>
             <tr><td>130</td><td>用 Ctrl+C 停止（不算錯）</td><td>程式停不下來時自己按的</td></tr>
             <tr><td>134</td><td>程式中止</td><td>有例外（exception）沒有被處理</td></tr>
-            <tr><td>136</td><td>算術錯誤</td><td>整數除以 0</td></tr>
+            <tr><td>86</td><td>程式做了不允許的事</td><td>整數除以 0、陣列索引超出範圍。上面的 <code>runtime error</code> 那行會寫出第幾行（<code>檔名:行:字</code>）</td></tr>
             <tr><td>138、139</td><td>記憶體存取錯誤</td><td>陣列索引超出範圍、指標沒設定好、遞迴太深</td></tr>
             <tr><td>其他</td><td>回傳值不是 0</td><td>C++ 的 main 裡 <code>return 1</code>；Python 則看上面的錯誤訊息</td></tr>
           </tbody>
@@ -1022,6 +1033,7 @@ int main()
           <li>編譯器訊息只留下跟自己檔案有關的部分，系統標頭檔的 note 全部拿掉；每則訊息開頭的「檔名:行:字:」改寫成「第 N 行:」，並用 <code>matchaddpos</code> 在 vim 裡畫底線。</li>
           <li>執行結果那格是 tmux 右下（或右邊）的 pane，用 <code>respawn-pane</code> 重開並執行程式，跑完回到 shell。pane 被關掉時會依 <code>@codenv_layout</code> 在右邊或下面重開。</li>
           <li>執行指令前先 <code>trap : INT</code>：Ctrl+C 只停掉程式，外層 shell 留著，那格才不會跟著消失。</li>
+          <li>F10 編譯時加 <code>-fsanitize=integer-divide-by-zero,bounds -fno-sanitize-recover=all</code>，執行時設 <code>UBSAN_OPTIONS=exitcode=86:abort_on_error=0</code>：arm64 的整數除以 0 不會產生 SIGFPE，沒有這個檢查只會得到 0。不開 <code>signed-integer-overflow</code>，溢位的行為跟 Windows 一樣。</li>
           <li>程式結束後檢查 exit code，130 以外的非 0 值用紅字標示，並說明常見原因。</li>
           <li>Windows 相容：編譯時加 <code>-I ~/.codenv-compat/include</code>（提供 <code>bits/stdc++.h</code>）和 <code>-include codenv-unbuffered.h</code>（程式開始前 <code>setvbuf(stdout, nullptr, _IONBF, 0)</code>，輸出不等換行就顯示）；執行時把 <code>~/.codenv-compat/bin</code> 放進 <code>PATH</code>，<code>system("pause")</code>、<code>system("cls")</code> 才找得到指令。Python 加 <code>PYTHONUNBUFFERED=1</code>。用到 <code>conio.h</code>、<code>windows.h</code> 時在錯誤訊息下面加一行中文說明。</li>
         </ul>

@@ -166,6 +166,16 @@ Release Notes
 
 2026-10-12
 
+## 整數除以 0 會提示、放大畫面時的 F9 / F10
+
+- 【修正】Apple Silicon 的 Mac 上，整數除以 0 不會當掉，只會默默得到錯的答案（Windows 會當掉）。現在 F10 執行時會停下來，印出 `runtime error: division by zero` 和第幾行。固定大小的陣列索引超出範圍（例如 `int a[3]` 用到 `a[5]`）也一樣。整數溢位照常跑，跟 Windows 一樣。
+
+- 【修正】用 Ctrl+A 選單把 vim 那格放大後按 F9 / F10，結果原本會開在新的一格，每按一次多一格。現在會先還原，結果照樣顯示在原本那格。
+
+- 【修正】關掉 iTerm 再輸入 `codenv` 接回原本的畫面時，「這個檔案在下方 [1] 分頁已經開著」的提示會被畫面放大清掉。現在會顯示在最下面，動一下游標就消失。
+
+2026-10-12
+
 ## Esc 不再慢一拍、Big5 中文、Python 自動縮排、關掉 iTerm 後接回原本的畫面
 
 - 【修正】在 vim 裡按 Esc 要等大約 1 秒才回到一般模式（游標和 `-- INSERT --` 慢一拍才變）。現在馬上切換。
@@ -644,7 +654,7 @@ Manual
 | --- | --- | --- |
 | 130 | 用 Ctrl+C 停止（不算錯） | 程式停不下來時自己按的 |
 | 134 | 程式中止 | 有例外（exception）沒有被處理 |
-| 136 | 算術錯誤 | 整數除以 0 |
+| 86 | 程式做了不允許的事 | 整數除以 0、陣列索引超出範圍。上面的 `runtime error` 那行會寫出第幾行（`檔名:行:字`） |
 | 138、139 | 記憶體存取錯誤 | 陣列索引超出範圍、指標沒設定好、遞迴太深 |
 | 其他 | 回傳值不是 0 | C++ 的 main 裡 `return 1`；Python 則看上面的錯誤訊息 |
 
@@ -961,6 +971,8 @@ Technical Docs
 - 執行結果那格是 tmux 右下（或右邊）的 pane，用 `respawn-pane` 重開並執行程式，跑完回到 shell。pane 被關掉時會依 `@codenv_layout` 在右邊或下面重開。
 
 - 執行指令前先 `trap : INT`：Ctrl+C 只停掉程式，外層 shell 留著，那格才不會跟著消失。
+
+- F10 編譯時加 `-fsanitize=integer-divide-by-zero,bounds -fno-sanitize-recover=all`，執行時設 `UBSAN_OPTIONS=exitcode=86:abort_on_error=0`：arm64 的整數除以 0 不會產生 SIGFPE，沒有這個檢查只會得到 0。不開 `signed-integer-overflow`，溢位的行為跟 Windows 一樣。
 
 - 程式結束後檢查 exit code，130 以外的非 0 值用紅字標示，並說明常見原因。
 

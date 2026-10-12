@@ -29,7 +29,11 @@ let s:reset = "\e[0m"
 "   include/codenv-unbuffered.h  輸出不等換行就馬上顯示(跟 Windows 一樣,程式當掉前印的字也看得到)
 let s:compat = expand('~/.codenv-compat')
 let s:compat_inc = isdirectory(s:compat . '/include') ? ' -I ' . shellescape(s:compat . '/include') . ' -include codenv-unbuffered.h' : ''
-let s:compat_path = 'PYTHONUNBUFFERED=1 ' . (isdirectory(s:compat . '/bin') ? 'PATH=' . shellescape(s:compat . '/bin') . ':"$PATH" ' : '')
+" Apple Silicon 的 Mac 上整數除以 0 不會當掉,只會默默得到 0(Windows 會當掉),陣列索引超出範圍也常常沒事。
+" F10 編譯時加上檢查,發生時印出 runtime error 和第幾行,用 exit code 86 結束(2026-10-12 加)
+" (不檢查整數溢位:課本會示範 int 溢位變成負數,跟 Windows 一樣讓它照常跑)
+let s:check = ' -fsanitize=integer-divide-by-zero,bounds -fno-sanitize-recover=all'
+let s:compat_path = 'UBSAN_OPTIONS=exitcode=86:abort_on_error=0:print_summary=0 PYTHONUNBUFFERED=1 ' . (isdirectory(s:compat . '/bin') ? 'PATH=' . shellescape(s:compat . '/bin') . ':"$PATH" ' : '')
 
 " 檢查程式有沒有錯(compile 為 1 時順便產生執行檔),回傳 [有沒有錯, 錯誤訊息]
 " 在檔案所在的資料夾執行,錯誤訊息只會顯示檔名,不會是一長串路徑
@@ -47,7 +51,7 @@ function! s:Compile(compile)
   endif
   let color = empty($TMUX) ? '' : ' -fcolor-diagnostics'
   " 執行檔放到旁邊的 bin 資料夾,跟程式碼分開(2026-10-11 改;沒有 bin 會自動建)
-  let output = a:compile ? ' -o ' . shellescape('bin/' . expand('%:t:r')) : ' -fsyntax-only'
+  let output = a:compile ? s:check . ' -o ' . shellescape('bin/' . expand('%:t:r')) : ' -fsyntax-only'
   let mkbin = a:compile ? 'mkdir -p bin && ' : ''
   let msg = system(cd . mkbin . 'g++ -std=c++17 -Wall' . s:compat_inc . color . ' ' . src . output . ' 2>&1')
   let err = v:shell_error
@@ -165,10 +169,26 @@ function! s:EchoStatus(err, msg)
   endif
 endfunction
 
+" 找執行結果那格:優先用這個 vim 上次用的那格(有 @cppvim 標記),沒有才用右下角那格(2026-10-12 改)
+" 這格被放大(Ctrl+A 選單的「放大這格」)時先還原,不然看不到結果,右下角也會找成 vim 自己而多開一格
+function! s:RunPane()
+  let panes = systemlist('tmux list-panes -t ' . $TMUX_PANE . ' -F "#{pane_id} #{window_zoomed_flag} #{window_id} #{@cppvim}"')
+  if get(split(get(panes, 0, '')), 1, '') ==# '1'
+    call system('tmux resize-pane -Z -t ' . $TMUX_PANE)
+  endif
+  for pane in panes
+    let f = split(pane)
+    if len(f) == 4 && f[3] ==# $TMUX_PANE
+      return f[0]
+    endif
+  endfor
+  return trim(system('tmux display -p -t ' . shellescape(get(split(get(panes, 0, '')), 2, '') . '.{bottom-right}') . ' "#{pane_id}"'))
+endfunction
+
 " 重開右下角的 pane:先印出 lines,再執行 after(可以是空的),結束後回到 shell
 " focus 為 1 時把焦點移過去
 function! s:ShowInPane(lines, after, focus)
-  let target = trim(system("tmux display -p -t '{bottom-right}' '#{pane_id}'"))
+  let target = s:RunPane()
   if target ==# $TMUX_PANE
     " 執行結果那格不見了(例如被關掉)就重開一格,排法跟 codenv 一樣:兩格模式開在右邊,其他開在 vim 下面
     let side = trim(system('tmux show -wv @codenv_layout')) ==# '2' ? '-h' : '-v'
@@ -229,7 +249,7 @@ function! RunCode()
   let run = s:compat_path . (&filetype ==# 'python' ? 'python3 ' . shellescape(expand('%:p')) : shellescape(out))
   if empty($TMUX)
     if &filetype ==# 'cpp'
-      execute '!clear && mkdir -p ' . shellescape(expand('%:p:h') . '/bin', 1) . ' && g++ -std=c++17 -Wall' . escape(s:compat_inc, '%#!') . ' ' . shellescape(expand('%:p'), 1) . ' -o ' . shellescape(out, 1) . ' && ' . escape(s:compat_path, '%#!') . shellescape(out, 1)
+      execute '!clear && mkdir -p ' . shellescape(expand('%:p:h') . '/bin', 1) . ' && g++ -std=c++17 -Wall' . escape(s:compat_inc, '%#!') . s:check . ' ' . shellescape(expand('%:p'), 1) . ' -o ' . shellescape(out, 1) . ' && ' . escape(s:compat_path, '%#!') . shellescape(out, 1)
     else
       execute '!clear && ' . escape(run, '%#!')
     endif
@@ -250,6 +270,7 @@ function! RunCode()
         \ . ' 130) printf ''\n\033[2m(已用 Ctrl+C 停止程式)\033[0m\n'' ;;'
         \ . ' 134) why="程式中止了,例如有例外(exception)沒有被處理" ;;'
         \ . ' 136) why="算術錯誤,例如整數除以 0" ;;'
+        \ . ' 86) why="程式做了不允許的事,看上面 runtime error 那行(檔名:第幾行:第幾個字),例如整數除以 0、陣列索引超出範圍" ;;'
         \ . ' 138|139) why="記憶體存取錯誤,例如陣列索引超出範圍、指標沒有設定好,或遞迴太深" ;;'
         \ . ' *) why="' . other . '" ;; esac;'
         \ . ' [ -n "$why" ] && printf ''\n\033[1;31m✗ code is error\033[0m(%s,exit code %s)\n'' "$why" $s'
@@ -443,6 +464,16 @@ endfunction
 " 等檔案打開、vim 顯示完自己的訊息後再顯示,才不會被蓋掉
 function! s:LaterMsg(msg)
   call timer_start(100, {-> s:ShowMsg(a:msg)})
+  " 關掉 iTerm 再開 codenv 時,vim 先在背景用比較小的畫面打開,接回 iTerm 時才放大、整個重畫,提示會被清掉;
+  " 3 秒內畫面大小變了,就改用浮在最下面一行的小視窗再顯示一次(重畫也不會清掉,動一下游標就關掉)(2026-10-12 加)
+  " (這時候用 timer 不行:vim 要等下一個按鍵才會執行它)
+  let s:later = [a:msg, reltimefloat(reltime()) + 3]
+  autocmd VimResized * ++once call s:ShowLater()
+endfunction
+function! s:ShowLater()
+  if reltimefloat(reltime()) < s:later[1]
+    call popup_create(s:later[0], {'line': &lines, 'col': 1, 'pos': 'botleft', 'highlight': 'WarningMsg', 'moved': 'any', 'zindex': 300})
+  endif
 endfunction
 " 畫面窄、一行放不下時,底下暫時多一行(動一下游標就恢復),不然會跳出英文的 Press ENTER
 function! s:ShowMsg(msg)
