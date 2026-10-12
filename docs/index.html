@@ -345,6 +345,7 @@ footer { border-top: 1px solid var(--line); }
         <li><span class="tag new">新功能</span>老師給的 Windows 檔案，中文是 Big5 編碼，原本打開是一堆亂碼。現在會正常顯示，存檔（Ctrl+S、F9、F10）時自動轉成 Mac 用的 UTF-8，執行時印出的中文也不會變亂碼。</li>
         <li><span class="tag fix">修正</span>直接關掉 iTerm 時，tmux 和裡面的 vim 其實還開在背景；再開 iTerm 輸入 <code>codenv</code> 選同一個檔案，只能唯讀，而且找不到原本的 vim。現在 <code>codenv</code> 會接回背景的畫面，新的分頁開在旁邊，舊的分頁在最下面看得到。</li>
         <li><span class="tag fix">改進</span>Python 打完 <code>if</code>、<code>for</code>、<code>def</code> 這行的冒號按 Enter，下一行自動多縮一層（原本要自己按 Tab，忘了就出現 IndentationError）。</li>
+        <li><span class="tag fix">修正</span>vim 那格關掉之後，在執行結果那格按 Esc 會跳出英文的 <code>returned 1</code> 畫面。現在 Esc 照常傳給程式。</li>
         <li><span class="tag fix">改進</span>同一個檔案在別的分頁開著時，提示會說是哪一個分頁、怎麼切過去（Ctrl+A 再按分頁編號）。畫面太窄、一行放不下的提示不會再跳出英文的 Press ENTER。</li>
       </ul>
     </div>
@@ -1054,7 +1055,7 @@ int main()
             <tr><td>捲動紀錄</td><td>2000 行</td><td>10000 行</td></tr>
             <tr><td>捲動模式的按鍵</td><td>emacs 風格</td><td>vi 風格（跟 vim 一樣用 h j k l）</td></tr>
             <tr><td>狀態列</td><td>綠色，右邊有時鐘</td><td>黑底，左邊藍底顯示工作階段名稱；分頁名稱不會自動改掉</td></tr>
-            <tr><td>Esc</td><td>直接傳給程式</td><td>在執行結果那格按 Esc 跳回 vim（<code>@cpprun</code> / <code>@cppvim</code>），其他格子照常</td></tr>
+            <tr><td>Esc</td><td>直接傳給程式</td><td>在執行結果那格按 Esc 跳回 vim（<code>@cpprun</code> / <code>@cppvim</code>；vim 那格不在了就照常送出），其他格子照常</td></tr>
             <tr><td>Home / End</td><td>直接傳給程式</td><td>轉成 Ctrl+A / Ctrl+E，vim 和命令列都會跳到行首 / 行尾</td></tr>
             <tr><td>Ctrl+Enter 這類組合鍵</td><td>不一定傳得到</td><td>開啟延伸按鍵（<code>extended-keys on</code>），給 Claude Code 用</td></tr>
             <tr><td>不在 tmux 裡輸入 codenv</td><td>—</td><td>有沒人在看的工作階段（關掉 iTerm 留下的）就接回去，新分頁開在旁邊；沒有才開新的工作階段</td></tr>

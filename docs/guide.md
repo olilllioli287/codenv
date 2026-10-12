@@ -176,6 +176,8 @@ Release Notes
 
 - 【改進】Python 打完 `if`、`for`、`def` 這行的冒號按 Enter，下一行自動多縮一層（原本要自己按 Tab，忘了就出現 IndentationError）。
 
+- 【修正】vim 那格關掉之後，在執行結果那格按 Esc 會跳出英文的 `returned 1` 畫面。現在 Esc 照常傳給程式。
+
 - 【改進】同一個檔案在別的分頁開著時，提示會說是哪一個分頁、怎麼切過去（Ctrl+A 再按分頁編號）。畫面太窄、一行放不下的提示不會再跳出英文的 Press ENTER。
 
 2026-10-12
@@ -997,7 +999,7 @@ codenv 沒有用 TPM 之類的第三方外掛，全部的改動都寫在 `~/.tmu
 | 捲動紀錄 | 2000 行 | 10000 行 |
 | 捲動模式的按鍵 | emacs 風格 | vi 風格（跟 vim 一樣用 h j k l） |
 | 狀態列 | 綠色，右邊有時鐘 | 黑底，左邊藍底顯示工作階段名稱；分頁名稱不會自動改掉 |
-| Esc | 直接傳給程式 | 在執行結果那格按 Esc 跳回 vim（`@cpprun` / `@cppvim`），其他格子照常 |
+| Esc | 直接傳給程式 | 在執行結果那格按 Esc 跳回 vim（`@cpprun` / `@cppvim`；vim 那格不在了就照常送出），其他格子照常 |
 | Home / End | 直接傳給程式 | 轉成 Ctrl+A / Ctrl+E，vim 和命令列都會跳到行首 / 行尾 |
 | Ctrl+Enter 這類組合鍵 | 不一定傳得到 | 開啟延伸按鍵（`extended-keys on`），給 Claude Code 用 |
 | 不在 tmux 裡輸入 codenv | — | 有沒人在看的工作階段（關掉 iTerm 留下的）就接回去，新分頁開在旁邊；沒有才開新的工作階段 |
