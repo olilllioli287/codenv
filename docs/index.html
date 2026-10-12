@@ -343,6 +343,7 @@ footer { border-top: 1px solid var(--line); }
       <ul>
         <li><span class="tag fix">修正</span>Apple Silicon 的 Mac 上，整數除以 0 不會當掉，只會默默得到錯的答案（Windows 會當掉）。現在 F10 執行時會停下來，印出 <code>runtime error: division by zero</code> 和第幾行。固定大小的陣列索引超出範圍（例如 <code>int a[3]</code> 用到 <code>a[5]</code>）也一樣。整數溢位照常跑，跟 Windows 一樣。</li>
         <li><span class="tag fix">修正</span>用 Ctrl+A 選單把 vim 那格放大後按 F9 / F10，結果原本會開在新的一格，每按一次多一格。現在會先還原，結果照樣顯示在原本那格。</li>
+        <li><span class="tag fix">修正</span>沒有選取文字時按 Ctrl+X，原本會把游標下的數字減 1（例如 <code>10</code> 變 <code>9</code>），程式被改了也看不出來。現在沒有選取時 Ctrl+X 什麼都不做，選取後照樣是剪下。</li>
         <li><span class="tag fix">修正</span>關掉 iTerm 再輸入 <code>codenv</code> 接回原本的畫面時，「這個檔案在下方 [1] 分頁已經開著」的提示會被畫面放大清掉。現在會顯示在最下面，動一下游標就消失。</li>
       </ul>
     </div>
@@ -1080,7 +1081,7 @@ int main()
         <h2><span class="no">6</span>vim 設定重點</h2>
         <ul>
           <li>Windows 式選取：<code>selectmode=mouse,key</code>、<code>keymodel=startsel,stopsel</code>、<code>selection=exclusive</code>。</li>
-          <li>剪貼簿：Ctrl+C / X / V 對應到 <code>"*</code> 暫存器（macOS 的 vim 有 <code>+clipboard</code>）。</li>
+          <li>剪貼簿：Ctrl+C / X / V 對應到 <code>"*</code> 暫存器（macOS 的 vim 有 <code>+clipboard</code>）。沒有選取時 Ctrl+X 設成 <code>&lt;Nop&gt;</code>，蓋掉 vim 原本「數字減 1」和插入模式的 <code>^X</code> 補全。</li>
           <li>自動補括號用 <code>&lt;C-g&gt;U&lt;Left&gt;</code> 移動游標，不會打斷復原的步驟；貼上時 bracketed paste 會略過這些對應，所以貼上的程式碼不會被重複補。</li>
           <li>自動縮排：<code>filetype indent on</code>，Python 用 vim 內建的 <code>python#GetIndent</code>；C++ 另外設 <code>cindent</code>。</li>
           <li>Esc 不等待：<code>ttimeout ttimeoutlen=50</code>（原本 Esc 要等 <code>timeoutlen</code> 的 1 秒，確定後面沒有接方向鍵之類的按鍵碼）。</li>

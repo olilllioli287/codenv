@@ -361,6 +361,9 @@ xnoremap <C-c> "*y
 snoremap <C-c> <C-g>"*y
 xnoremap <C-x> "*d
 snoremap <C-x> <C-g>"*d
+" 沒有選取時按 Ctrl+X 什麼都不做(原本一般模式會把游標下的數字減 1,例如 10 變 9;打字時會進入看不懂的 ^X mode)(2026-10-12 加)
+nnoremap <C-x> <Nop>
+inoremap <C-x> <Nop>
 xnoremap <C-v> "_c<C-r><C-o>*
 snoremap <C-v> <C-g>"_c<C-r><C-o>*
 inoremap <C-v> <C-r><C-o>*

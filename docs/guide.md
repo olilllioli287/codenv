@@ -172,6 +172,8 @@ Release Notes
 
 - 【修正】用 Ctrl+A 選單把 vim 那格放大後按 F9 / F10，結果原本會開在新的一格，每按一次多一格。現在會先還原，結果照樣顯示在原本那格。
 
+- 【修正】沒有選取文字時按 Ctrl+X，原本會把游標下的數字減 1（例如 `10` 變 `9`），程式被改了也看不出來。現在沒有選取時 Ctrl+X 什麼都不做，選取後照樣是剪下。
+
 - 【修正】關掉 iTerm 再輸入 `codenv` 接回原本的畫面時，「這個檔案在下方 [1] 分頁已經開著」的提示會被畫面放大清掉。現在會顯示在最下面，動一下游標就消失。
 
 2026-10-12
@@ -1023,7 +1025,7 @@ codenv 沒有用 TPM 之類的第三方外掛，全部的改動都寫在 `~/.tmu
 
 - Windows 式選取：`selectmode=mouse,key`、`keymodel=startsel,stopsel`、`selection=exclusive`。
 
-- 剪貼簿：Ctrl+C / X / V 對應到 `"*` 暫存器（macOS 的 vim 有 `+clipboard`）。
+- 剪貼簿：Ctrl+C / X / V 對應到 `"*` 暫存器（macOS 的 vim 有 `+clipboard`）。沒有選取時 Ctrl+X 設成 `<Nop>`，蓋掉 vim 原本「數字減 1」和插入模式的 `^X` 補全。
 
 - 自動補括號用 `<C-g>U<Left>` 移動游標，不會打斷復原的步驟；貼上時 bracketed paste 會略過這些對應，所以貼上的程式碼不會被重複補。
 
