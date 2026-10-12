@@ -172,7 +172,7 @@ Release Notes
 
 - 【修正】用 Ctrl+A 選單把 vim 那格放大後按 F9 / F10，結果原本會開在新的一格，每按一次多一格。現在會先還原，結果照樣顯示在原本那格。
 
-- 【改進】Python 的縮排錯誤（IndentationError、TabError）和 `invalid syntax` 下面加上中文說明，縮排錯誤也會在 vim 裡標出是哪一行（原本標不出來）。
+- 【改進】Python 的縮排錯誤（IndentationError、TabError）、少冒號、引號或括號沒關、`invalid syntax` 下面加上中文說明（新舊版 Python 的訊息都認得），縮排錯誤也會在 vim 裡標出是哪一行（原本標不出來）。
 
 - 【新功能】`#include <conio.h>` 也能用了：`getch()`（按一個鍵就繼續，不用按 Enter）、`getche()`、`kbhit()`、`clrscr()` 跟 Windows 一樣。方向鍵這類特殊鍵送出的代碼跟 Windows 不同。
 

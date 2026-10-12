@@ -122,6 +122,10 @@ function! s:PyHint(msg)
         \ ['unexpected indent', '這一行不該縮排:把行首的空白刪掉,跟上一行對齊'],
         \ ['unindent does not match', '這一行的縮排跟上面對不齊:同一層的程式要用一樣多的空白'],
         \ ['inconsistent use of tabs and spaces', 'Tab 和空白混在一起(常見於別人給的檔案):在 vim 輸入 :retab 按 Enter,會全部換成空白'],
+        \ ["expected ':'", 'if / for / while / def / class 那行最後要加冒號(:)'],
+        \ ['unterminated string literal', '引號只有開頭、沒有結尾:這一行少了一個 " 或 '''],
+        \ ['EOL while scanning string literal', '引號只有開頭、沒有結尾:這一行少了一個 " 或 '''],
+        \ ['unexpected EOF while parsing', '程式最後少了 ) ] } 或引號的結尾'],
         \ ['was never closed', '括號或引號只有開頭、沒有結尾:找那一行少的 ) ] } 或引號'],
         \ ['invalid syntax', '常見原因:上一行少了 ) 或 ],引號沒關,或 if / for / def 那行最後少了冒號(:)'],
         \ ]

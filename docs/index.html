@@ -343,7 +343,7 @@ footer { border-top: 1px solid var(--line); }
       <ul>
         <li><span class="tag fix">修正</span>Apple Silicon 的 Mac 上，整數除以 0 不會當掉，只會默默得到錯的答案（Windows 會當掉）。現在 F10 執行時會停下來，印出 <code>runtime error: division by zero</code> 和第幾行。固定大小的陣列索引超出範圍（例如 <code>int a[3]</code> 用到 <code>a[5]</code>）也一樣。整數溢位照常跑，跟 Windows 一樣。</li>
         <li><span class="tag fix">修正</span>用 Ctrl+A 選單把 vim 那格放大後按 F9 / F10，結果原本會開在新的一格，每按一次多一格。現在會先還原，結果照樣顯示在原本那格。</li>
-        <li><span class="tag fix">改進</span>Python 的縮排錯誤（IndentationError、TabError）和 <code>invalid syntax</code> 下面加上中文說明，縮排錯誤也會在 vim 裡標出是哪一行（原本標不出來）。</li>
+        <li><span class="tag fix">改進</span>Python 的縮排錯誤（IndentationError、TabError）、少冒號、引號或括號沒關、<code>invalid syntax</code> 下面加上中文說明（新舊版 Python 的訊息都認得），縮排錯誤也會在 vim 裡標出是哪一行（原本標不出來）。</li>
         <li><span class="tag new">新功能</span><code>#include &lt;conio.h&gt;</code> 也能用了：<code>getch()</code>（按一個鍵就繼續，不用按 Enter）、<code>getche()</code>、<code>kbhit()</code>、<code>clrscr()</code> 跟 Windows 一樣。方向鍵這類特殊鍵送出的代碼跟 Windows 不同。</li>
         <li><span class="tag new">新功能</span><code>system("color 0A")</code> 會換文字顏色（背景不換），程式結束後自動換回來；<code>system("title …")</code> 不再出現 command not found。</li>
         <li><span class="tag new">新功能</span>跟 Windows 一樣用 Ctrl+Z 結束輸入（例如 <code>while (cin &gt;&gt; x)</code> 一直讀數字的迴圈）。Mac 上原本要按 Ctrl+D，按 Ctrl+Z 程式會一直等；現在在執行結果那格按 Ctrl+Z 會自動換成 Ctrl+D。</li>
