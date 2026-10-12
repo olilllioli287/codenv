@@ -166,6 +166,18 @@ Release Notes
 
 2026-10-12
 
+## Esc 不再慢一拍、Big5 中文、關掉 iTerm 後接回原本的畫面
+
+- 【修正】在 vim 裡按 Esc 要等大約 1 秒才回到一般模式（游標和 `-- INSERT --` 慢一拍才變）。現在馬上切換。
+
+- 【新功能】老師給的 Windows 檔案，中文是 Big5 編碼，原本打開是一堆亂碼。現在會正常顯示，存檔（Ctrl+S、F9、F10）時自動轉成 Mac 用的 UTF-8，執行時印出的中文也不會變亂碼。
+
+- 【修正】直接關掉 iTerm 時，tmux 和裡面的 vim 其實還開在背景；再開 iTerm 輸入 `codenv` 選同一個檔案，只能唯讀，而且找不到原本的 vim。現在 `codenv` 會接回背景的畫面，新的分頁開在旁邊，舊的分頁在最下面看得到。
+
+- 【改進】同一個檔案在別的分頁開著時，提示會說是哪一個分頁、怎麼切過去（Ctrl+A 再按分頁編號）。畫面太窄、一行放不下的提示不會再跳出英文的 Press ENTER。
+
+2026-10-12
+
 ## Windows 寫的程式也能跑
 
 - 【新功能】`#include <bits/stdc++.h>` 在 Mac 上也能編譯（Dev-C++、Code::Blocks 常用，Mac 的編譯器原本沒有）。
@@ -531,6 +543,8 @@ FAQ
 
 `#include <bits/stdc++.h>`、`system("pause")`、`system("cls")` 在 codenv 裡跟 Windows 一樣能用（要更新到最新版）。`pause` 會顯示「請按任意鍵繼續 . . .」，在執行結果那格按任意鍵繼續。
 
+打開時中文是一堆亂碼的話，更新到最新版再打開：codenv 認得 Windows 的 Big5 編碼，會正常顯示，按 [Ctrl]+[S] 或 F9 / F10 存檔時轉成 Mac 用的格式。
+
 `conio.h`（`getch()`）和 `windows.h`（`Sleep()`）是 Windows 才有的，Mac 上沒有。按 F9 時錯誤訊息下面會用黃字說明要改成什麼。
 
 **問：** 選檔案時打了檔名，它說「請輸入檔案前面的數字…」
@@ -551,7 +565,7 @@ FAQ
 
 代表上次 vim 沒有正常關掉（例如直接關掉 iTerm），留下了還沒存檔的修改。按 [1] 救回來（接著出現的英文說明按 [Enter] 就好，確認內容沒問題再按 [Ctrl]+[S] 存檔），按 [2] 不要，用之前存好的內容。
 
-打開時顯示「另一個 vim 正在編輯這個檔案」，代表同一個檔案在別的格子或分頁還開著，這裡只能看不能存。回到那個 vim 去改，或先把它關掉（`:q`）再開。
+打開時顯示「這個檔案在下方 [1] 分頁已經開著」或「另一個 vim 正在編輯這個檔案」，代表同一個檔案在別的格子或分頁還開著，這裡只能看不能存。按 [Ctrl]+[A] 再按提示裡的分頁編號切過去改，或先把那個 vim 關掉（`:q`）再開。直接關掉 iTerm 時 vim 其實還開在背景，再輸入 `codenv` 就會接回來，舊的分頁在最下面。
 
 還在用舊版、看到一大段英文（Swap file … already exists）的話：確定沒有在別處開著，想救回修改按 [R]，不需要就按 [D]。更新到最新版就不會再出現這段英文。
 
@@ -984,6 +998,7 @@ codenv 沒有用 TPM 之類的第三方外掛，全部的改動都寫在 `~/.tmu
 | Esc | 直接傳給程式 | 在執行結果那格按 Esc 跳回 vim（`@cpprun` / `@cppvim`），其他格子照常 |
 | Home / End | 直接傳給程式 | 轉成 Ctrl+A / Ctrl+E，vim 和命令列都會跳到行首 / 行尾 |
 | Ctrl+Enter 這類組合鍵 | 不一定傳得到 | 開啟延伸按鍵（`extended-keys on`），給 Claude Code 用 |
+| 不在 tmux 裡輸入 codenv | — | 有沒人在看的工作階段（關掉 iTerm 留下的）就接回去，新分頁開在旁邊；沒有才開新的工作階段 |
 | 自己的設定 | — | 最後讀取 `~/.tmux.conf.local`（`source-file -q`，沒有這個檔也不會出錯） |
 
 6
@@ -995,6 +1010,12 @@ codenv 沒有用 TPM 之類的第三方外掛，全部的改動都寫在 `~/.tmu
 - 剪貼簿：Ctrl+C / X / V 對應到 `"*` 暫存器（macOS 的 vim 有 `+clipboard`）。
 
 - 自動補括號用 `<C-g>U<Left>` 移動游標，不會打斷復原的步驟；貼上時 bracketed paste 會略過這些對應，所以貼上的程式碼不會被重複補。
+
+- Esc 不等待：`ttimeout ttimeoutlen=50`（原本 Esc 要等 `timeoutlen` 的 1 秒，確定後面沒有接方向鍵之類的按鍵碼）。
+
+- Big5：`fileencodings=ucs-bom,utf-8,cp950,latin1`，讀進來是 `cp950` 的檔案在 `BufReadPost` 改成 `fileencoding=utf-8`，存檔時就轉好。
+
+- 暫存檔（swap）：`SwapExists` 用 `swapinfo()` 和 `kill -0` 判斷另一個 vim 還在不在；在的話用它的 tty 對照 `tmux list-panes -a` 找出分頁編號。
 
 - `{` 加 Enter 補 `}` 前，用 `searchpair` 找配對的 `}`，而且要縮排相同才算「已經有了」，避免誤配到外層的 `}`。
 

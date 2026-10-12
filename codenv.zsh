@@ -118,11 +118,18 @@ codenv() {
 # 排版面:新開一個 tmux 視窗(不在 tmux 裡就開新的 session)
 # 兩格:左 vim、右執行結果;三格:左 AI 或終端機、右上 vim、右下執行結果
 _codenv_layout() {
-  local dir=$1 file=$2 left top
+  local dir=$1 file=$2 left top sess
   if [[ -n $TMUX ]]; then
     left=$(tmux new-window -P -F '#{pane_id}' -c "$dir" -n "${dir:t}") || return
   else
-    left=$(tmux new-session -d -P -F '#{pane_id}' -c "$dir" -n "${dir:t}") || return
+    # 直接關掉 iTerm 時,tmux 和裡面的 vim 其實還開在背景。有這種沒人在看的 session 就接回去,
+    # 新視窗開在它旁邊(下方的分頁看得到舊的);不然舊的 vim 一直藏著,再開同一個檔案只能唯讀(2026-10-12 加)
+    sess=$(tmux ls -F '#{session_attached} #{session_activity} #{session_id}' 2>/dev/null | awk '$1 == 0' | sort -k2 -rn | awk 'NR == 1 { print $3 }')
+    if [[ -n $sess ]]; then
+      left=$(tmux new-window -P -F '#{pane_id}' -t "$sess:" -c "$dir" -n "${dir:t}") || return
+    else
+      left=$(tmux new-session -d -P -F '#{pane_id}' -c "$dir" -n "${dir:t}") || return
+    fi
   fi
   if [[ $CODENV_LAYOUT == 2 ]]; then
     top=$left

@@ -336,6 +336,18 @@ footer { border-top: 1px solid var(--line); }
     <h1>發行日誌</h1>
     <p class="lede">每次更新多了什麼、修了什麼。想更新到最新版，看<a href="#dl-update">下載頁的更新</a>。</p>
   </div>
+  <article class="release" id="log-1012e">
+    <time>2026-10-12</time>
+    <div class="body">
+      <h2>Esc 不再慢一拍、Big5 中文、關掉 iTerm 後接回原本的畫面</h2>
+      <ul>
+        <li><span class="tag fix">修正</span>在 vim 裡按 Esc 要等大約 1 秒才回到一般模式（游標和 <code>-- INSERT --</code> 慢一拍才變）。現在馬上切換。</li>
+        <li><span class="tag new">新功能</span>老師給的 Windows 檔案，中文是 Big5 編碼，原本打開是一堆亂碼。現在會正常顯示，存檔（Ctrl+S、F9、F10）時自動轉成 Mac 用的 UTF-8，執行時印出的中文也不會變亂碼。</li>
+        <li><span class="tag fix">修正</span>直接關掉 iTerm 時，tmux 和裡面的 vim 其實還開在背景；再開 iTerm 輸入 <code>codenv</code> 選同一個檔案，只能唯讀，而且找不到原本的 vim。現在 <code>codenv</code> 會接回背景的畫面，新的分頁開在旁邊，舊的分頁在最下面看得到。</li>
+        <li><span class="tag fix">改進</span>同一個檔案在別的分頁開著時，提示會說是哪一個分頁、怎麼切過去（Ctrl+A 再按分頁編號）。畫面太窄、一行放不下的提示不會再跳出英文的 Press ENTER。</li>
+      </ul>
+    </div>
+  </article>
   <article class="release" id="log-1012d">
     <time>2026-10-12</time>
     <div class="body">
@@ -621,6 +633,7 @@ int main()
         </div></details>
         <details><summary>老師給的程式（Windows 寫的）在 Mac 上不能跑</summary><div>
           <p><code>#include &lt;bits/stdc++.h&gt;</code>、<code>system("pause")</code>、<code>system("cls")</code> 在 codenv 裡跟 Windows 一樣能用（要更新到最新版）。<code>pause</code> 會顯示「請按任意鍵繼續 . . .」，在執行結果那格按任意鍵繼續。</p>
+          <p>打開時中文是一堆亂碼的話，更新到最新版再打開：codenv 認得 Windows 的 Big5 編碼，會正常顯示，按 <kbd>Ctrl</kbd>+<kbd>S</kbd> 或 F9 / F10 存檔時轉成 Mac 用的格式。</p>
           <p><code>conio.h</code>（<code>getch()</code>）和 <code>windows.h</code>（<code>Sleep()</code>）是 Windows 才有的，Mac 上沒有。按 F9 時錯誤訊息下面會用黃字說明要改成什麼。</p>
         </div></details>
         <details><summary>選檔案時打了檔名，它說「請輸入檔案前面的數字…」</summary><div>
@@ -638,7 +651,7 @@ int main()
         </div></details>
         <details><summary>打開檔案時問「要救回來嗎?」，或出現 Swap file … already exists</summary><div>
           <p>代表上次 vim 沒有正常關掉（例如直接關掉 iTerm），留下了還沒存檔的修改。按 <kbd>1</kbd> 救回來（接著出現的英文說明按 <kbd>Enter</kbd> 就好，確認內容沒問題再按 <kbd>Ctrl</kbd>+<kbd>S</kbd> 存檔），按 <kbd>2</kbd> 不要，用之前存好的內容。</p>
-          <p>打開時顯示「另一個 vim 正在編輯這個檔案」，代表同一個檔案在別的格子或分頁還開著，這裡只能看不能存。回到那個 vim 去改，或先把它關掉（<code>:q</code>）再開。</p>
+          <p>打開時顯示「這個檔案在下方 [1] 分頁已經開著」或「另一個 vim 正在編輯這個檔案」，代表同一個檔案在別的格子或分頁還開著，這裡只能看不能存。按 <kbd>Ctrl</kbd>+<kbd>A</kbd> 再按提示裡的分頁編號切過去改，或先把那個 vim 關掉（<code>:q</code>）再開。直接關掉 iTerm 時 vim 其實還開在背景，再輸入 <code>codenv</code> 就會接回來，舊的分頁在最下面。</p>
           <p>還在用舊版、看到一大段英文（Swap file … already exists）的話：確定沒有在別處開著，想救回修改按 <kbd>R</kbd>，不需要就按 <kbd>D</kbd>。更新到最新版就不會再出現這段英文。</p>
         </div></details>
         <details><summary>想把程式碼複製到別的地方（例如上傳作業）</summary><div>
@@ -1043,6 +1056,7 @@ int main()
             <tr><td>Esc</td><td>直接傳給程式</td><td>在執行結果那格按 Esc 跳回 vim（<code>@cpprun</code> / <code>@cppvim</code>），其他格子照常</td></tr>
             <tr><td>Home / End</td><td>直接傳給程式</td><td>轉成 Ctrl+A / Ctrl+E，vim 和命令列都會跳到行首 / 行尾</td></tr>
             <tr><td>Ctrl+Enter 這類組合鍵</td><td>不一定傳得到</td><td>開啟延伸按鍵（<code>extended-keys on</code>），給 Claude Code 用</td></tr>
+            <tr><td>不在 tmux 裡輸入 codenv</td><td>—</td><td>有沒人在看的工作階段（關掉 iTerm 留下的）就接回去，新分頁開在旁邊；沒有才開新的工作階段</td></tr>
             <tr><td>自己的設定</td><td>—</td><td>最後讀取 <code>~/.tmux.conf.local</code>（<code>source-file -q</code>，沒有這個檔也不會出錯）</td></tr>
           </tbody>
         </table></div>
@@ -1054,6 +1068,9 @@ int main()
           <li>Windows 式選取：<code>selectmode=mouse,key</code>、<code>keymodel=startsel,stopsel</code>、<code>selection=exclusive</code>。</li>
           <li>剪貼簿：Ctrl+C / X / V 對應到 <code>"*</code> 暫存器（macOS 的 vim 有 <code>+clipboard</code>）。</li>
           <li>自動補括號用 <code>&lt;C-g&gt;U&lt;Left&gt;</code> 移動游標，不會打斷復原的步驟；貼上時 bracketed paste 會略過這些對應，所以貼上的程式碼不會被重複補。</li>
+          <li>Esc 不等待：<code>ttimeout ttimeoutlen=50</code>（原本 Esc 要等 <code>timeoutlen</code> 的 1 秒，確定後面沒有接方向鍵之類的按鍵碼）。</li>
+          <li>Big5：<code>fileencodings=ucs-bom,utf-8,cp950,latin1</code>，讀進來是 <code>cp950</code> 的檔案在 <code>BufReadPost</code> 改成 <code>fileencoding=utf-8</code>，存檔時就轉好。</li>
+          <li>暫存檔（swap）：<code>SwapExists</code> 用 <code>swapinfo()</code> 和 <code>kill -0</code> 判斷另一個 vim 還在不在；在的話用它的 tty 對照 <code>tmux list-panes -a</code> 找出分頁編號。</li>
           <li><code>{</code> 加 Enter 補 <code>}</code> 前，用 <code>searchpair</code> 找配對的 <code>}</code>，而且要縮排相同才算「已經有了」，避免誤配到外層的 <code>}</code>。</li>
         </ul>
       </div>

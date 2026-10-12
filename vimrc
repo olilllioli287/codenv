@@ -3,6 +3,8 @@ syntax on            " 語法上色
 set number           " 顯示行號
 set autoindent       " 自動縮排
 set tabstop=4 shiftwidth=4 noexpandtab   " Tab 鍵插入真正的 Tab 字元
+" 按 Esc 馬上回到一般模式(原本要等 1 秒,游標和 -- INSERT -- 都會慢一拍才變)(2026-10-12 加)
+set ttimeout ttimeoutlen=50
 
 " 游標形狀:輸入模式是直槓,一般模式是方塊,取代模式是底線
 let &t_SI = "\e[6 q"
@@ -407,7 +409,7 @@ function! s:SwapExists()
   call system('kill -0 ' . info.pid)
   if !v:shell_error
     let v:swapchoice = 'o'
-    call s:LaterMsg('另一個 vim 正在編輯這個檔案,這裡只能看(唯讀),要改請回到那個 vim')
+    call s:LaterMsg(s:OtherVimMsg(info.pid))
   elseif !info.dirty
     let v:swapchoice = 'd'
   elseif confirm('上次 vim 沒有正常關掉(例如直接關掉 iTerm),「' . expand('<afile>:t') . '」有還沒存檔的修改。要救回來嗎?' . "\n" . '(救回來時會接著出現一段英文說明,按 Enter 就好;回到檔案確認沒問題後按 Ctrl+S 存檔)', "&1 救回來\n&2 不要,用存好的內容", 1) == 1
@@ -419,10 +421,40 @@ function! s:SwapExists()
     let v:swapchoice = 'd'
   endif
 endfunction
+" 告訴使用者另一個 vim 在哪裡:用它的終端機(tty)找出在 tmux 的哪一格(2026-10-12 加)
+" 例如關掉 iTerm 再打開時,舊的 vim 會留在下方另一個分頁裡
+function! s:OtherVimMsg(pid)
+  let tty = trim(system('ps -o tty= -p ' . a:pid))
+  if !empty($TMUX) && tty =~# '^tty'
+    let here = split(system('tmux display -p -t ' . shellescape($TMUX_PANE) . ' "#{session_id} #{window_index}"'))
+    for pane in split(system('tmux list-panes -a -F "#{pane_tty} #{session_id} #{window_index}"'), "\n")
+      let [ptty, sid, win] = split(pane)
+      if ptty ==# '/dev/' . tty && len(here) == 2 && sid ==# here[0]
+        return win ==# here[1] ? '這個檔案在旁邊那格的 vim 已經開著,這裡只能看(唯讀),請到那格去改'
+              \ : '這個檔案在下方 [' . win . '] 分頁已經開著,這裡只能看。按 Ctrl+A 再按 ' . win . ' 切過去'
+      endif
+    endfor
+  endif
+  return '另一個 vim 正在編輯這個檔案,這裡只能看(唯讀),要改請回到那個 vim'
+endfunction
 " 等檔案打開、vim 顯示完自己的訊息後再顯示,才不會被蓋掉
 function! s:LaterMsg(msg)
-  call timer_start(100, {-> execute('echohl WarningMsg | echo ' . string(a:msg) . ' | echohl None', '')})
+  call timer_start(100, {-> s:ShowMsg(a:msg)})
 endfunction
+" 畫面窄、一行放不下時,底下暫時多一行(動一下游標就恢復),不然會跳出英文的 Press ENTER
+function! s:ShowMsg(msg)
+  if strdisplaywidth(a:msg) > &columns - 12 && &cmdheight == 1
+    set cmdheight=2
+    autocmd CursorMoved,InsertEnter * ++once set cmdheight=1
+  endif
+  echohl WarningMsg | echo a:msg | echohl None
+endfunction
+
+" ===== 老師給的 Windows 檔案:中文是 Big5 編碼(2026-10-12 加) =====
+" 原本打開會變成一堆亂碼;現在認得出來就照常顯示,並在存檔(Ctrl+S、F9、F10)時轉成 Mac 用的 UTF-8,
+" 不然程式印出來的中文在執行結果那格也是亂碼
+set fileencodings=ucs-bom,utf-8,cp950,latin1
+autocmd BufReadPost * if &fileencoding ==# 'cp950' | setlocal fileencoding=utf-8 | call s:LaterMsg('這個檔案的中文是 Windows 的 Big5 編碼,存檔時會轉成 Mac 用的') | endif
 
 " ===== 貼上程式碼時縮排不會亂掉(2026-10-11 加) =====
 " 在 tmux 裡 vim 預設沒開「bracketed paste」,貼上的文字會被當成一個字一個字打進來,
