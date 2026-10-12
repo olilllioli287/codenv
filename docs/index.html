@@ -343,6 +343,7 @@ footer { border-top: 1px solid var(--line); }
       <ul>
         <li><span class="tag fix">修正</span>Apple Silicon 的 Mac 上，整數除以 0 不會當掉，只會默默得到錯的答案（Windows 會當掉）。現在 F10 執行時會停下來，印出 <code>runtime error: division by zero</code> 和第幾行。固定大小的陣列索引超出範圍（例如 <code>int a[3]</code> 用到 <code>a[5]</code>）也一樣。整數溢位照常跑，跟 Windows 一樣。</li>
         <li><span class="tag fix">修正</span>用 Ctrl+A 選單把 vim 那格放大後按 F9 / F10，結果原本會開在新的一格，每按一次多一格。現在會先還原，結果照樣顯示在原本那格。</li>
+        <li><span class="tag fix">改進</span>Python 的縮排錯誤（IndentationError、TabError）和 <code>invalid syntax</code> 下面加上中文說明，縮排錯誤也會在 vim 裡標出是哪一行（原本標不出來）。</li>
         <li><span class="tag new">新功能</span><code>#include &lt;conio.h&gt;</code> 也能用了：<code>getch()</code>（按一個鍵就繼續，不用按 Enter）、<code>getche()</code>、<code>kbhit()</code>、<code>clrscr()</code> 跟 Windows 一樣。方向鍵這類特殊鍵送出的代碼跟 Windows 不同。</li>
         <li><span class="tag new">新功能</span><code>system("color 0A")</code> 會換文字顏色（背景不換），程式結束後自動換回來；<code>system("title …")</code> 不再出現 command not found。</li>
         <li><span class="tag new">新功能</span>跟 Windows 一樣用 Ctrl+Z 結束輸入（例如 <code>while (cin &gt;&gt; x)</code> 一直讀數字的迴圈）。Mac 上原本要按 Ctrl+D，按 Ctrl+Z 程式會一直等；現在在執行結果那格按 Ctrl+Z 會自動換成 Ctrl+D。</li>
@@ -1045,6 +1046,7 @@ int main()
           <li>F10 編譯時加 <code>-fsanitize=integer-divide-by-zero,bounds -fno-sanitize-recover=all</code>，執行時設 <code>UBSAN_OPTIONS=exitcode=86:abort_on_error=0</code>：arm64 的整數除以 0 不會產生 SIGFPE，沒有這個檢查只會得到 0。不開 <code>signed-integer-overflow</code>，溢位的行為跟 Windows 一樣。</li>
           <li>程式結束後檢查 exit code，130 以外的非 0 值用紅字標示，並說明常見原因。</li>
           <li>Windows 相容：編譯時加 <code>-I ~/.codenv-compat/include</code>（提供 <code>bits/stdc++.h</code>，以及用 <code>termios</code> 暫時切成不等 Enter、不回顯的 <code>conio.h</code>；<code>getch()</code> 直接 <code>read()</code> 鍵盤，不經過 <code>cin</code> 的緩衝區，跟 Windows 一樣讀不到前面留下的 Enter）和 <code>-include codenv-unbuffered.h</code>（程式開始前 <code>setvbuf(stdout, nullptr, _IONBF, 0)</code>，輸出不等換行就顯示）；執行時把 <code>~/.codenv-compat/bin</code> 放進 <code>PATH</code>，<code>system("pause")</code>、<code>system("cls")</code> 才找得到指令。Python 加 <code>PYTHONUNBUFFERED=1</code>。用到 <code>windows.h</code> 時在錯誤訊息下面加一行中文說明。</li>
+          <li>Python：<code>py_compile</code> 的縮排錯誤格式是 <code>Sorry: IndentationError: … (檔名, line N)</code>，跟一般的 <code>File "…", line N</code> 不同，兩種都抓行號；常見的幾種錯誤加一行中文說明。</li>
           <li>連結錯誤：訊息裡有 <code>Undefined symbols</code> 時，從 <code>"名稱", referenced from</code> 抓出找不到的函式，<code>_main</code> 另外提示 main 打錯字。</li>
         </ul>
       </div>

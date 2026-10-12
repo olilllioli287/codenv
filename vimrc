@@ -45,9 +45,13 @@ function! s:Compile(compile)
     " .pyc 放到 vim 的暫存資料夾,作業資料夾不會多出 __pycache__
     let msg = system(cd . 'PYTHONPYCACHEPREFIX=' . shellescape(fnamemodify(tempname(), ':h')) . ' python3 -m py_compile ' . src . ' 2>&1')
     let err = v:shell_error
+    " 一般錯誤是 File "x.py", line 3;縮排錯誤是 Sorry: IndentationError: ... (x.py, line 3)
     let line = matchstr(msg, 'File "[^"]*", line \zs\d\+')
+    if empty(line)
+      let line = matchstr(msg, ', line \zs\d\+\ze)')
+    endif
     call s:Mark(empty(line) ? [] : [[str2nr(line), 0, 1]])
-    return [err, msg]
+    return [err, msg . s:PyHint(msg)]
   endif
   let color = empty($TMUX) ? '' : ' -fcolor-diagnostics'
   " 執行檔放到旁邊的 bin 資料夾,跟程式碼分開(2026-10-11 改;沒有 bin 會自動建)
@@ -109,6 +113,24 @@ function! s:WindowsOnly(msg)
     endif
   endfor
   return out
+endfunction
+
+" Python 常見的語法錯誤,在下面用中文說明(2026-10-12 加)
+function! s:PyHint(msg)
+  let hints = [
+        \ ['expected an indented block', '冒號(:)那行的下一行要縮排:在行首按 Tab'],
+        \ ['unexpected indent', '這一行不該縮排:把行首的空白刪掉,跟上一行對齊'],
+        \ ['unindent does not match', '這一行的縮排跟上面對不齊:同一層的程式要用一樣多的空白'],
+        \ ['inconsistent use of tabs and spaces', 'Tab 和空白混在一起(常見於別人給的檔案):在 vim 輸入 :retab 按 Enter,會全部換成空白'],
+        \ ['was never closed', '括號或引號只有開頭、沒有結尾:找那一行少的 ) ] } 或引號'],
+        \ ['invalid syntax', '常見原因:上一行少了 ) 或 ],引號沒關,或 if / for / def 那行最後少了冒號(:)'],
+        \ ]
+  for [pat, hint] in hints
+    if a:msg =~# pat
+      return "\n" . s:yellow . '→ ' . hint . s:reset
+    endif
+  endfor
+  return ''
 endfunction
 
 " 連結錯誤(Undefined symbols)全是英文,用中文說是哪個函式找不到內容(2026-10-12 加)

@@ -172,6 +172,8 @@ Release Notes
 
 - 【修正】用 Ctrl+A 選單把 vim 那格放大後按 F9 / F10，結果原本會開在新的一格，每按一次多一格。現在會先還原，結果照樣顯示在原本那格。
 
+- 【改進】Python 的縮排錯誤（IndentationError、TabError）和 `invalid syntax` 下面加上中文說明，縮排錯誤也會在 vim 裡標出是哪一行（原本標不出來）。
+
 - 【新功能】`#include <conio.h>` 也能用了：`getch()`（按一個鍵就繼續，不用按 Enter）、`getche()`、`kbhit()`、`clrscr()` 跟 Windows 一樣。方向鍵這類特殊鍵送出的代碼跟 Windows 不同。
 
 - 【新功能】`system("color 0A")` 會換文字顏色（背景不換），程式結束後自動換回來；`system("title …")` 不再出現 command not found。
@@ -993,6 +995,8 @@ Technical Docs
 - 程式結束後檢查 exit code，130 以外的非 0 值用紅字標示，並說明常見原因。
 
 - Windows 相容：編譯時加 `-I ~/.codenv-compat/include`（提供 `bits/stdc++.h`，以及用 `termios` 暫時切成不等 Enter、不回顯的 `conio.h`；`getch()` 直接 `read()` 鍵盤，不經過 `cin` 的緩衝區，跟 Windows 一樣讀不到前面留下的 Enter）和 `-include codenv-unbuffered.h`（程式開始前 `setvbuf(stdout, nullptr, _IONBF, 0)`，輸出不等換行就顯示）；執行時把 `~/.codenv-compat/bin` 放進 `PATH`，`system("pause")`、`system("cls")` 才找得到指令。Python 加 `PYTHONUNBUFFERED=1`。用到 `windows.h` 時在錯誤訊息下面加一行中文說明。
+
+- Python：`py_compile` 的縮排錯誤格式是 `Sorry: IndentationError: … (檔名, line N)`，跟一般的 `File "…", line N` 不同，兩種都抓行號；常見的幾種錯誤加一行中文說明。
 
 - 連結錯誤：訊息裡有 `Undefined symbols` 時，從 `"名稱", referenced from` 抓出找不到的函式，`_main` 另外提示 main 打錯字。
 
