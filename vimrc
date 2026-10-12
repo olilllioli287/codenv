@@ -353,3 +353,9 @@ if &term =~# 'tmux\|screen'
   exec "set t_PS=\e[200~"
   exec "set t_PE=\e[201~"
 endif
+
+" ===== 自己的設定放這裡(2026-10-12 加) =====
+" 想改成自己的習慣,寫在 ~/.vimrc.local;codenv 更新時只會換掉這個檔,不會動到 .local
+if filereadable(expand('~/.vimrc.local'))
+  source ~/.vimrc.local
+endif
