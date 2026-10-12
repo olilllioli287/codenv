@@ -172,6 +172,8 @@ Release Notes
 
 - 【修正】用 Ctrl+A 選單把 vim 那格放大後按 F9 / F10，結果原本會開在新的一格，每按一次多一格。現在會先還原，結果照樣顯示在原本那格。
 
+- 【新功能】`#include <conio.h>` 也能用了：`getch()`（按一個鍵就繼續，不用按 Enter）、`getche()`、`kbhit()`、`clrscr()` 跟 Windows 一樣。方向鍵這類特殊鍵送出的代碼跟 Windows 不同。
+
 - 【新功能】跟 Windows 一樣用 Ctrl+Z 結束輸入（例如 `while (cin >> x)` 一直讀數字的迴圈）。Mac 上原本要按 Ctrl+D，按 Ctrl+Z 程式會一直等；現在在執行結果那格按 Ctrl+Z 會自動換成 Ctrl+D。
 
 - 【修正】在執行結果那格或命令列按 Ctrl+S（Windows 的存檔習慣），終端機會停止輸出，看起來像當掉（要按 Ctrl+Q 才恢復）。現在只有 vim 會收到 Ctrl+S，其他格按下去會顯示「要存程式請回到 vim 按 Ctrl+S」。
@@ -571,7 +573,7 @@ FAQ
 
 打開時中文是一堆亂碼的話，更新到最新版再打開：codenv 認得 Windows 的 Big5 編碼，會正常顯示，按 [Ctrl]+[S] 或 F9 / F10 存檔時轉成 Mac 用的格式。
 
-`conio.h`（`getch()`）和 `windows.h`（`Sleep()`）是 Windows 才有的，Mac 上沒有。按 F9 時錯誤訊息下面會用黃字說明要改成什麼。
+`conio.h` 的 `getch()`、`kbhit()` 在 codenv 裡也能用（要更新到最新版）。`windows.h`（`Sleep()` 等）是 Windows 才有的，Mac 上沒有；按 F9 時錯誤訊息下面會用黃字說明要改成什麼。
 
 **問：** 選檔案時打了檔名，它說「請輸入檔案前面的數字…」
 
@@ -952,7 +954,7 @@ Technical Docs
 | `~/.codenv.zsh` | `codenv` 指令本體，以及 `CODENV_ROOT`、`CODENV_AI`、`CODENV_LAYOUT` 三個設定 |
 | `~/.zshrc` | 加上一行 `source ~/.codenv.zsh`，讓終端機認得 codenv |
 | `~/.codenv-ime` | 切換輸入法的小程式（安裝時從 `codenv-ime.swift` 編譯），原始碼副本在 `~/.codenv-ime.swift` |
-| `~/.codenv-compat/` | 讓 Windows 寫的程式也能跑：`include/bits/stdc++.h`、讓輸出馬上顯示的 `include/codenv-unbuffered.h`，以及 `system("pause")`、`system("cls")` 用到的 `bin/pause`、`bin/cls` |
+| `~/.codenv-compat/` | 讓 Windows 寫的程式也能跑：`include/bits/stdc++.h`、`include/conio.h`（`getch()`、`kbhit()`）、讓輸出馬上顯示的 `include/codenv-unbuffered.h`，以及 `system("pause")`、`system("cls")` 用到的 `bin/pause`、`bin/cls` |
 | `~/.vimrc.local`、`~/.tmux.conf.local` | 自己的設定（自己建立；codenv 不會動到） |
 | `~/.codenv-kit/` | 一行安裝下載的完整安裝包，iTerm 配色檔也在這裡 |
 
@@ -988,7 +990,7 @@ Technical Docs
 
 - 程式結束後檢查 exit code，130 以外的非 0 值用紅字標示，並說明常見原因。
 
-- Windows 相容：編譯時加 `-I ~/.codenv-compat/include`（提供 `bits/stdc++.h`）和 `-include codenv-unbuffered.h`（程式開始前 `setvbuf(stdout, nullptr, _IONBF, 0)`，輸出不等換行就顯示）；執行時把 `~/.codenv-compat/bin` 放進 `PATH`，`system("pause")`、`system("cls")` 才找得到指令。Python 加 `PYTHONUNBUFFERED=1`。用到 `conio.h`、`windows.h` 時在錯誤訊息下面加一行中文說明。
+- Windows 相容：編譯時加 `-I ~/.codenv-compat/include`（提供 `bits/stdc++.h`，以及用 `termios` 暫時切成不等 Enter、不回顯的 `conio.h`；`getch()` 直接 `read()` 鍵盤，不經過 `cin` 的緩衝區，跟 Windows 一樣讀不到前面留下的 Enter）和 `-include codenv-unbuffered.h`（程式開始前 `setvbuf(stdout, nullptr, _IONBF, 0)`，輸出不等換行就顯示）；執行時把 `~/.codenv-compat/bin` 放進 `PATH`，`system("pause")`、`system("cls")` 才找得到指令。Python 加 `PYTHONUNBUFFERED=1`。用到 `windows.h` 時在錯誤訊息下面加一行中文說明。
 
 - 連結錯誤：訊息裡有 `Undefined symbols` 時，從 `"名稱", referenced from` 抓出找不到的函式，`_main` 另外提示 main 打錯字。
 
