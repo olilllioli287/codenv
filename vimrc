@@ -263,6 +263,9 @@ inoremap <F10> <Esc>:call RunCode()<CR>
 
 " Python 習慣用 4 個空白縮排(混用 Tab 和空白在 Python 會出錯)
 autocmd FileType python setlocal expandtab tabstop=4 shiftwidth=4 softtabstop=4
+" 照語言自動縮排:Python 打完 if/for/def 後面的冒號按 Enter,下一行自動多縮一層(2026-10-12 加)
+" (原本要自己按 Tab,忘了就是 IndentationError;C++ 本來就有 cindent,不受影響)
+filetype indent on
 
 " ===== Cmd+← / Cmd+→ 跳到行首 / 行尾 =====
 " iTerm 把 Cmd+←/→ 送成 Home/End,tmux 再轉成 Ctrl+A / Ctrl+E
