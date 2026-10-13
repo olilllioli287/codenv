@@ -64,9 +64,13 @@ endfunction
 
 " 編譯器的訊息裡只留下跟自己檔案有關的部分
 " 編譯器常會附上一大串系統檔案(/Applications/Xcode.app/...)的 note,對找錯沒有幫助,全部拿掉
+" 有 error 時先不顯示 warning(連同它後面的 note):常常是 error 連帶造成的,容易搞混;
+" 最後一行說還有幾個,修好 error 再按 F9 就會出現(2026-10-13 加)
 function! s:OnlyMyFile(msg, err)
   let file = expand('%:t')
   let keep = 1
+  let hidden = 0
+  let in_warning = 0
   let lines = []
   let marks = []
   for line in split(a:msg, "\n")
@@ -75,6 +79,15 @@ function! s:OnlyMyFile(msg, err)
     let m = matchlist(plain, '^\(.\{-}\):\(\d\+\):\(\d\+\): \(fatal error\|error\|warning\|note\):')
     if !empty(m)
       let keep = m[1] ==# file
+      if a:err && m[4] ==# 'warning'
+        let hidden += keep
+        let keep = 0
+        let in_warning = 1
+      elseif m[4] !=# 'note'
+        let in_warning = 0
+      elseif in_warning
+        let keep = 0
+      endif
       if keep && m[4] !=# 'note'
         call add(marks, [str2nr(m[2]), str2nr(m[3]), m[4] =~# 'error'])
       endif
@@ -97,6 +110,9 @@ function! s:OnlyMyFile(msg, err)
     return a:msg
   endif
   call s:Mark(marks)
+  if hidden
+    call add(lines, s:dim . '(另外有 ' . hidden . ' 個 warning,常常是上面的 error 連帶造成的;修好 error 再按 F9 就會顯示)' . s:reset)
+  endif
   return join(lines, "\n")
 endfunction
 
