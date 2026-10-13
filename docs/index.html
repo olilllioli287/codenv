@@ -336,6 +336,17 @@ footer { border-top: 1px solid var(--line); }
     <h1>發行日誌</h1>
     <p class="lede">每次更新多了什麼、修了什麼。想更新到最新版，看<a href="#dl-update">下載頁的更新</a>。</p>
   </div>
+  <article class="release" id="log-1013a">
+    <time>2026-10-13</time>
+    <div class="body">
+      <h2>看得出有沒有存檔、有 error 時先不顯示 warning</h2>
+      <ul>
+        <li><span class="tag new">新功能</span>按 F9 後執行結果那格最後的 <code>✓ code is ok</code> 那一行，會跟著程式現在的狀態改變：一改程式就變成 <code>● 未儲存</code>，存檔後變成 <code>✓ 已存檔</code>，再按 F9 / F10 又顯示檢查結果。改了又用 Ctrl+Z 復原回存檔時的樣子，會變回原本的狀態。上面的錯誤訊息不會動。</li>
+        <li><span class="tag fix">改進</span>程式有 error 時，先不顯示 warning（連同它後面的 note），最後用一行灰字說還有幾個。這些 warning 常常是 error 連帶造成的，例如多打一個字讓編譯器把下一行看錯，修好 error 後通常會一起消失；沒消失的話再按 F9 就會顯示。</li>
+        <li><span class="tag new">新功能</span>想用 Mac 習慣的 Cmd+S 存檔，可以在 iTerm 加一條按鍵設定，做法在<a href="#manual-keys">編輯快捷鍵</a>下面。</li>
+      </ul>
+    </div>
+  </article>
   <article class="release" id="log-1012f">
     <time>2026-10-12</time>
     <div class="body">
@@ -741,7 +752,7 @@ int main()
       <div class="block" id="manual-f10">
         <h2><span class="no">2</span>F9 與 F10</h2>
         <ul>
-          <li><kbd>F9</kbd>：存檔，並檢查有沒有打錯。結果顯示在執行結果那格，最後一行用顏色標出 <code>✓ code is ok</code>、<code>⚠ code has warnings</code> 或 <code>✗ code is error</code>。游標留在 vim。</li>
+          <li><kbd>F9</kbd>：存檔，並檢查有沒有打錯。結果顯示在執行結果那格，最後一行用顏色標出 <code>✓ code is ok</code>、<code>⚠ code has warnings</code> 或 <code>✗ code is error</code>。游標留在 vim。之後一改程式，這一行會變成 <code>● 未儲存</code>，存檔後變成 <code>✓ 已存檔</code>，看一眼就知道有沒有存。</li>
           <li><kbd>F10</kbd>：存檔、編譯、執行。有錯就跟 F9 一樣只顯示錯誤；沒錯就在執行結果那格執行，游標跳過去，程式要輸入資料就在那裡打。按 <kbd>Esc</kbd> 跳回 vim。</li>
           <li>C++ 用 <code>g++ -std=c++17 -Wall</code> 編譯，執行檔放在旁邊的 <code>bin</code> 資料夾。Python 用 <code>python3</code> 執行。</li>
         </ul>
@@ -750,6 +761,7 @@ int main()
     6 |         for(r=1,r=r+1,r&lt;10)
       |                           ^</pre>
         <p>第一行：錯在第幾行、種類（<code>error</code> 是錯誤，不改就不能執行；<code>warning</code> 是提醒，可以執行但可能有問題）、說明。第二行把那行程式抄出來，<code>^</code> 指出編譯器發現問題的位置。<b>真正打錯的地方常常在 <code>^</code> 前面一點</b>。同一行在 vim 裡也會畫上紅色底線。</p>
+        <p>錯誤很多時，<b>先修第一個 error 再按一次 F9</b>：後面的訊息常常是第一個錯連帶造成的。有 error 時 warning 先不顯示，最後會用一行灰字說還有幾個。</p>
       </div>
 
       <div class="block" id="manual-exit">
@@ -803,6 +815,7 @@ int main()
           </tbody>
         </table></div>
         <div class="note"><span class="label">做不到的</span><p>⌘ Cmd 開頭的快捷鍵（⌘Z、⌘S、⌘C）會被 iTerm 自己攔走，傳不到 vim，請用上面的 Ctrl 版本。Ctrl+A 全選也不行，因為 Ctrl+A 是 tmux 的指令鍵。</p></div>
+        <div class="note"><span class="label">想用 Cmd+S 存檔</span><p>在 iTerm 加一條按鍵設定，讓 Cmd+S 送出 Ctrl+S：按 <kbd>⌘ Cmd</kbd>+<kbd>,</kbd> 打開設定 → 上方的 <b>Profiles</b> → <b>Keys</b> 分頁的 <b>Key Mappings</b> → 按清單下方的 <b>+</b> → 點 Keyboard Shortcut 的格子後按 Cmd+S → Action 選 <b>Send Hex Code</b>，欄位填 <code>0x13</code> → 下面的選單不要選 Apply to current session（只對目前分頁有效）→ 按 OK。馬上就能用，不用重開 iTerm。</p></div>
       </div>
 
       <div class="block" id="manual-tmux-basics">
@@ -1047,6 +1060,8 @@ int main()
           <li>程式結束後檢查 exit code，130 以外的非 0 值用紅字標示，並說明常見原因。</li>
           <li>Windows 相容：編譯時加 <code>-I ~/.codenv-compat/include</code>（提供 <code>bits/stdc++.h</code>，以及用 <code>termios</code> 暫時切成不等 Enter、不回顯的 <code>conio.h</code>；<code>getch()</code> 直接 <code>read()</code> 鍵盤，不經過 <code>cin</code> 的緩衝區，跟 Windows 一樣讀不到前面留下的 Enter）和 <code>-include codenv-unbuffered.h</code>（程式開始前 <code>setvbuf(stdout, nullptr, _IONBF, 0)</code>，輸出不等換行就顯示）；執行時把 <code>~/.codenv-compat/bin</code> 放進 <code>PATH</code>，<code>system("pause")</code>、<code>system("cls")</code> 才找得到指令。Python 加 <code>PYTHONUNBUFFERED=1</code>。用到 <code>windows.h</code> 時在錯誤訊息下面加一行中文說明。</li>
           <li>Python：<code>py_compile</code> 的縮排錯誤格式是 <code>Sorry: IndentationError: … (檔名, line N)</code>，跟一般的 <code>File "…", line N</code> 不同，兩種都抓行號；常見的幾種錯誤加一行中文說明。</li>
+          <li>有 error 時，<code>warning</code> 和跟在它後面的 <code>note</code> 不顯示，最後加一行灰字說隱藏了幾個；只有 warning 時照常全部顯示。</li>
+          <li>存檔狀態：<code>BufWritePost</code>、<code>TextChanged</code>、<code>TextChangedI</code> 判斷檔案現在是已存檔、未儲存，還是剛檢查過（記在 <code>b:code_state</code>，狀態沒變就不做事）。改變時用 <code>tmux capture-pane</code> 找執行結果那格畫面上的狀態行，再直接寫進那格的終端機（<code>pane_tty</code>）：<code>ESC 7</code> 記住游標、移到那一行清掉重寫、<code>ESC 8</code> 放回游標，所以不會打斷那格的 shell。找不到狀態行就不改。</li>
           <li>連結錯誤：訊息裡有 <code>Undefined symbols</code> 時，從 <code>"名稱", referenced from</code> 抓出找不到的函式，<code>_main</code> 另外提示 main 打錯字。</li>
         </ul>
       </div>

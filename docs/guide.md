@@ -164,6 +164,16 @@ Release Notes
 
 每次更新多了什麼、修了什麼。想更新到最新版，看下載頁的更新。
 
+2026-10-13
+
+## 看得出有沒有存檔、有 error 時先不顯示 warning
+
+- 【新功能】按 F9 後執行結果那格最後的 `✓ code is ok` 那一行，會跟著程式現在的狀態改變：一改程式就變成 `● 未儲存`，存檔後變成 `✓ 已存檔`，再按 F9 / F10 又顯示檢查結果。改了又用 Ctrl+Z 復原回存檔時的樣子，會變回原本的狀態。上面的錯誤訊息不會動。
+
+- 【改進】程式有 error 時，先不顯示 warning（連同它後面的 note），最後用一行灰字說還有幾個。這些 warning 常常是 error 連帶造成的，例如多打一個字讓編譯器把下一行看錯，修好 error 後通常會一起消失；沒消失的話再按 F9 就會顯示。
+
+- 【新功能】想用 Mac 習慣的 Cmd+S 存檔，可以在 iTerm 加一條按鍵設定，做法在編輯快捷鍵下面。
+
 2026-10-12
 
 ## 整數除以 0 會提示、放大畫面時的 F9 / F10
@@ -644,7 +654,7 @@ Manual
 
 ## F9 與 F10
 
-- [F9]：存檔，並檢查有沒有打錯。結果顯示在執行結果那格，最後一行用顏色標出 `✓ code is ok`、`⚠ code has warnings` 或 `✗ code is error`。游標留在 vim。
+- [F9]：存檔，並檢查有沒有打錯。結果顯示在執行結果那格，最後一行用顏色標出 `✓ code is ok`、`⚠ code has warnings` 或 `✗ code is error`。游標留在 vim。之後一改程式，這一行會變成 `● 未儲存`，存檔後變成 `✓ 已存檔`，看一眼就知道有沒有存。
 
 - [F10]：存檔、編譯、執行。有錯就跟 F9 一樣只顯示錯誤；沒錯就在執行結果那格執行，游標跳過去，程式要輸入資料就在那裡打。按 [Esc] 跳回 vim。
 
@@ -661,6 +671,8 @@ Manual
 ```
 
 第一行：錯在第幾行、種類（`error` 是錯誤，不改就不能執行；`warning` 是提醒，可以執行但可能有問題）、說明。第二行把那行程式抄出來，`^` 指出編譯器發現問題的位置。真正打錯的地方常常在 `^` 前面一點。同一行在 vim 裡也會畫上紅色底線。
+
+錯誤很多時，先修第一個 error 再按一次 F9：後面的訊息常常是第一個錯連帶造成的。有 error 時 warning 先不顯示，最後會用一行灰字說還有幾個。
 
 3
 
@@ -714,6 +726,10 @@ vim 有兩種主要模式：一般模式打的字是指令，輸入模式打的�
 做不到的
 
 ⌘ Cmd 開頭的快捷鍵（⌘Z、⌘S、⌘C）會被 iTerm 自己攔走，傳不到 vim，請用上面的 Ctrl 版本。Ctrl+A 全選也不行，因為 Ctrl+A 是 tmux 的指令鍵。
+
+想用 Cmd+S 存檔
+
+在 iTerm 加一條按鍵設定，讓 Cmd+S 送出 Ctrl+S：按 [⌘ Cmd]+[,] 打開設定 → 上方的 Profiles → Keys 分頁的 Key Mappings → 按清單下方的 + → 點 Keyboard Shortcut 的格子後按 Cmd+S → Action 選 Send Hex Code，欄位填 `0x13` → 下面的選單不要選 Apply to current session（只對目前分頁有效）→ 按 OK。馬上就能用，不用重開 iTerm。
 
 6
 
@@ -997,6 +1013,10 @@ Technical Docs
 - Windows 相容：編譯時加 `-I ~/.codenv-compat/include`（提供 `bits/stdc++.h`，以及用 `termios` 暫時切成不等 Enter、不回顯的 `conio.h`；`getch()` 直接 `read()` 鍵盤，不經過 `cin` 的緩衝區，跟 Windows 一樣讀不到前面留下的 Enter）和 `-include codenv-unbuffered.h`（程式開始前 `setvbuf(stdout, nullptr, _IONBF, 0)`，輸出不等換行就顯示）；執行時把 `~/.codenv-compat/bin` 放進 `PATH`，`system("pause")`、`system("cls")` 才找得到指令。Python 加 `PYTHONUNBUFFERED=1`。用到 `windows.h` 時在錯誤訊息下面加一行中文說明。
 
 - Python：`py_compile` 的縮排錯誤格式是 `Sorry: IndentationError: … (檔名, line N)`，跟一般的 `File "…", line N` 不同，兩種都抓行號；常見的幾種錯誤加一行中文說明。
+
+- 有 error 時，`warning` 和跟在它後面的 `note` 不顯示，最後加一行灰字說隱藏了幾個；只有 warning 時照常全部顯示。
+
+- 存檔狀態：`BufWritePost`、`TextChanged`、`TextChangedI` 判斷檔案現在是已存檔、未儲存，還是剛檢查過（記在 `b:code_state`，狀態沒變就不做事）。改變時用 `tmux capture-pane` 找執行結果那格畫面上的狀態行，再直接寫進那格的終端機（`pane_tty`）：`ESC 7` 記住游標、移到那一行清掉重寫、`ESC 8` 放回游標，所以不會打斷那格的 shell。找不到狀態行就不改。
 
 - 連結錯誤：訊息裡有 `Undefined symbols` 時，從 `"名稱", referenced from` 抓出找不到的函式，`_main` 另外提示 main 打錯字。
 
