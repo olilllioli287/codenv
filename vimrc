@@ -212,9 +212,10 @@ function! s:EchoStatus(err, msg)
   call s:State(a:err ? 'error' : empty(a:msg) ? 'ok' : 'warn')
 endfunction
 
-" 畫面最下面那條(tmux 的狀態列)左邊顯示這個檔案的狀態(2026-10-13 加):
+" 執行結果那格上面的分隔線左邊顯示這個檔案的狀態(2026-10-13 加):
 "   存檔後「已存檔」,一改就變「未儲存」;按 F9 / F10 檢查後顯示 code is ok / error,之後一改又變「未儲存」
 "   改了又復原回存檔時的樣子,會變回原本的狀態
+"   分隔線上要能顯示字,tmux 得替每一格加一條標題線(視窗最上面會多一條線),所以只在開著 vim 的視窗打開,關掉 vim 就收回
 let s:states = {
       \ 'saved': '#[fg=green]✓ 已存檔',
       \ 'unsaved': '#[fg=yellow,bright]● 未儲存',
@@ -233,23 +234,29 @@ function! s:State(...)
   " 打字時每個字都會呼叫,狀態沒變就不用再告訴 tmux
   if state !=# s:shown
     let s:shown = state
-    call system('tmux set -w -t ' . $TMUX_PANE . ' @codestate ' . shellescape(get(s:states, state, '')))
+    let run = s:FindRunPane()
+    call system('tmux set -w -t ' . $TMUX_PANE . ' @codestate ' . shellescape(get(s:states, state, ''))
+          \ . ' \; set -w -t ' . $TMUX_PANE . ' @coderun ' . (run ==# $TMUX_PANE ? '""' : run)
+          \ . ' \; set -w -t ' . $TMUX_PANE . ' pane-border-status ' . (run ==# $TMUX_PANE ? 'off' : 'top'))
   endif
 endfunction
 augroup codestate
   autocmd!
   autocmd BufWritePost * call s:State('saved')
   autocmd VimEnter,BufEnter,TextChanged,TextChangedI * call s:State()
-  autocmd VimLeave * if !empty($TMUX) | call system('tmux set -wu -t ' . $TMUX_PANE . ' @codestate') | endif
+  autocmd VimLeave * if !empty($TMUX) | call system('tmux set -wu -t ' . $TMUX_PANE . ' @codestate \; set -wu -t ' . $TMUX_PANE . ' @coderun \; set -wu -t ' . $TMUX_PANE . ' pane-border-status') | endif
 augroup END
 
 " 找執行結果那格:優先用這個 vim 上次用的那格(有 @cppvim 標記),沒有才用右下角那格(2026-10-12 改)
 " 這格被放大(Ctrl+A 選單的「放大這格」)時先還原,不然看不到結果,右下角也會找成 vim 自己而多開一格
 function! s:RunPane()
-  let panes = systemlist('tmux list-panes -t ' . $TMUX_PANE . ' -F "#{pane_id} #{window_zoomed_flag} #{window_id} #{@cppvim}"')
-  if get(split(get(panes, 0, '')), 1, '') ==# '1'
+  if trim(system('tmux display -p -t ' . $TMUX_PANE . ' "#{window_zoomed_flag}"')) ==# '1'
     call system('tmux resize-pane -Z -t ' . $TMUX_PANE)
   endif
+  return s:FindRunPane()
+endfunction
+function! s:FindRunPane()
+  let panes = systemlist('tmux list-panes -t ' . $TMUX_PANE . ' -F "#{pane_id} #{window_zoomed_flag} #{window_id} #{@cppvim}"')
   for pane in panes
     let f = split(pane)
     if len(f) == 4 && f[3] ==# $TMUX_PANE
@@ -283,6 +290,7 @@ function! s:ShowInPane(lines, after, focus)
   " 先清掉上一次留下的捲動紀錄,往上捲時只會看到這一次的訊息
   call system('tmux clear-history -t ' . target . ' \; respawn-pane -k -t ' . target . ' -c ' . shellescape(expand('%:p:h')) . ' ' . shellescape(cmd))
   " 標記這格並記住 vim 在哪(在那格按 Esc 會跳回 vim,見 ~/.tmux.conf)
+  let s:shown = ''
   call system('tmux set -p -t ' . target . ' @cppvim ' . $TMUX_PANE . ' \; set -p -t ' . target . ' @cpprun 1' . (a:focus ? ' \; select-pane -t ' . target : ''))
   redraw!
 endfunction
@@ -336,7 +344,6 @@ function! RunCode()
     call s:EchoStatus(err, msg)
     return
   endif
-  call s:State(empty(msg) ? 'ok' : 'warn')
   let report = empty(msg) ? [] : s:Report(0, msg) + [s:dim . '──────── 開始執行 ────────' . s:reset]
   " 程式不是正常結束(exit code 不是 0)就用紅字標示,常見的幾種順便說明原因;按 Ctrl+C 停止(130)只淡淡提示
   " C++ 的 main 裡 return 1 這類也會走到最後一種,所以不說「出錯」,改說回傳值不是 0
@@ -351,6 +358,7 @@ function! RunCode()
         \ . ' *) why="' . other . '" ;; esac;'
         \ . ' [ -n "$why" ] && printf ''\n\033[1;31m✗ code is error\033[0m(%s,exit code %s)\n'' "$why" $s'
   call s:ShowInPane(report, run, 1)
+  call s:State(empty(msg) ? 'ok' : 'warn')
 endfunction
 
 nnoremap <F9> :call CheckCode()<CR>
