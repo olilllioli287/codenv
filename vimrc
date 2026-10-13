@@ -252,6 +252,14 @@ function! s:State(...)
     return
   endif
   let s:shown = state
+  " 改寫那一行要問 tmux 好幾次(約 50 毫秒),等打的字先顯示出來再做
+  call timer_start(0, {-> s:Rewrite(state)})
+endfunction
+function! s:Rewrite(state)
+  " 這段時間裡狀態又變了(例如 F9 剛印出新的結果)就不改
+  if a:state !=# s:shown
+    return
+  endif
   let run = s:FindRunPane()
   if run ==# $TMUX_PANE
     return
@@ -268,7 +276,7 @@ function! s:State(...)
         let j += 1
         let clear .= "\e[" . (j + 1) . ";1H\e[2K"
       endwhile
-      call system('printf %s ' . shellescape("\e7" . clear . "\e[" . (i + 1) . ";1H\e[2K" . s:states[state] . s:reset . "\e8") . ' > ' . shellescape(tty))
+      call writefile(["\e7" . clear . "\e[" . (i + 1) . ";1H\e[2K" . s:states[a:state] . s:reset . "\e8"], tty, 'b')
       return
     endif
   endfor
