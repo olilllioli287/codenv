@@ -209,19 +209,19 @@ function! s:EchoStatus(err, msg)
   else
     echo '已存檔,code is ok'
   endif
-  call s:State(a:err ? 'error' : empty(a:msg) ? 'ok' : 'warn')
+  call s:Checked(a:err ? 'error' : empty(a:msg) ? 'ok' : 'warn')
 endfunction
 
-" 執行結果那格上面的分隔線左邊顯示這個檔案的狀態(2026-10-13 加):
-"   存檔後「已存檔」,一改就變「未儲存」;按 F9 / F10 檢查後顯示 code is ok / error,之後一改又變「未儲存」
-"   改了又復原回存檔時的樣子,會變回原本的狀態
-"   分隔線上要能顯示字,tmux 得替每一格加一條標題線(視窗最上面會多一條線),所以只在開著 vim 的視窗打開,關掉 vim 就收回
+" 執行結果那格裡 F9 印的「✓ code is ok」那一行,會跟著這個檔案現在的狀態改寫(2026-10-13 加):
+"   一改就變「● 未儲存」,存檔後變「✓ 已存檔」,再按 F9 / F10 檢查又是 code is ok / error
+"   改了又復原回存檔時的樣子,會變回原本的狀態;上面的錯誤訊息不會動
+"   找不到那一行(還沒按過 F9、捲出畫面、或那格在跑程式)就不改;程式執行時出錯的那行(後面有「(原因」)也不改
 let s:states = {
-      \ 'saved': '#[fg=green]✓ 已存檔',
-      \ 'unsaved': '#[fg=yellow,bright]● 未儲存',
-      \ 'ok': '#[fg=green,bright]✓ code is ok',
-      \ 'warn': '#[fg=yellow,bright]⚠ code has warnings',
-      \ 'error': '#[fg=red,bright]✗ code is error'}
+      \ 'saved': s:green . '✓ 已存檔',
+      \ 'unsaved': s:yellow . '● 未儲存',
+      \ 'ok': s:green . '✓ code is ok',
+      \ 'warn': s:yellow . '⚠ code has warnings(可以執行,但建議看一下)',
+      \ 'error': s:red . '✗ code is error'}
 let s:shown = ''
 function! s:State(...)
   if empty($TMUX)
@@ -231,20 +231,41 @@ function! s:State(...)
     let b:code_state = a:1
   endif
   let state = &modified ? 'unsaved' : empty(expand('%')) ? '' : get(b:, 'code_state', 'saved')
-  " 打字時每個字都會呼叫,狀態沒變就不用再告訴 tmux
-  if state !=# s:shown
-    let s:shown = state
-    let run = s:FindRunPane()
-    call system('tmux set -w -t ' . $TMUX_PANE . ' @codestate ' . shellescape(get(s:states, state, ''))
-          \ . ' \; set -w -t ' . $TMUX_PANE . ' @coderun ' . (run ==# $TMUX_PANE ? '""' : run)
-          \ . ' \; set -w -t ' . $TMUX_PANE . ' pane-border-status ' . (run ==# $TMUX_PANE ? 'off' : 'top'))
+  " 打字時每個字都會呼叫,狀態沒變就不用再去改
+  if state ==# s:shown || empty(state)
+    return
   endif
+  let s:shown = state
+  let run = s:FindRunPane()
+  if run ==# $TMUX_PANE
+    return
+  endif
+  let rows = systemlist('tmux capture-pane -p -t ' . run)
+  for i in range(len(rows) - 1, 0, -1)
+    if rows[i] =~# '^\%(✓ code is ok\|✗ code is error\%( \|$\)\|⚠ code has warnings\|✓ 已存檔\|● 未儲存\)'
+      " 直接寫到那格的終端機:記住游標、移到那一行、清掉重寫、游標放回原處
+      " 原本那行太長折到下一行的部分(例如「訊息較長」的提示)也一起清掉
+      let [tty, width] = split(system('tmux display -p -t ' . run . ' "#{pane_tty} #{pane_width}"'))
+      let clear = ''
+      let j = i
+      while j + 1 < len(rows) && strdisplaywidth(rows[j]) >= width - 1
+        let j += 1
+        let clear .= "\e[" . (j + 1) . ";1H\e[2K"
+      endwhile
+      call system('printf %s ' . shellescape("\e7" . clear . "\e[" . (i + 1) . ";1H\e[2K" . s:states[state] . s:reset . "\e8") . ' > ' . shellescape(tty))
+      return
+    endif
+  endfor
+endfunction
+" F9 / F10 剛印出結果:那一行已經是對的,只要記住狀態,不用再改寫(改寫會把「訊息較長」的提示洗掉)
+function! s:Checked(state)
+  let b:code_state = a:state
+  let s:shown = a:state
 endfunction
 augroup codestate
   autocmd!
   autocmd BufWritePost * call s:State('saved')
-  autocmd VimEnter,BufEnter,TextChanged,TextChangedI * call s:State()
-  autocmd VimLeave * if !empty($TMUX) | call system('tmux set -wu -t ' . $TMUX_PANE . ' @codestate \; set -wu -t ' . $TMUX_PANE . ' @coderun \; set -wu -t ' . $TMUX_PANE . ' pane-border-status') | endif
+  autocmd BufEnter,TextChanged,TextChangedI * call s:State()
 augroup END
 
 " 找執行結果那格:優先用這個 vim 上次用的那格(有 @cppvim 標記),沒有才用右下角那格(2026-10-12 改)
@@ -290,7 +311,6 @@ function! s:ShowInPane(lines, after, focus)
   " 先清掉上一次留下的捲動紀錄,往上捲時只會看到這一次的訊息
   call system('tmux clear-history -t ' . target . ' \; respawn-pane -k -t ' . target . ' -c ' . shellescape(expand('%:p:h')) . ' ' . shellescape(cmd))
   " 標記這格並記住 vim 在哪(在那格按 Esc 會跳回 vim,見 ~/.tmux.conf)
-  let s:shown = ''
   call system('tmux set -p -t ' . target . ' @cppvim ' . $TMUX_PANE . ' \; set -p -t ' . target . ' @cpprun 1' . (a:focus ? ' \; select-pane -t ' . target : ''))
   redraw!
 endfunction
@@ -358,7 +378,7 @@ function! RunCode()
         \ . ' *) why="' . other . '" ;; esac;'
         \ . ' [ -n "$why" ] && printf ''\n\033[1;31m✗ code is error\033[0m(%s,exit code %s)\n'' "$why" $s'
   call s:ShowInPane(report, run, 1)
-  call s:State(empty(msg) ? 'ok' : 'warn')
+  call s:Checked(empty(msg) ? 'ok' : 'warn')
 endfunction
 
 nnoremap <F9> :call CheckCode()<CR>
