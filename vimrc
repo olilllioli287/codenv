@@ -212,7 +212,7 @@ function! s:EchoStatus(err, msg)
   call s:State(a:err ? 'error' : empty(a:msg) ? 'ok' : 'warn')
 endfunction
 
-" 畫面右下角(tmux 最下面那條的右邊)顯示這個檔案的狀態(2026-10-13 加):
+" 畫面最下面那條(tmux 的狀態列)左邊顯示這個檔案的狀態(2026-10-13 加):
 "   存檔後「已存檔」,一改就變「未儲存」;按 F9 / F10 檢查後顯示 code is ok / error,之後一改又變「未儲存」
 "   改了又復原回存檔時的樣子,會變回原本的狀態
 let s:states = {
