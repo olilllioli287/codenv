@@ -32,8 +32,42 @@ if [[ -x ~/.codenv-board ]] && cmp -s codenv-board.swift ~/.codenv-board.swift; 
 elif command -v swiftc >/dev/null && swiftc -O -swift-version 5 codenv-board.swift -o ~/.codenv-board 2>/dev/null; then
   cp codenv-board.swift ~/.codenv-board.swift
   print "已安裝 ~/.codenv-board(用滑鼠排列格子的視窗)"
+  board_new=1
 else
   print "~/.codenv-board 沒有裝成(需要第 1 步的編譯器):排列格子改用選單裡的「模塊化排列」"
+fi
+
+# Cmd+Ctrl+A 在任何地方叫出排列視窗(2026-10-15 加):登入時在背景啟動 ~/.codenv-board --daemon
+# 不要的話執行這兩行就會關掉、以後也不會再啟動:
+#   launchctl bootout gui/$UID/io.github.olilllioli287.codenv-board
+#   rm ~/Library/LaunchAgents/io.github.olilllioli287.codenv-board.plist
+# (用假的 HOME 測試安裝時不會設定,免得動到真正的登入項目)
+agent=io.github.olilllioli287.codenv-board
+plist=~/Library/LaunchAgents/$agent.plist
+if [[ -x ~/.codenv-board ]] && [[ $HOME == "$(dscl . -read /Users/$(id -un) NFSHomeDirectory 2>/dev/null | awk '{print $2}')" ]]; then
+  want="<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
+<plist version=\"1.0\">
+<dict>
+  <key>Label</key><string>$agent</string>
+  <key>ProgramArguments</key><array><string>$HOME/.codenv-board</string><string>--daemon</string></array>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><dict><key>SuccessfulExit</key><false/></dict>
+  <key>ProcessType</key><string>Interactive</string>
+</dict>
+</plist>"
+  if [[ -z $board_new && -e $plist && "$(<$plist)" == "$want" ]] && launchctl print gui/$UID/$agent >/dev/null 2>&1; then
+    print "Cmd+Ctrl+A(叫出排列視窗)已經設定好了"
+  else
+    mkdir -p ~/Library/LaunchAgents
+    print -r -- "$want" > $plist
+    launchctl bootout gui/$UID/$agent 2>/dev/null
+    if launchctl bootstrap gui/$UID $plist; then
+      print "已設定 Cmd+Ctrl+A:在任何 App 按一下叫出排列視窗,再按一下收起來(登入時自動在背景啟動)"
+    else
+      print "Cmd+Ctrl+A 沒有設定成功:排列視窗還是可以從 Ctrl+A 兩下的選單打開"
+    fi
+  fi
 fi
 
 # Windows 寫的程式在 Mac 上也能跑:bits/stdc++.h、conio.h、system("pause")、system("cls") 等(F9 / F10 會用到)

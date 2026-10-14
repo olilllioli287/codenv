@@ -4,13 +4,18 @@
 //   把 window 拖到另一個 window 上 → 交換位置(swap-window);拖到別的 session → 搬過去(move-window)
 //   拖到最下面的「新 session」→ 開一個新的 session 裝它
 //   點一下 pane → 切換過去;雙擊名字或按右鍵 → 改名、換排列方式;Esc 或 Cmd+W 關掉
-// 用法: codenv-board [--socket tmux的socket路徑] [--client tmux的client名稱]
-//   沒給 --socket 時用 $TMUX 指的那個 tmux(從 tmux 選單打開時就是目前這個)
+// 用法: codenv-board [--socket tmux的socket路徑] [--client tmux的client名稱] [--daemon]
+//   沒給 --socket 時用 $TMUX 指的那個 tmux(從 tmux 選單打開時就是目前這個),
+//   連 $TMUX 都沒有就用 tmux 預設的那個(/private/tmp/tmux-<uid>/default)
+//   --daemon(2026-10-15 加):登入時由 LaunchAgent 在背景啟動,平常不顯示;
+//     在任何 App 按 Cmd+Ctrl+A 叫出來,再按一次收起來。Esc、Cmd+W、Cmd+Q 都只是收起來,快捷鍵會一直有效
+//     用的是 Carbon 的 RegisterEventHotKey,不需要「輔助使用」權限
 // 編譯: swiftc -O -swift-version 5 codenv-board.swift -o ~/.codenv-board
 
 import AppKit
 import SwiftUI
 import UniformTypeIdentifiers
+import Carbon.HIToolbox
 
 // MARK: - tmux
 
@@ -44,7 +49,7 @@ struct Session: Identifiable, Equatable {
 
 final class Tmux {
     let socket: String?
-    let client: String?
+    var client: String?     // 從選單打開時是那個 tmux client;按快捷鍵叫出來時是 nil(切到最近用過的 client)
     let path: String
 
     init(socket: String?, client: String?) {
@@ -58,7 +63,8 @@ final class Tmux {
     func run(_ args: [String]) -> (ok: Bool, out: String) {
         let task = Process()
         task.executableURL = URL(fileURLWithPath: path == "tmux" ? "/usr/bin/env" : path)
-        var full = path == "tmux" ? ["tmux"] : []
+        // -u:背景啟動時沒有 LANG,不加的話中文名字會變成底線
+        var full = (path == "tmux" ? ["tmux"] : []) + ["-u"]
         if let socket { full += ["-S", socket] }
         task.arguments = full + args
         // 不讓 tmux 自己去讀 $TMUX,一律用上面指定的 socket
@@ -126,6 +132,7 @@ final class Board: ObservableObject {
     @Published var sessions: [Session] = []
     @Published var message = ""
     @Published var offline = false
+    var paused = false      // 視窗收起來時不用每秒去問 tmux
     let tmux: Tmux
     private var timer: Timer?
     private var dragStarted: Date?
@@ -133,7 +140,9 @@ final class Board: ObservableObject {
     init(tmux: Tmux) {
         self.tmux = tmux
         refresh()
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in self?.refresh() }
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            if self?.paused == false { self?.refresh() }
+        }
     }
 
     func refresh(force: Bool = false) {
@@ -308,7 +317,7 @@ struct BoardView: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .firstTextBaseline) {
                 Text("tmux 排列").font(.title2.bold())
-                Text("把 pane 拖到別的 window 就會合併,拖到「新 window」會拆出來;window 拖到 window 上會交換位置。點 pane 切換過去,雙擊名字或按右鍵可以改名。Esc 或 Cmd+W 關掉。")
+                Text("把 pane 拖到別的 window 就會合併,拖到「新 window」會拆出來;window 拖到 window 上會交換位置。點 pane 切換過去,雙擊名字或按右鍵可以改名。Esc 或 Cmd+W 關掉;在任何地方按 Cmd+Ctrl+A 叫出來或收起來。")
                     .font(.callout).foregroundStyle(.secondary)
                 Spacer()
                 NewSessionButton(board: board)
@@ -322,7 +331,7 @@ struct BoardView: View {
             if board.offline {
                 VStack(spacing: 8) {
                     Text("找不到 tmux").font(.title3)
-                    Text("請先輸入 codenv 或 tmux 開好畫面,再從 Ctrl+A 兩下的選單打開這個視窗。").foregroundStyle(.secondary)
+                    Text("請先輸入 codenv 或 tmux 開好畫面,這裡就會列出來。").foregroundStyle(.secondary)
                 }.frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 ScrollView {
@@ -561,7 +570,30 @@ final class FirstMouseHostingView<V: View>: NSHostingView<V> {
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
 }
 
-final class AppDelegate: NSObject, NSApplicationDelegate {
+// 沒有 $TMUX 時(例如登入時背景啟動)用 tmux 預設的 socket;寫法跟 $TMUX 裡的一樣,兩邊才認得是同一個 tmux
+func socketArg() -> String? {
+    let args = CommandLine.arguments
+    if let i = args.firstIndex(of: "--socket"), i + 1 < args.count { return args[i + 1] }
+    if let t = ProcessInfo.processInfo.environment["TMUX"], let first = t.split(separator: ",").first { return String(first) }
+    return "/private/tmp/tmux-\(getuid())/default"
+}
+let daemon = CommandLine.arguments.contains("--daemon")
+
+// Cmd+Ctrl+A 全域快捷鍵(Carbon 的 C 函式不能抓外面的變數,所以要做的事放在全域變數)
+var hotKeyAction: (() -> Void)?
+var hotKeyRef: EventHotKeyRef?
+func registerHotKey() -> Bool {
+    var spec = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
+    InstallEventHandler(GetApplicationEventTarget(), { _, _, _ in
+        DispatchQueue.main.async { hotKeyAction?() }
+        return noErr
+    }, 1, &spec, nil, nil)
+    // kVK_ANSI_A 是鍵盤上 A 那顆鍵的位置,開著注音也一樣
+    let id = EventHotKeyID(signature: OSType(0x63646E76), id: 1)
+    return RegisterEventHotKey(UInt32(kVK_ANSI_A), UInt32(cmdKey | controlKey), id, GetApplicationEventTarget(), 0, &hotKeyRef) == noErr
+}
+
+final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     var window: NSWindow!
     var board: Board!
 
@@ -571,22 +603,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             guard let i = args.firstIndex(of: flag), i + 1 < args.count else { return nil }
             return args[i + 1]
         }
-        var socket = value("--socket")
-        if socket == nil, let t = ProcessInfo.processInfo.environment["TMUX"], let first = t.split(separator: ",").first {
-            socket = String(first)
-        }
+        let socket = socketArg()
         board = Board(tmux: Tmux(socket: socket, client: value("--client")))
         window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 900, height: 620),
                           styleMask: [.titled, .closable, .resizable, .miniaturizable], backing: .buffered, defer: false)
         window.title = "tmux 排列"
         window.contentView = FirstMouseHostingView(rootView: BoardView(board: board))
         window.isReleasedWhenClosed = false
+        window.delegate = self
         window.level = .floating            // 浮在 iTerm 上面,拖曳時不會被蓋住
         window.center()
         window.setFrameAutosaveName("codenv-board")
-        window.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
         NSApp.mainMenu = makeMenu()
+        if daemon {
+            board.paused = true
+            hotKeyAction = { [weak self] in self?.toggle() }
+            if !registerHotKey() { FileHandle.standardError.write("codenv-board: Cmd+Ctrl+A 已經被別的程式用掉了\n".data(using: .utf8)!) }
+        } else {
+            window.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+        }
         // Esc 關掉視窗(改名框開著的時候 Esc 是取消改名,那時候按鍵是送到改名框,不會到這裡)
         NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] e in
             guard let w = self?.window, e.keyCode == 53, e.window === w, w.attachedSheet == nil else { return e }
@@ -596,25 +632,56 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if let path = value("--print-window-id") {
             try? String(window.windowNumber).write(toFile: path, atomically: true, encoding: .utf8)
         }
-        // 已經開著的話,再打開一次就把舊的叫到最前面(新的自己結束)
-        DistributedNotificationCenter.default().addObserver(forName: Notification.Name("codenv-board.show"), object: socket, queue: .main) { [weak self] _ in
-            self?.window.makeKeyAndOrderFront(nil)
-            NSApp.activate(ignoringOtherApps: true)
-            self?.board.refresh(force: true)
+        // 已經開著的話,再打開一次就把舊的叫到最前面(新的自己結束);從選單打開的會帶上 tmux client 名稱
+        DistributedNotificationCenter.default().addObserver(forName: Notification.Name("codenv-board.show"), object: socket, queue: .main) { [weak self] note in
+            self?.show(client: note.userInfo?["client"] as? String)
         }
     }
 
-    func applicationShouldTerminateAfterLastWindowClosed(_ app: NSApplication) -> Bool { true }
+    func show(client: String?) {
+        board.tmux.client = client
+        board.paused = false
+        board.refresh(force: true)
+        NSApp.setActivationPolicy(.regular)
+        NSApp.unhide(nil)
+        window.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+    }
+
+    // 背景模式:收起來(Dock 圖示也拿掉),鍵盤還給原本在用的 App
+    @objc func hide() {
+        window.orderOut(nil)
+        board.paused = true
+        NSApp.hide(nil)
+        NSApp.setActivationPolicy(.accessory)
+    }
+
+    func toggle() {
+        if window.isVisible { hide() } else { show(client: nil) }
+    }
+
+    func windowShouldClose(_ sender: NSWindow) -> Bool {
+        if daemon { hide(); return false }
+        return true
+    }
+
+    func applicationShouldTerminateAfterLastWindowClosed(_ app: NSApplication) -> Bool { !daemon }
 
     // 選單列:Cmd+Q 結束、Cmd+W 關視窗,還有改名時要用的 Cmd+C / Cmd+V
     func makeMenu() -> NSMenu {
         let main = NSMenu()
         func add(_ title: String, _ items: [(String, Selector, String)]) {
             let m = NSMenu(title: title)
-            for (t, sel, key) in items { m.addItem(NSMenuItem(title: t, action: sel, keyEquivalent: key)) }
+            for (t, sel, key) in items {
+                let item = NSMenuItem(title: t, action: sel, keyEquivalent: key)
+                if sel == #selector(hide) { item.target = self }
+                m.addItem(item)
+            }
             let top = NSMenuItem(); top.submenu = m; main.addItem(top)
         }
-        add("tmux 排列", [("結束 tmux 排列", #selector(NSApplication.terminate(_:)), "q")])
+        // 背景模式的 Cmd+Q 只收起來,不然結束後 Cmd+Ctrl+A 就沒反應了
+        add("tmux 排列", [daemon ? ("收起 tmux 排列(Cmd+Ctrl+A 再叫出來)", #selector(hide), "q")
+                                 : ("結束 tmux 排列", #selector(NSApplication.terminate(_:)), "q")])
         add("編輯", [("還原", Selector(("undo:")), "z"), ("剪下", #selector(NSText.cut(_:)), "x"),
                      ("拷貝", #selector(NSText.copy(_:)), "c"), ("貼上", #selector(NSText.paste(_:)), "v"),
                      ("全選", #selector(NSText.selectAll(_:)), "a")])
@@ -624,24 +691,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 }
 
 // 同一個 tmux 只開一個視窗:已經有的話請它出來,自己結束
-let lockSocket: String? = {
-    let args = CommandLine.arguments
-    if let i = args.firstIndex(of: "--socket"), i + 1 < args.count { return args[i + 1] }
-    return ProcessInfo.processInfo.environment["TMUX"]?.split(separator: ",").first.map(String.init)
-}()
+// 背景模式不讓位:它要一直開著接快捷鍵(之前從選單開的那個視窗關掉就沒了)
+let lockSocket = socketArg()
 // Swift 的 hashValue 每次執行都不一樣,自己算一個固定的
 let lockKey = (lockSocket ?? "default").utf8.reduce(UInt32(5381)) { ($0 &* 33) &+ UInt32($1) }
 let lockPath = NSTemporaryDirectory() + "codenv-board-" + String(lockKey, radix: 16) + ".pid"
 if let old = try? String(contentsOfFile: lockPath, encoding: .utf8), let pid = Int32(old.trimmingCharacters(in: .whitespacesAndNewlines)),
-   pid != getpid(), kill(pid, 0) == 0 {
-    DistributedNotificationCenter.default().postNotificationName(Notification.Name("codenv-board.show"), object: lockSocket, userInfo: nil, deliverImmediately: true)
+   pid != getpid(), kill(pid, 0) == 0, !daemon {
+    let client = CommandLine.arguments.firstIndex(of: "--client").flatMap { $0 + 1 < CommandLine.arguments.count ? CommandLine.arguments[$0 + 1] : nil }
+    DistributedNotificationCenter.default().postNotificationName(Notification.Name("codenv-board.show"), object: lockSocket,
+                                                                 userInfo: client.map { ["client": $0] }, deliverImmediately: true)
     exit(0)
 }
 try? String(getpid()).write(toFile: lockPath, atomically: true, encoding: .utf8)
 
 let app = NSApplication.shared
 // 一般 App:開著時 Dock 有圖示,點視窗一定拿得到鍵盤(改名時打的字才不會跑到 iTerm)
-app.setActivationPolicy(.regular)
+// 背景模式先不顯示,叫出來時才變成一般 App
+app.setActivationPolicy(daemon ? .accessory : .regular)
 let delegate = AppDelegate()
 app.delegate = delegate
 app.run()
