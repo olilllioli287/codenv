@@ -231,7 +231,9 @@ endfunction
 " 執行結果那格裡 F9 印的「✓ code is ok」那一行,會跟著這個檔案現在的狀態改寫(2026-10-13 加):
 "   一改就變「● 未儲存」,存檔後變「✓ 已存檔」,再按 F9 / F10 檢查又是 code is ok / error
 "   改了又復原回存檔時的樣子,會變回原本的狀態;上面的錯誤訊息不會動
-"   找不到那一行(還沒按過 F9、捲出畫面、或那格在跑程式)就不改;程式執行時出錯的那行(後面有「(原因」)也不改
+"   找不到那一行(捲出畫面、或那格在跑程式)就不改;程式執行時出錯的那行(後面有「(原因」)也不改
+"   剛開 codenv、那格還空著只有提示字元時,直接在那格第一行印出狀態(2026-10-14 加)
+"   按 Ctrl+S(或 Cmd+S)時那一行會反白閃一下,就算本來就存好了也看得出有存(2026-10-14 加)
 let s:states = {
       \ 'saved': s:green . '✓ 已存檔',
       \ 'unsaved': s:yellow . '● 未儲存',
@@ -239,6 +241,8 @@ let s:states = {
       \ 'warn': s:yellow . '⚠ code has warnings(可以執行,但建議看一下)',
       \ 'error': s:red . '✗ code is error'}
 let s:shown = ''
+let s:flashing = 0
+let s:checks = 0
 function! s:State(...)
   if empty($TMUX)
     return
@@ -246,7 +250,8 @@ function! s:State(...)
   if a:0
     let b:code_state = a:1
   endif
-  let state = &modified ? 'unsaved' : empty(expand('%')) ? '' : get(b:, 'code_state', 'saved')
+  " 剛存檔時直接算已存檔:打字中按 Ctrl+S 存的話,這時 &modified 還沒清掉
+  let state = a:0 && a:1 ==# 'saved' ? 'saved' : &modified ? 'unsaved' : empty(expand('%')) ? '' : get(b:, 'code_state', 'saved')
   " 打字時每個字都會呼叫,狀態沒變就不用再去改
   if state ==# s:shown || empty(state)
     return
@@ -255,9 +260,14 @@ function! s:State(...)
   " 改寫那一行要問 tmux 好幾次(約 50 毫秒),等打的字先顯示出來再做
   call timer_start(0, {-> s:Rewrite(state)})
 endfunction
-function! s:Rewrite(state)
+function! s:Rewrite(state, ...)
   " 這段時間裡狀態又變了(例如 F9 剛印出新的結果)就不改
-  if a:state !=# s:shown
+  let flash = a:0 && a:1
+  " 正在閃(或等一下要閃)的時候,一般的改寫交給閃完恢復的那次一起寫,不然會把反白蓋掉
+  if a:state !=# s:shown || (!flash && s:flashing)
+    if flash
+      let s:flashing = 0
+    endif
     return
   endif
   let run = s:FindRunPane()
@@ -276,13 +286,57 @@ function! s:Rewrite(state)
         let j += 1
         let clear .= "\e[" . (j + 1) . ";1H\e[2K"
       endwhile
-      call writefile(["\e7" . clear . "\e[" . (i + 1) . ";1H\e[2K" . s:states[a:state] . s:reset . "\e8"], tty, 'b')
+      let s:row = [tty, "\e7" . clear . "\e[" . (i + 1) . ";1H\e[2K"]
+      call s:WriteRow(flash ? "\e[7m" : '')
+      if flash
+        let checks = s:checks
+        call timer_start(250, {-> s:FlashEnd(checks)})
+      endif
       return
     endif
   endfor
+  let s:flashing = 0
+  call s:Seed(run, a:state)
+endfunction
+" 閃完恢復成現在的狀態(閃的時候又打了字,就直接變成未儲存);中間按過 F9 / F10 那格已經重印,就不動
+function! s:FlashEnd(checks)
+  let s:flashing = 0
+  if a:checks == s:checks
+    call s:WriteRow('')
+  endif
+endfunction
+function! s:WriteRow(attr)
+  call writefile([s:row[1] . a:attr . s:states[s:shown] . s:reset . "\e8"], s:row[0], 'b')
+endfunction
+" 那格還沒有狀態行:只有在那格閒著(沒有程式在跑)、畫面上只有提示字元時才重開那格印出來,
+" 這樣不會清掉程式的輸出或別人在用的格子
+function! s:Seed(run, state)
+  if index(['cpp', 'python'], &filetype) < 0
+    return
+  endif
+  let [cmd, pid] = (split(system('tmux display -p -t ' . a:run . ' "#{pane_current_command} #{pane_pid}"')) + ['', ''])[0:1]
+  if cmd !~# '^-\?\%(zsh\|bash\|sh\|fish\)$' || pid !~# '^\d\+$' || !empty(system('pgrep -P ' . pid))
+    return
+  endif
+  let rows = filter(systemlist('tmux capture-pane -p -t ' . a:run), 'v:val =~# "\\S"')
+  if len(uniq(rows)) > 1
+    return
+  endif
+  let cmd = 'trap : INT; printf "%s\n" ' . shellescape(s:states[a:state] . s:reset) . '; exec ' . shellescape($SHELL)
+  call system('tmux respawn-pane -k -t ' . a:run . ' -c ' . shellescape(expand('%:p:h')) . ' ' . shellescape(cmd)
+        \ . ' \; set -p -t ' . a:run . ' @cppvim ' . $TMUX_PANE . ' \; set -p -t ' . a:run . ' @cpprun 1')
+endfunction
+" Ctrl+S 之後呼叫:狀態行反白閃一下
+function! s:SaveFlash()
+  if empty($TMUX) || empty(s:shown)
+    return
+  endif
+  let s:flashing = 1
+  call timer_start(0, {-> s:Rewrite(s:shown, 1)})
 endfunction
 " F9 / F10 剛印出結果:那一行已經是對的,只要記住狀態,不用再改寫(改寫會把「訊息較長」的提示洗掉)
 function! s:Checked(state)
+  let s:checks += 1
   let b:code_state = a:state
   let s:shown = a:state
 endfunction
@@ -458,7 +512,7 @@ nnoremap <silent> <C-s> :call SaveCode()<CR>
 xnoremap <silent> <C-s> <Esc>:call SaveCode()<CR>
 snoremap <silent> <C-s> <Esc>:call SaveCode()<CR>
 " 打字時還沒有檔名或是唯讀:先回到一般模式再提示,不然提示會被底下的 -- INSERT -- 蓋掉
-inoremap <silent> <expr> <C-s> empty(expand('%')) \|\| &readonly ? "\<Esc>:call SaveCode()\<CR>" : "\<C-o>:update\<CR>"
+inoremap <silent> <expr> <C-s> empty(expand('%')) \|\| &readonly ? "\<Esc>:call SaveCode()\<CR>" : "\<C-o>:call SaveCode()\<CR>"
 " 還沒有檔名時改顯示中文提示,不會跳出英文的 E32: No file name
 function! SaveCode()
   if s:NeedName('')
@@ -468,6 +522,7 @@ function! SaveCode()
     return
   endif
   update
+  call s:SaveFlash()
 endfunction
 nnoremap <C-z> u
 inoremap <C-z> <C-o>u
