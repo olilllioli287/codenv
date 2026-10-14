@@ -339,8 +339,11 @@ footer { border-top: 1px solid var(--line); }
   <article class="release" id="log-1014">
     <time>2026-10-14</time>
     <div class="body">
-      <h2>Claude Code 那格按 Ctrl+S 不會讓訊息不見</h2>
+      <h2>一開檔就顯示已存檔、存檔時閃一下，Claude Code 那格按 Ctrl+S 不會讓訊息不見</h2>
       <ul>
+        <li><span class="tag new">新功能</span>用 vim 打開 .cpp 或 .py 時，執行結果那格第一行直接顯示 <code>✓ 已存檔</code>，不用先按 F9。那格裡有程式在跑、或還留著上次的輸出時，不會動它。</li>
+        <li><span class="tag new">新功能</span>按 Ctrl+S（或 Cmd+S）存檔時，那一行會反白閃一下；本來就存好了再按也會閃，看得出有存到。</li>
+        <li><span class="tag fix">修正</span>在打字中（INSERT）按 Ctrl+S 存檔，那一行有時會停在 <code>● 未儲存</code>，現在會正確變成 <code>✓ 已存檔</code>。</li>
         <li><span class="tag fix">修正</span>在 Claude Code 那格按 Ctrl+S（或照<a href="#manual-keys">編輯快捷鍵</a>設定好的 Cmd+S），原本會把打到一半的訊息收起來，看起來像不見了。現在跟執行結果那格一樣，只顯示「要存程式請回到 vim 按 Ctrl+S」，打的字不會動。</li>
       </ul>
     </div>
@@ -761,7 +764,7 @@ int main()
       <div class="block" id="manual-f10">
         <h2><span class="no">2</span>F9 與 F10</h2>
         <ul>
-          <li><kbd>F9</kbd>：存檔，並檢查有沒有打錯。結果顯示在執行結果那格，最後一行用顏色標出 <code>✓ code is ok</code>、<code>⚠ code has warnings</code> 或 <code>✗ code is error</code>。游標留在 vim。之後一改程式，這一行會變成 <code>● 未儲存</code>，存檔後變成 <code>✓ 已存檔</code>，看一眼就知道有沒有存。</li>
+          <li><kbd>F9</kbd>：存檔，並檢查有沒有打錯。結果顯示在執行結果那格，最後一行用顏色標出 <code>✓ code is ok</code>、<code>⚠ code has warnings</code> 或 <code>✗ code is error</code>。游標留在 vim。之後一改程式，這一行會變成 <code>● 未儲存</code>，存檔後變成 <code>✓ 已存檔</code>，看一眼就知道有沒有存。剛用 vim 打開程式時，這一行一開始就是 <code>✓ 已存檔</code>；按 Ctrl+S 存檔時它會反白閃一下，本來就存好了也會閃。</li>
           <li><kbd>F10</kbd>：存檔、編譯、執行。有錯就跟 F9 一樣只顯示錯誤；沒錯就在執行結果那格執行，游標跳過去，程式要輸入資料就在那裡打。按 <kbd>Esc</kbd> 跳回 vim。</li>
           <li>C++ 用 <code>g++ -std=c++17 -Wall</code> 編譯，執行檔放在旁邊的 <code>bin</code> 資料夾。Python 用 <code>python3</code> 執行。</li>
         </ul>
@@ -1070,7 +1073,7 @@ int main()
           <li>Windows 相容：編譯時加 <code>-I ~/.codenv-compat/include</code>（提供 <code>bits/stdc++.h</code>，以及用 <code>termios</code> 暫時切成不等 Enter、不回顯的 <code>conio.h</code>；<code>getch()</code> 直接 <code>read()</code> 鍵盤，不經過 <code>cin</code> 的緩衝區，跟 Windows 一樣讀不到前面留下的 Enter）和 <code>-include codenv-unbuffered.h</code>（程式開始前 <code>setvbuf(stdout, nullptr, _IONBF, 0)</code>，輸出不等換行就顯示）；執行時把 <code>~/.codenv-compat/bin</code> 放進 <code>PATH</code>，<code>system("pause")</code>、<code>system("cls")</code> 才找得到指令。Python 加 <code>PYTHONUNBUFFERED=1</code>。用到 <code>windows.h</code> 時在錯誤訊息下面加一行中文說明。</li>
           <li>Python：<code>py_compile</code> 的縮排錯誤格式是 <code>Sorry: IndentationError: … (檔名, line N)</code>，跟一般的 <code>File "…", line N</code> 不同，兩種都抓行號；常見的幾種錯誤加一行中文說明。</li>
           <li>有 error 時，<code>warning</code> 和跟在它後面的 <code>note</code> 不顯示，最後加一行灰字說隱藏了幾個；只有 warning 時照常全部顯示。</li>
-          <li>存檔狀態：<code>BufWritePost</code>、<code>TextChanged</code>、<code>TextChangedI</code> 判斷檔案現在是已存檔、未儲存，還是剛檢查過（記在 <code>b:code_state</code>，狀態沒變就不做事）。改變時用 <code>tmux capture-pane</code> 找執行結果那格畫面上的狀態行，再直接寫進那格的終端機（<code>pane_tty</code>）：<code>ESC 7</code> 記住游標、移到那一行清掉重寫、<code>ESC 8</code> 放回游標，所以不會打斷那格的 shell。找不到狀態行就不改。</li>
+          <li>存檔狀態：<code>BufWritePost</code>、<code>TextChanged</code>、<code>TextChangedI</code> 判斷檔案現在是已存檔、未儲存，還是剛檢查過（記在 <code>b:code_state</code>，狀態沒變就不做事）。改變時用 <code>tmux capture-pane</code> 找執行結果那格畫面上的狀態行，再直接寫進那格的終端機（<code>pane_tty</code>）：<code>ESC 7</code> 記住游標、移到那一行清掉重寫、<code>ESC 8</code> 放回游標，所以不會打斷那格的 shell。找不到狀態行就不改。剛打開 .cpp / .py、那格又只有提示字元（是 shell、沒有子程序、畫面上每行都一樣）時，用 <code>tmux respawn-pane</code> 重開那格，先印出狀態再進 shell。存檔時寫一次加上反白（<code>ESC [7m</code>）的同一行，0.25 秒後再寫回一般的樣子。</li>
           <li>連結錯誤：訊息裡有 <code>Undefined symbols</code> 時，從 <code>"名稱", referenced from</code> 抓出找不到的函式，<code>_main</code> 另外提示 main 打錯字。</li>
         </ul>
       </div>
