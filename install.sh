@@ -26,6 +26,16 @@ else
   print "~/.codenv-ime 沒有裝成(需要第 1 步的編譯器):中文輸入法開著時,Ctrl+A 之後改用連按兩次 Ctrl+A 的選單"
 fi
 
+# 用滑鼠排列 tmux 格子的視窗 ~/.codenv-board(Ctrl+A 兩下的選單打開;原始碼沒變就不重編)
+if [[ -x ~/.codenv-board ]] && cmp -s codenv-board.swift ~/.codenv-board.swift; then
+  print "~/.codenv-board 已經是最新版"
+elif command -v swiftc >/dev/null && swiftc -O -swift-version 5 codenv-board.swift -o ~/.codenv-board 2>/dev/null; then
+  cp codenv-board.swift ~/.codenv-board.swift
+  print "已安裝 ~/.codenv-board(用滑鼠排列格子的視窗)"
+else
+  print "~/.codenv-board 沒有裝成(需要第 1 步的編譯器):排列格子改用選單裡的「模塊化排列」"
+fi
+
 # Windows 寫的程式在 Mac 上也能跑:bits/stdc++.h、conio.h、system("pause")、system("cls") 等(F9 / F10 會用到)
 if diff -rq compat ~/.codenv-compat >/dev/null 2>&1; then
   print "~/.codenv-compat 已經是最新版"
