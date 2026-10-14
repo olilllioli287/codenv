@@ -199,6 +199,7 @@ footer { border-top: 1px solid var(--line); }
       <a href="#start">新手上路</a>
       <a href="#faq">常見問題</a>
       <a href="#manual">使用手冊</a>
+      <a href="#vim">vim 教學</a>
       <a href="#tech">技術文書</a>
     </nav>
     <div class="tools">
@@ -336,6 +337,17 @@ footer { border-top: 1px solid var(--line); }
     <h1>發行日誌</h1>
     <p class="lede">每次更新多了什麼、修了什麼。想更新到最新版，看<a href="#dl-update">下載頁的更新</a>。</p>
   </div>
+  <article class="release" id="log-1014b">
+    <time>2026-10-14</time>
+    <div class="body">
+      <h2>vim 教學、幫分頁取名</h2>
+      <ul>
+        <li><span class="tag new">新功能</span>網站多了 <a href="#vim">vim 教學</a> 一頁：模式、存檔與離開、移動游標、刪除複製、搜尋取代、寫程式好用的按鍵、卡住時怎麼辦，還有 vim 內建的中文練習 vimtutor。</li>
+        <li><span class="tag new">新功能</span><a href="#manual-menu">Ctrl+A 兩下的選單</a>多了「幫這個分頁取名」，可以把最下面的 <code>[1] zsh</code> 改成 <code>[1] 作業一</code> 這種名字，中文也可以。Ctrl+A → <kbd>,</kbd> 也改成同樣的中文提示。</li>
+        <li><span class="tag fix">修正</span>tmux 最下面的輸入框（例如取名的時候）按一下 Esc 就會取消；原本按幾次都關不掉，看起來像卡住。</li>
+      </ul>
+    </div>
+  </article>
   <article class="release" id="log-1014">
     <time>2026-10-14</time>
     <div class="body">
@@ -690,7 +702,7 @@ int main()
       <div class="block" id="faq-vim">
         <h2>vim</h2>
         <details><summary>vim 底下出現一堆紅字，或一直打不出字</summary><div>
-          <p>先按兩下 <kbd>Esc</kbd> 回到一般模式。要打字就按 <kbd>i</kbd>。想放棄這次的修改離開，輸入 <code>:q!</code> 按 <kbd>Enter</kbd>。</p>
+          <p>先按兩下 <kbd>Esc</kbd> 回到一般模式。要打字就按 <kbd>i</kbd>。想放棄這次的修改離開，輸入 <code>:q!</code> 按 <kbd>Enter</kbd>。其他狀況見 <a href="#vim-stuck">vim 教學的「卡住了怎麼辦」</a>。</p>
         </div></details>
         <details><summary>vim 突然不見了，畫面出現 zsh: suspended vim</summary><div>
           <p>這是舊版按到 Ctrl+Z 的結果，vim 只是被丟到背景。輸入 <code>fg</code> 按 <kbd>Enter</kbd> 就會回來。更新到最新版後，Ctrl+Z 改成「復原」，不會再發生。</p>
@@ -801,12 +813,14 @@ int main()
             <tr><td><kbd>Esc</kbd></td><td>回到一般模式</td></tr>
             <tr><td><code>:w</code></td><td>存檔（沒有檔名時用 <code>:w hw1.cpp</code> 取名存檔）</td></tr>
             <tr><td><code>:q</code> / <code>:q!</code> / <code>:wq</code></td><td>關掉 / 不存檔直接關掉 / 存檔後關掉</td></tr>
+            <tr><td><code>:e!</code></td><td>放棄還沒存的修改，回到上次存檔的內容</td></tr>
             <tr><td><code>u</code></td><td>復原（一般模式）</td></tr>
             <tr><td><code>:e 檔名</code></td><td>打開另一個檔案</td></tr>
             <tr><td><code>:vsplit 檔名</code></td><td>左右分兩格，在新的一格打開檔案</td></tr>
             <tr><td><kbd>O</kbd> / <kbd>o</kbd></td><td>在這行上面 / 下面開一行新的並開始打字</td></tr>
           </tbody>
         </table></div>
+        <p>更多按鍵（移動、刪除複製、搜尋取代、卡住時怎麼辦）在 <a href="#vim">vim 教學</a>。</p>
       </div>
 
       <div class="block" id="manual-keys">
@@ -877,7 +891,7 @@ int main()
             <tr><td><kbd>Ctrl</kbd>+<kbd>A</kbd> → <kbd>n</kbd> / <kbd>p</kbd></td><td>下一個 / 上一個分頁</td></tr>
             <tr><td><kbd>Ctrl</kbd>+<kbd>A</kbd> → <kbd>1</kbd>～<kbd>9</kbd></td><td>直接切到第幾個分頁</td></tr>
             <tr><td><kbd>Ctrl</kbd>+<kbd>A</kbd> → <kbd>w</kbd></td><td>列出所有分頁和格子，用 ↑↓ 選、Enter 切過去（右邊會預覽內容）</td></tr>
-            <tr><td><kbd>Ctrl</kbd>+<kbd>A</kbd> → <kbd>,</kbd></td><td>幫目前的分頁改名字</td></tr>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>A</kbd> → <kbd>,</kbd></td><td>幫目前的分頁改名字（跟選單的「幫這個分頁取名」一樣）</td></tr>
             <tr><td><kbd>Ctrl</kbd>+<kbd>A</kbd> → <kbd>&amp;</kbd></td><td>關掉整個分頁（會再問一次，按 Enter 確定）</td></tr>
           </tbody>
         </table></div>
@@ -911,6 +925,7 @@ int main()
             <div>開新分頁</div>
             <div>下一個分頁</div>
             <div>上一個分頁</div>
+            <div>幫這個分頁取名</div>
             <hr>
             <div>開關滑鼠功能</div>
           </div>
@@ -919,6 +934,7 @@ int main()
           <li>用 <kbd>↑</kbd> <kbd>↓</kbd> 移動反白的那一行，按 <kbd>Enter</kbd> 執行；也可以直接用滑鼠點。</li>
           <li>按 <kbd>Esc</kbd> 關掉選單，什麼都不做。</li>
           <li>選「關掉這格」會再問一次，按 <kbd>Enter</kbd> 確定。</li>
+          <li>選「幫這個分頁取名」，最下面會出現輸入框，裡面先填好現在的名字。按 <kbd>Backspace</kbd> 刪掉後打新名字（中文也可以），按 <kbd>Enter</kbd> 確定；按 <kbd>Esc</kbd> 取消。改的是最下面 <code>[1] zsh</code> 這種分頁名稱。</li>
         </ul>
       </div>
 
@@ -1013,6 +1029,182 @@ int main()
   </div>
 </section>
 
+<!-- ==================== vim 教學 ==================== -->
+<section class="page" id="vim" data-title="vim 教學" hidden>
+  <div class="page-head">
+    <p class="eyebrow">vim</p>
+    <h1>vim 教學</h1>
+    <p class="lede">codenv 寫程式的那格就是 vim。平常用 Ctrl+S、滑鼠、方向鍵就能寫作業；這頁介紹 vim 本來的按鍵，學會幾個之後改程式會快很多。不用一次背完，挑用得到的就好。</p>
+  </div>
+  <div class="doc">
+    <nav class="toc" aria-label="vim 教學目錄">
+      <b>目錄</b>
+      <a href="#vim-intro">1. 先認識 vim</a>
+      <a href="#vim-modes">2. 模式</a>
+      <a href="#vim-file">3. 開檔、存檔、離開</a>
+      <a href="#vim-move">4. 移動游標</a>
+      <a href="#vim-edit">5. 刪除、複製、貼上</a>
+      <a href="#vim-search">6. 搜尋與取代</a>
+      <a href="#vim-code">7. 寫程式好用的功能</a>
+      <a href="#vim-stuck">8. 卡住了怎麼辦</a>
+      <a href="#vim-practice">9. 用 vimtutor 練習</a>
+    </nav>
+    <div class="prose">
+      <div class="block" id="vim-intro">
+        <h2><span class="no">1</span>先認識 vim</h2>
+        <p>vim 是在終端機裡用的文字編輯器，幾乎每台 Mac 和 Linux 都有。它的特色是不用滑鼠，靠鍵盤上的字母就能移動、刪除、複製，所以要先分清楚「現在打的字是指令還是內容」，也就是下一節的模式。</p>
+        <p>codenv 在 vim 上加了 Windows 編輯器的習慣（見<a href="#manual-keys">使用手冊的編輯快捷鍵</a>），完全不學 vim 指令也能寫作業。這頁的按鍵是 vim 原本就有的，兩種可以混著用。</p>
+<pre class="out"><span class="dim">  1 </span>#include &lt;iostream&gt;
+<span class="dim">  2 </span>using namespace std;
+<span class="dim">  3 </span>
+<span class="dim">  4 </span>int main() {
+<span class="dim">  5 </span>    cout &lt;&lt; "Hello" &lt;&lt; endl;
+<span class="dim">  6 </span>}
+-- INSERT --</pre>
+        <ul>
+          <li>左邊的數字是行號。F9 的錯誤訊息說「第 5 行」，就看這裡。</li>
+          <li>最下面一行顯示現在的模式（例如 <code>-- INSERT --</code>），按 <kbd>:</kbd> 打的指令也會出現在這裡。</li>
+          <li>按 F9 後，有錯的地方畫紅色底線，警告畫黃色底線。</li>
+          <li>有沒有存檔，看執行結果那格的 <code>✓ 已存檔</code> / <code>● 未儲存</code>。</li>
+        </ul>
+      </div>
+
+      <div class="block" id="vim-modes">
+        <h2><span class="no">2</span>模式</h2>
+        <p>同一個按鍵在不同模式做的事不一樣。例如 <kbd>x</kbd> 在輸入模式會打出 x，在一般模式是刪掉一個字。</p>
+        <div class="tbl"><table>
+          <thead><tr><th>模式</th><th>怎麼進去</th><th>最下面顯示</th><th>這時打字會怎樣</th></tr></thead>
+          <tbody>
+            <tr><td>一般模式</td><td>按 <kbd>Esc</kbd></td><td>（什麼都沒有）</td><td>字母是指令，例如 <kbd>x</kbd> 刪掉一個字、<kbd>dd</kbd> 刪掉一行</td></tr>
+            <tr><td>輸入模式</td><td>按 <kbd>i</kbd>（或 <kbd>a</kbd>、<kbd>o</kbd>、<kbd>O</kbd>）</td><td><code>-- INSERT --</code></td><td>打的字進到檔案裡</td></tr>
+            <tr><td>選取模式</td><td>滑鼠拖曳，或 <kbd>Shift</kbd>+方向鍵</td><td><code>-- SELECT --</code></td><td>打字會取代選到的內容；<kbd>Ctrl</kbd>+<kbd>C</kbd> 複製</td></tr>
+            <tr><td>視覺模式</td><td>一般模式按 <kbd>v</kbd>（整行選按 <kbd>V</kbd>）</td><td><code>-- VISUAL --</code></td><td>用方向鍵擴大範圍，按 <kbd>y</kbd> 複製、<kbd>d</kbd> 刪除、<kbd>&gt;</kbd> 增加縮排</td></tr>
+            <tr><td>指令列</td><td>一般模式按 <kbd>:</kbd></td><td><code>:</code> 和你打的指令</td><td>打完按 <kbd>Enter</kbd> 執行，按 <kbd>Esc</kbd> 取消</td></tr>
+          </tbody>
+        </table></div>
+        <div class="note"><span class="label">不知道現在在哪個模式</span><p>按兩下 <kbd>Esc</kbd>，一定會回到一般模式。要打字再按 <kbd>i</kbd>。</p></div>
+        <div class="note"><span class="label">注音開著時</span><p>一般模式的指令是英文字母，注音開著時會被拿去組字。下指令前先把輸入法切成英文；Ctrl 開頭的按鍵和 F9、F10 不受影響。</p></div>
+      </div>
+
+      <div class="block" id="vim-file">
+        <h2><span class="no">3</span>開檔、存檔、離開</h2>
+        <p>這些都在一般模式打，打完按 <kbd>Enter</kbd>。</p>
+        <div class="tbl"><table>
+          <thead><tr><th>指令</th><th>做什麼</th></tr></thead>
+          <tbody>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>S</kbd> 或 <code>:w</code></td><td>存檔</td></tr>
+            <tr><td><code>:w hw2.cpp</code></td><td>存成 hw2.cpp。還沒有檔名時就是取名存檔；已經有檔名的話是另外存一份，畫面上編輯的還是原本的檔案</td></tr>
+            <tr><td><code>:e hw2.cpp</code></td><td>打開另一個檔案（不存在就開一個新的，存檔後才會真的建立）</td></tr>
+            <tr><td><code>:e!</code></td><td>放棄還沒存的修改，回到上次存檔的內容</td></tr>
+            <tr><td><code>:q</code></td><td>離開（有沒存的修改時會拒絕）</td></tr>
+            <tr><td><code>:q!</code></td><td>不存檔，直接離開</td></tr>
+            <tr><td><code>:wq</code></td><td>存檔後離開</td></tr>
+          </tbody>
+        </table></div>
+        <div class="note"><span class="label">出現 E37</span><p>改過還沒存，就打 <code>:q</code> 或 <code>:e</code> 別的檔案，最下面會出現 <code>E37: No write since last change (add ! to override)</code>，意思是「有改過還沒存」。要留著就先存檔；不要的話在指令後面加 <code>!</code>。注意 <code>:q!</code>、<code>:e!</code> 丟掉的修改，按 Ctrl+Z 也救不回來。</p></div>
+      </div>
+
+      <div class="block" id="vim-move">
+        <h2><span class="no">4</span>移動游標</h2>
+        <p>方向鍵和滑鼠在每個模式都能用。下面這些在一般模式用，比按很多次方向鍵快。</p>
+        <div class="tbl"><table>
+          <thead><tr><th>按鍵</th><th>做什麼</th></tr></thead>
+          <tbody>
+            <tr><td><kbd>h</kbd> <kbd>j</kbd> <kbd>k</kbd> <kbd>l</kbd></td><td>左、下、上、右（手不用離開字母區）</td></tr>
+            <tr><td><kbd>w</kbd> / <kbd>b</kbd></td><td>往後 / 往前跳一個字</td></tr>
+            <tr><td><kbd>^</kbd> / <kbd>$</kbd></td><td>跳到這行第一個字 / 行尾（<kbd>fn</kbd>+<kbd>←</kbd> / <kbd>→</kbd> 也可以）</td></tr>
+            <tr><td><kbd>gg</kbd> / <kbd>G</kbd></td><td>跳到第一行 / 最後一行</td></tr>
+            <tr><td><code>:12</code></td><td>跳到第 12 行，對照錯誤訊息的行號時很好用</td></tr>
+            <tr><td><kbd>%</kbd></td><td>游標在括號上時，跳到配對的另一半，可以看 <code>{</code> 是在哪裡關掉的</td></tr>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>D</kbd> / <kbd>Ctrl</kbd>+<kbd>U</kbd></td><td>往下 / 往上捲半頁</td></tr>
+          </tbody>
+        </table></div>
+        <p>前面加數字可以重複：<kbd>5j</kbd> 往下 5 行，<kbd>3w</kbd> 往後 3 個字。</p>
+      </div>
+
+      <div class="block" id="vim-edit">
+        <h2><span class="no">5</span>刪除、複製、貼上</h2>
+        <p>都在一般模式用。</p>
+        <div class="tbl"><table>
+          <thead><tr><th>按鍵</th><th>做什麼</th></tr></thead>
+          <tbody>
+            <tr><td><kbd>x</kbd></td><td>刪掉游標上的字</td></tr>
+            <tr><td><kbd>dd</kbd></td><td>刪掉整行（刪掉的內容可以用 <kbd>p</kbd> 貼回來，等於剪下）</td></tr>
+            <tr><td><kbd>yy</kbd></td><td>複製整行</td></tr>
+            <tr><td><kbd>p</kbd> / <kbd>P</kbd></td><td>貼在游標後面 / 前面；複製的是整行時，貼在下一行 / 上一行</td></tr>
+            <tr><td><kbd>dw</kbd></td><td>刪到下一個字前面</td></tr>
+            <tr><td><kbd>cw</kbd></td><td>改掉這個字：刪到字尾，直接進入輸入模式</td></tr>
+            <tr><td><kbd>r</kbd> 再按一個字</td><td>把游標上的字換成那個字（例如把 <code>,</code> 換成 <code>;</code>）</td></tr>
+            <tr><td><kbd>A</kbd> / <kbd>I</kbd></td><td>跳到行尾 / 行首開始打字（補分號很方便）</td></tr>
+            <tr><td><kbd>o</kbd> / <kbd>O</kbd></td><td>在下面 / 上面開新的一行開始打字</td></tr>
+            <tr><td><kbd>u</kbd> 或 <kbd>Ctrl</kbd>+<kbd>Z</kbd></td><td>復原</td></tr>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>R</kbd> 或 <kbd>Ctrl</kbd>+<kbd>Y</kbd></td><td>重做（Ctrl+R 是 vim 原本的，Ctrl+Y 是 codenv 加的）</td></tr>
+            <tr><td><kbd>.</kbd></td><td>重複上一次的修改，例如刪了一行後按 <kbd>.</kbd> 再刪一行</td></tr>
+            <tr><td><kbd>&gt;&gt;</kbd> / <kbd>&lt;&lt;</kbd></td><td>這行增加 / 減少縮排</td></tr>
+          </tbody>
+        </table></div>
+        <p>數字一樣能用：<kbd>3dd</kbd> 刪三行，<kbd>5yy</kbd> 複製五行。</p>
+        <div class="note"><span class="label">貼到別的 App</span><p><kbd>dd</kbd>、<kbd>yy</kbd> 拿到的內容存在 vim 自己的暫存區，只能在 vim 裡用 <kbd>p</kbd> 貼上。要貼到別的 App（例如上傳作業），選取後按 <kbd>Ctrl</kbd>+<kbd>C</kbd>。</p></div>
+      </div>
+
+      <div class="block" id="vim-search">
+        <h2><span class="no">6</span>搜尋與取代</h2>
+        <div class="tbl"><table>
+          <thead><tr><th>按鍵</th><th>做什麼</th></tr></thead>
+          <tbody>
+            <tr><td><code>/main</code> 再按 <kbd>Enter</kbd>（或 <kbd>Ctrl</kbd>+<kbd>F</kbd>）</td><td>往下找 main，打字的同時就會先跳到第一個符合的地方</td></tr>
+            <tr><td><kbd>n</kbd> / <kbd>N</kbd></td><td>下一個 / 上一個</td></tr>
+            <tr><td><kbd>*</kbd></td><td>找游標所在的這個字，例如看一個變數還在哪裡用到</td></tr>
+            <tr><td><code>:%s/cnt/count/g</code></td><td>整個檔案的 cnt 全部換成 count</td></tr>
+            <tr><td><code>:%s/cnt/count/gc</code></td><td>一個一個問：<kbd>y</kbd> 換、<kbd>n</kbd> 跳過、<kbd>q</kbd> 停止</td></tr>
+          </tbody>
+        </table></div>
+        <div class="note"><span class="label">只換完整的字</span><p><code>:%s/cnt/count/g</code> 會把名字裡含 cnt 的也一起換掉（例如 <code>cnt2</code> 變成 <code>count2</code>）。只換完整的 cnt，要寫成 <code>:%s/\&lt;cnt\&gt;/count/g</code>。</p></div>
+      </div>
+
+      <div class="block" id="vim-code">
+        <h2><span class="no">7</span>寫程式好用的功能</h2>
+        <div class="tbl"><table>
+          <thead><tr><th>按鍵</th><th>做什麼</th></tr></thead>
+          <tbody>
+            <tr><td><kbd>F9</kbd> / <kbd>F10</kbd></td><td>檢查 / 執行，見<a href="#manual-f10">使用手冊的 F9 與 F10</a></td></tr>
+            <tr><td><code>:12</code></td><td>照錯誤訊息跳到第 12 行</td></tr>
+            <tr><td><kbd>%</kbd></td><td>檢查括號有沒有配對：跳到的不是你想的那個，就是少了或多了括號</td></tr>
+            <tr><td><kbd>gg=G</kbd></td><td>整個檔案重新排縮排，C++ 縮排亂掉時很好用（Python 的縮排決定程式意思，不要用）</td></tr>
+            <tr><td><kbd>Ctrl</kbd>+<kbd>N</kbd></td><td>打字時自動補完：打出變數名稱的前幾個字再按，會列出檔案裡出現過的字；再按 <kbd>Ctrl</kbd>+<kbd>N</kbd> 換下一個，選到就直接繼續打字</td></tr>
+            <tr><td><kbd>gd</kbd></td><td>游標在變數上時，跳到它宣告的地方</td></tr>
+            <tr><td><code>:vsplit hw2.cpp</code></td><td>左右分兩格，對照著看另一個檔案。按 <kbd>Ctrl</kbd>+<kbd>W</kbd> 再按 <kbd>w</kbd> 切換（也可以用滑鼠點），<code>:q</code> 關掉游標所在的那格</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+
+      <div class="block" id="vim-stuck">
+        <h2><span class="no">8</span>卡住了怎麼辦</h2>
+        <div class="tbl"><table>
+          <thead><tr><th>狀況</th><th>怎麼辦</th></tr></thead>
+          <tbody>
+            <tr><td>打的字變成指令，畫面亂跳、行被刪掉</td><td>現在在一般模式。先按 <kbd>u</kbd>（或 <kbd>Ctrl</kbd>+<kbd>Z</kbd>）把剛剛的動作復原，再按 <kbd>i</kbd> 開始打字</td></tr>
+            <tr><td>最下面出現 <code>recording @q</code></td><td>不小心按到 <kbd>q</kbd>，開始錄製巨集了。再按一次 <kbd>q</kbd> 停止</td></tr>
+            <tr><td>最下面出現 <code>Press ENTER or type command to continue</code></td><td>按 <kbd>Enter</kbd> 就好</td></tr>
+            <tr><td>跳出一個小視窗，裡面是之前打過的指令</td><td>不小心按到 <kbd>q</kbd> <kbd>:</kbd>，輸入 <code>:q</code> 按 <kbd>Enter</kbd> 關掉</td></tr>
+            <tr><td><code>E37: No write since last change</code></td><td>有改過還沒存，見上面的<a href="#vim-file">開檔、存檔、離開</a></td></tr>
+            <tr><td><code>E45: 'readonly' option is set</code></td><td>這個檔案現在只能看不能存，常見原因是同一個檔案在別的地方開著，見<a href="#faq-vim">常見問題</a></td></tr>
+            <tr><td>畫面上殘留奇怪的字</td><td>按 <kbd>Ctrl</kbd>+<kbd>L</kbd> 重畫畫面</td></tr>
+            <tr><td>怎麼按都不對</td><td>按兩下 <kbd>Esc</kbd>，輸入 <code>:q!</code> 不存檔離開，再重新打開（沒存的修改會不見）</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+
+      <div class="block" id="vim-practice">
+        <h2><span class="no">9</span>用 vimtutor 練習</h2>
+        <p>vim 內建一份互動練習 vimtutor，有中文版。照著做大約 30 分鐘，練習用的是複製出來的檔案，不會動到你的程式。在沒有在用的一格（例如三格模式左邊那格，或用 <a href="#manual-menu">Ctrl+A 兩下的選單</a>開新分頁）輸入：</p>
+        <div class="cmd"><pre>LANG=zh_TW.UTF-8 vimtutor</pre><button type="button">複製</button></div>
+        <p>前面的 <code>LANG=zh_TW.UTF-8</code> 是要它用中文版；只打 <code>vimtutor</code> 的話會照 Mac 的語言設定，可能出現英文版。練習時用的是原版 vim，codenv 加的 Ctrl+S、Ctrl+Z 這些在裡面不能用，照教學用 <code>:w</code>、<kbd>u</kbd> 就好。練習完輸入 <code>:q!</code> 離開。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ==================== 技術文書 ==================== -->
 <section class="page" id="tech" data-title="技術文書" hidden>
   <div class="page-head">
@@ -1102,6 +1294,7 @@ int main()
             <tr><td>調整格子大小</td><td>Ctrl+方向鍵</td><td>Ctrl+<code>h</code> <code>j</code> <code>k</code> <code>l</code>，可以連按</td></tr>
             <tr><td>關掉格子 / 分頁的確認</td><td>打 <code>y</code></td><td>按 Enter（<code>confirm-before -y</code>），中文輸入法開著也能確定</td></tr>
             <tr><td>滑鼠</td><td>關</td><td>開（點選格子、滾輪捲動、拖曳邊界）；Ctrl+A m 或 F5 切換</td></tr>
+            <tr><td>分頁改名</td><td>Ctrl+B <code>,</code>，英文提示</td><td>Ctrl+A <code>,</code> 或選單的「幫這個分頁取名」，中文提示。名字先存進 <code>@codenv-name</code> 再用 <code>#{@codenv-name}</code> 取出，名字裡有 <code>#</code> 也照原樣顯示（選單裡的指令會先被展開一次，所以那邊寫成 <code>##</code>）</td></tr>
             <tr><td>分頁編號</td><td>從 0 開始</td><td>從 1 開始，跟鍵盤數字鍵的順序一樣</td></tr>
             <tr><td>捲動紀錄</td><td>2000 行</td><td>10000 行</td></tr>
             <tr><td>捲動模式的按鍵</td><td>emacs 風格</td><td>vi 風格（跟 vim 一樣用 h j k l）</td></tr>
