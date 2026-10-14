@@ -164,6 +164,12 @@ Release Notes
 
 每次更新多了什麼、修了什麼。想更新到最新版，看下載頁的更新。
 
+2026-10-14
+
+## Claude Code 那格按 Ctrl+S 不會讓訊息不見
+
+- 【修正】在 Claude Code 那格按 Ctrl+S（或照編輯快捷鍵設定好的 Cmd+S），原本會把打到一半的訊息收起來，看起來像不見了。現在跟執行結果那格一樣，只顯示「要存程式請回到 vim 按 Ctrl+S」，打的字不會動。
+
 2026-10-13
 
 ## 看得出有沒有存檔、有 error 時先不顯示 warning
@@ -729,7 +735,7 @@ vim 有兩種主要模式：一般模式打的字是指令，輸入模式打的�
 
 想用 Cmd+S 存檔
 
-在 iTerm 加一條按鍵設定，讓 Cmd+S 送出 Ctrl+S：按 [⌘ Cmd]+[,] 打開設定 → 上方的 Profiles → Keys 分頁的 Key Mappings → 按清單下方的 + → 點 Keyboard Shortcut 的格子後按 Cmd+S → Action 選 Send Hex Code，欄位填 `0x13` → 下面的選單不要選 Apply to current session（只對目前分頁有效）→ 按 OK。馬上就能用，不用重開 iTerm。
+在 iTerm 加一條按鍵設定，讓 Cmd+S 送出 Ctrl+S：按 [⌘ Cmd]+[,] 打開設定 → 上方的 Profiles → Keys 分頁的 Key Mappings → 按清單下方的 + → 點 Keyboard Shortcut 的格子後按 Cmd+S → Action 選 Send Hex Code，欄位填 `0x13` → 下面的選單不要選 Apply to current session（只對目前分頁有效）→ 按 OK。馬上就能用，不用重開 iTerm。在 Claude Code 那格按 Cmd+S 不會存檔，只會顯示「要存程式請回到 vim 按 Ctrl+S」，打到一半的訊息不會不見。
 
 6
 
@@ -1055,7 +1061,7 @@ codenv 沒有用 TPM 之類的第三方外掛，全部的改動都寫在 `~/.tmu
 | 狀態列 | 綠色，右邊有時鐘 | 黑底，左邊藍底顯示工作階段名稱；分頁名稱不會自動改掉 |
 | Esc | 直接傳給程式 | 在執行結果那格按 Esc 跳回 vim（`@cpprun` / `@cppvim`；vim 那格不在了就照常送出），其他格子照常 |
 | Ctrl+Z | 傳給程式 | 在執行結果那格、程式還在跑時換成 Ctrl+D（結束輸入，跟 Windows 的 Ctrl+Z 一樣） |
-| Ctrl+S | 傳給程式（終端機會停止輸出，Ctrl+Q 才恢復） | 只傳給 vim、Claude 等編輯器；其他格顯示中文說明 |
+| Ctrl+S | 傳給程式（終端機會停止輸出，Ctrl+Q 才恢復） | 只傳給 vim 這類編輯器；其他格（包括 Claude Code，它的 Ctrl+S 會把打到一半的訊息收起來）顯示中文說明 |
 | Home / End | 直接傳給程式 | 轉成 Ctrl+A / Ctrl+E，vim 和命令列都會跳到行首 / 行尾 |
 | Ctrl+Enter 這類組合鍵 | 不一定傳得到 | 開啟延伸按鍵（`extended-keys on`），給 Claude Code 用 |
 | 不在 tmux 裡輸入 codenv | — | 有沒人在看的工作階段（關掉 iTerm 留下的）就接回去，新分頁開在旁邊；沒有才開新的工作階段 |

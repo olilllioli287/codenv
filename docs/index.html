@@ -336,6 +336,15 @@ footer { border-top: 1px solid var(--line); }
     <h1>發行日誌</h1>
     <p class="lede">每次更新多了什麼、修了什麼。想更新到最新版，看<a href="#dl-update">下載頁的更新</a>。</p>
   </div>
+  <article class="release" id="log-1014">
+    <time>2026-10-14</time>
+    <div class="body">
+      <h2>Claude Code 那格按 Ctrl+S 不會讓訊息不見</h2>
+      <ul>
+        <li><span class="tag fix">修正</span>在 Claude Code 那格按 Ctrl+S（或照<a href="#manual-keys">編輯快捷鍵</a>設定好的 Cmd+S），原本會把打到一半的訊息收起來，看起來像不見了。現在跟執行結果那格一樣，只顯示「要存程式請回到 vim 按 Ctrl+S」，打的字不會動。</li>
+      </ul>
+    </div>
+  </article>
   <article class="release" id="log-1013a">
     <time>2026-10-13</time>
     <div class="body">
@@ -815,7 +824,7 @@ int main()
           </tbody>
         </table></div>
         <div class="note"><span class="label">做不到的</span><p>⌘ Cmd 開頭的快捷鍵（⌘Z、⌘S、⌘C）會被 iTerm 自己攔走，傳不到 vim，請用上面的 Ctrl 版本。Ctrl+A 全選也不行，因為 Ctrl+A 是 tmux 的指令鍵。</p></div>
-        <div class="note"><span class="label">想用 Cmd+S 存檔</span><p>在 iTerm 加一條按鍵設定，讓 Cmd+S 送出 Ctrl+S：按 <kbd>⌘ Cmd</kbd>+<kbd>,</kbd> 打開設定 → 上方的 <b>Profiles</b> → <b>Keys</b> 分頁的 <b>Key Mappings</b> → 按清單下方的 <b>+</b> → 點 Keyboard Shortcut 的格子後按 Cmd+S → Action 選 <b>Send Hex Code</b>，欄位填 <code>0x13</code> → 下面的選單不要選 Apply to current session（只對目前分頁有效）→ 按 OK。馬上就能用，不用重開 iTerm。</p></div>
+        <div class="note"><span class="label">想用 Cmd+S 存檔</span><p>在 iTerm 加一條按鍵設定，讓 Cmd+S 送出 Ctrl+S：按 <kbd>⌘ Cmd</kbd>+<kbd>,</kbd> 打開設定 → 上方的 <b>Profiles</b> → <b>Keys</b> 分頁的 <b>Key Mappings</b> → 按清單下方的 <b>+</b> → 點 Keyboard Shortcut 的格子後按 Cmd+S → Action 選 <b>Send Hex Code</b>，欄位填 <code>0x13</code> → 下面的選單不要選 Apply to current session（只對目前分頁有效）→ 按 OK。馬上就能用，不用重開 iTerm。在 Claude Code 那格按 Cmd+S 不會存檔，只會顯示「要存程式請回到 vim 按 Ctrl+S」，打到一半的訊息不會不見。</p></div>
       </div>
 
       <div class="block" id="manual-tmux-basics">
@@ -1096,7 +1105,7 @@ int main()
             <tr><td>狀態列</td><td>綠色，右邊有時鐘</td><td>黑底，左邊藍底顯示工作階段名稱；分頁名稱不會自動改掉</td></tr>
             <tr><td>Esc</td><td>直接傳給程式</td><td>在執行結果那格按 Esc 跳回 vim（<code>@cpprun</code> / <code>@cppvim</code>；vim 那格不在了就照常送出），其他格子照常</td></tr>
             <tr><td>Ctrl+Z</td><td>傳給程式</td><td>在執行結果那格、程式還在跑時換成 Ctrl+D（結束輸入，跟 Windows 的 Ctrl+Z 一樣）</td></tr>
-            <tr><td>Ctrl+S</td><td>傳給程式（終端機會停止輸出，Ctrl+Q 才恢復）</td><td>只傳給 vim、Claude 等編輯器；其他格顯示中文說明</td></tr>
+            <tr><td>Ctrl+S</td><td>傳給程式（終端機會停止輸出，Ctrl+Q 才恢復）</td><td>只傳給 vim 這類編輯器；其他格（包括 Claude Code，它的 Ctrl+S 會把打到一半的訊息收起來）顯示中文說明</td></tr>
             <tr><td>Home / End</td><td>直接傳給程式</td><td>轉成 Ctrl+A / Ctrl+E，vim 和命令列都會跳到行首 / 行尾</td></tr>
             <tr><td>Ctrl+Enter 這類組合鍵</td><td>不一定傳得到</td><td>開啟延伸按鍵（<code>extended-keys on</code>），給 Claude Code 用</td></tr>
             <tr><td>不在 tmux 裡輸入 codenv</td><td>—</td><td>有沒人在看的工作階段（關掉 iTerm 留下的）就接回去，新分頁開在旁邊；沒有才開新的工作階段</td></tr>
