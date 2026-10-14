@@ -1,8 +1,9 @@
-// codenv-board:用滑鼠排列 tmux 的格子(2026-10-14 加)
-// 開一個 Mac 視窗,列出 tmux 所有的工作階段、分頁和格子,每個分頁畫成小縮圖:
-//   把格子拖到別的分頁 → 合併進去(join-pane);拖到「新分頁」→ 拆出來(break-pane)
-//   把分頁拖到另一個分頁上 → 交換位置(swap-window);拖到別的工作階段 → 搬過去(move-window)
-//   點一下格子 → 切換過去;雙擊名字或按右鍵 → 改名、換排列方式
+// codenv-board:用滑鼠排列 tmux 的 pane(2026-10-14 加)
+// 開一個 Mac 視窗,列出 tmux 所有的 session、window 和 pane,每個 window 畫成小縮圖:
+//   把 pane 拖到別的 window → 合併進去(join-pane);拖到「新 window」→ 拆出來(break-pane)
+//   把 window 拖到另一個 window 上 → 交換位置(swap-window);拖到別的 session → 搬過去(move-window)
+//   拖到最下面的「新 session」→ 開一個新的 session 裝它
+//   點一下 pane → 切換過去;雙擊名字或按右鍵 → 改名、換排列方式;Esc 或 Cmd+W 關掉
 // 用法: codenv-board [--socket tmux的socket路徑] [--client tmux的client名稱]
 //   沒給 --socket 時用 $TMUX 指的那個 tmux(從 tmux 選單打開時就是目前這個)
 // 編譯: swiftc -O -swift-version 5 codenv-board.swift -o ~/.codenv-board
@@ -148,7 +149,7 @@ final class Board: ObservableObject {
 
     private func act(_ args: [String], _ done: String) {
         let r = tmux.run(args)
-        message = r.ok ? done : "沒有成功,可能那一格或那個分頁已經不在了"
+        message = r.ok ? done : "沒有成功,可能那個 pane 或 window 已經不在了"
         refresh(force: true)
     }
 
@@ -159,26 +160,26 @@ final class Board: ObservableObject {
         sessions.first(where: { $0.windows.contains(where: { $0.id == window }) })
     }
 
-    // 格子搬到某個分頁(排在那個分頁目前選到的格子旁邊)
+    // pane 搬到某個 window(排在那個 window 目前選到的 pane 旁邊)
     func movePane(_ pane: String, to w: Window) {
         guard let from = window(of: pane) else { return }
-        if from.id == w.id { message = "已經在這個分頁裡了"; return }
+        if from.id == w.id { message = "已經在這個 window 裡了"; return }
         guard let target = w.activePane else { return }
-        act(["join-pane", "-d", "-h", "-s", pane, "-t", target.id], "已經把格子搬到「\(w.name)」")
+        act(["join-pane", "-d", "-h", "-s", pane, "-t", target.id], "已經把 pane 搬到 window「\(w.name)」")
     }
 
-    // 格子搬到另一格旁邊:目標比較寬就左右放,比較高就上下放
+    // pane 搬到另一個 pane 旁邊:目標比較寬就左右放,比較高就上下放
     func movePane(_ pane: String, nextTo target: Pane) {
         if pane == target.id { return }
         let side = target.width >= target.height * 2 ? "-h" : "-v"
-        act(["join-pane", "-d", side, "-s", pane, "-t", target.id], "已經把格子搬過去")
+        act(["join-pane", "-d", side, "-s", pane, "-t", target.id], "已經把 pane 搬過去")
     }
 
-    // 格子拆出來,變成某個工作階段裡的新分頁
+    // pane 拆出來,變成某個 session 裡的新 window
     func breakPane(_ pane: String, into s: Session) {
         guard let from = window(of: pane) else { return }
-        if from.panes.count == 1, session(of: from.id)?.id == s.id { message = "這個分頁只有這一格,不用拆"; return }
-        act(["break-pane", "-d", "-s", pane, "-t", "\(s.id):"], "已經拆成新的分頁")
+        if from.panes.count == 1, session(of: from.id)?.id == s.id { message = "這個 window 只有這一個 pane,不用拆"; return }
+        act(["break-pane", "-d", "-s", pane, "-t", "\(s.id):"], "已經拆成新的 window")
     }
 
     func swapWindows(_ a: String, _ b: Window) {
@@ -187,13 +188,13 @@ final class Board: ObservableObject {
         if sa.id == sb.id {
             act(["swap-window", "-d", "-s", a, "-t", b.id], "已經交換位置")
         } else {
-            act(["move-window", "-d", "-s", a, "-t", "\(sb.id):"], "已經搬到工作階段 \(sb.name)")
+            act(["move-window", "-d", "-s", a, "-t", "\(sb.id):"], "已經搬到 session \(sb.name)")
         }
     }
 
     func moveWindow(_ a: String, to s: Session) {
         if session(of: a)?.id == s.id { return }
-        act(["move-window", "-d", "-s", a, "-t", "\(s.id):"], "已經搬到工作階段 \(s.name)")
+        act(["move-window", "-d", "-s", a, "-t", "\(s.id):"], "已經搬到 session \(s.name)")
     }
 
     func renameWindow(_ w: Window, _ name: String) {
@@ -214,7 +215,7 @@ final class Board: ObservableObject {
         } else {
             tmux.run(["set", "-p", "-t", p.id, "@codenv-pane-name", n])
             tmux.run(["set", "-w", "-t", w.id, "pane-border-status", "top"])
-            message = "已經幫格子取名"
+            message = "已經幫 pane 取名"
         }
         refresh(force: true)
     }
@@ -228,7 +229,35 @@ final class Board: ObservableObject {
     }
 
     func newWindow(_ s: Session) {
-        act(["new-window", "-d", "-t", "\(s.id):"], "已經開新分頁")
+        act(["new-window", "-d", "-t", "\(s.id):"], "已經開新的 window")
+    }
+
+    // 開新的 session(裡面先有一個 zsh 的 window)。tmux 不能開空的 session
+    func newSession() {
+        let r = tmux.run(["new-session", "-d", "-c", NSHomeDirectory(), "-P", "-F", "#{session_name}"])
+        message = r.ok ? "已經開新的 session \(r.out.trimmingCharacters(in: .whitespacesAndNewlines))" : "沒有成功開新的 session"
+        refresh(force: true)
+    }
+
+    // window 或 pane 拖到「新 session」:先開新 session,把東西搬進去,再關掉開 session 時附帶的那個空 zsh
+    func moveIntoNewSession(_ item: String) {
+        let isWindow = item.hasPrefix("window:")
+        let id = String(item.drop(while: { $0 != ":" }).dropFirst())
+        if isWindow, let s = session(of: id), s.windows.count == 1 { message = "這個 session 只有這一個 window,不用搬"; return }
+        if !isWindow, window(of: id) == nil { return }
+        let r = tmux.run(["new-session", "-d", "-c", NSHomeDirectory(), "-P", "-F", "#{session_id} #{window_id} #{session_name}"])
+        let f = r.out.trimmingCharacters(in: .whitespacesAndNewlines).split(separator: " ").map(String.init)
+        guard r.ok, f.count == 3 else { message = "沒有成功開新的 session"; refresh(force: true); return }
+        let moved = isWindow ? tmux.run(["move-window", "-d", "-s", id, "-t", "\(f[0]):"])
+                             : tmux.run(["break-pane", "-d", "-s", id, "-t", "\(f[0]):"])
+        if moved.ok {
+            tmux.run(["kill-window", "-t", f[1]])
+            tmux.run(["move-window", "-r", "-t", "\(f[0]):"])
+            message = isWindow ? "已經把 window 搬到新的 session \(f[2])" : "已經把 pane 拆到新的 session \(f[2])"
+        } else {
+            message = "新的 session \(f[2]) 開好了,但沒有搬成功"
+        }
+        refresh(force: true)
     }
 
     func focus(_ p: Pane) {
@@ -279,9 +308,10 @@ struct BoardView: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .firstTextBaseline) {
                 Text("tmux 排列").font(.title2.bold())
-                Text("把格子拖到別的分頁就會合併,拖到「新分頁」會拆出來;分頁拖到分頁上會交換位置。點格子切換過去,雙擊名字或按右鍵可以改名。")
+                Text("把 pane 拖到別的 window 就會合併,拖到「新 window」會拆出來;window 拖到 window 上會交換位置。點 pane 切換過去,雙擊名字或按右鍵可以改名。Esc 或 Cmd+W 關掉。")
                     .font(.callout).foregroundStyle(.secondary)
                 Spacer()
+                NewSessionButton(board: board)
             }
             .padding(.horizontal, 16).padding(.top, 14).padding(.bottom, 8)
             if !board.message.isEmpty {
@@ -298,6 +328,7 @@ struct BoardView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 22) {
                         ForEach(board.sessions) { s in SessionView(board: board, session: s, prompt: $prompt) }
+                        NewSessionDrop(board: board)
                     }.padding(16)
                 }
             }
@@ -336,13 +367,13 @@ struct SessionView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 10) {
-                Text("工作階段 \(session.name)").font(.headline)
+                Text("Session \(session.name)").font(.headline)
                 if session.attached { Text("正在看").font(.caption).padding(.horizontal, 6).padding(.vertical, 2)
                     .background(Capsule().fill(Color.accentColor.opacity(0.18))) }
-                Text("\(session.windows.count) 個分頁").font(.caption).foregroundStyle(.secondary)
+                Text("\(session.windows.count) 個 window").font(.caption).foregroundStyle(.secondary)
                 Spacer()
                 Button("重新編號") { board.renumber(session) }.controlSize(.small)
-                Button("開新分頁") { board.newWindow(session) }.controlSize(.small)
+                Button("新增 window") { board.newWindow(session) }.controlSize(.small)
             }
             .padding(6)
             .background(RoundedRectangle(cornerRadius: 6).fill(targeted ? Color.accentColor.opacity(0.15) : .clear))
@@ -369,7 +400,7 @@ struct NewWindowDrop: View {
             .strokeBorder(style: StrokeStyle(lineWidth: 1.5, dash: [6, 4]))
             .foregroundStyle(targeted ? Color.accentColor : Color.secondary.opacity(0.5))
             .background(RoundedRectangle(cornerRadius: 10).fill(targeted ? Color.accentColor.opacity(0.1) : .clear))
-            .overlay(Text("新分頁\n把格子拖到這裡,拆成新的分頁").multilineTextAlignment(.center)
+            .overlay(Text("新 window\n把 pane 拖到這裡,拆成新的 window").multilineTextAlignment(.center)
                 .font(.callout).foregroundStyle(.secondary))
             .frame(height: 176)
             .onDrop(of: [paneType], isTargeted: $targeted) { providers in
@@ -377,6 +408,38 @@ struct NewWindowDrop: View {
                     if s.hasPrefix("pane:") { board.breakPane(String(s.dropFirst(5)), into: session) }
                     if s.hasPrefix("window:") { board.moveWindow(String(s.dropFirst(7)), to: session) }
                 }
+            }
+    }
+}
+
+// 上面的「新增 session」按鈕:按一下開空的,也可以把 window 或 pane 拖上來
+struct NewSessionButton: View {
+    @ObservedObject var board: Board
+    @State private var targeted = false
+    var body: some View {
+        Button("新增 session") { board.newSession() }
+            .help("按一下開一個新的 session;把 window 或 pane 拖到這裡,會開新的 session 裝它")
+            .padding(3)
+            .background(RoundedRectangle(cornerRadius: 8).strokeBorder(Color.accentColor, lineWidth: targeted ? 2 : 0))
+            .onDrop(of: [paneType], isTargeted: $targeted) { providers in
+                dropString(providers) { s in board.moveIntoNewSession(s) }
+            }
+    }
+}
+
+struct NewSessionDrop: View {
+    @ObservedObject var board: Board
+    @State private var targeted = false
+    var body: some View {
+        RoundedRectangle(cornerRadius: 10)
+            .strokeBorder(style: StrokeStyle(lineWidth: 1.5, dash: [6, 4]))
+            .foregroundStyle(targeted ? Color.accentColor : Color.secondary.opacity(0.5))
+            .background(RoundedRectangle(cornerRadius: 10).fill(targeted ? Color.accentColor.opacity(0.1) : .clear))
+            .overlay(Text("新 session\n把 window 或 pane 拖到這裡,開一個新的 session 裝它;只要空的就按上面的「新增 session」")
+                .multilineTextAlignment(.center).font(.callout).foregroundStyle(.secondary))
+            .frame(height: 70)
+            .onDrop(of: [paneType], isTargeted: $targeted) { providers in
+                dropString(providers) { s in board.moveIntoNewSession(s) }
             }
     }
 }
@@ -390,11 +453,11 @@ struct WindowCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) {
-                Image(systemName: "line.3.horizontal").foregroundStyle(.secondary).help("按住這裡拖曳整個分頁")
+                Image(systemName: "line.3.horizontal").foregroundStyle(.secondary).help("按住這裡拖曳整個 window")
                 Text("[\(window.index)] \(window.name)").font(.system(.body, design: .monospaced).bold()).lineLimit(1)
-                if window.bell { Circle().fill(Color.orange).frame(width: 7, height: 7).help("這個分頁有新的動靜(例如 Claude 回覆完了)") }
+                if window.bell { Circle().fill(Color.orange).frame(width: 7, height: 7).help("這個 window 有新的動靜(例如 Claude 回覆完了)") }
                 Spacer()
-                Text("\(window.panes.count) 格").font(.caption).foregroundStyle(.secondary)
+                Text("\(window.panes.count) 個 pane").font(.caption).foregroundStyle(.secondary)
             }
             .contentShape(Rectangle())
             .onTapGesture(count: 2) { renameWindow() }
@@ -414,8 +477,8 @@ struct WindowCard: View {
             }
         }
         .contextMenu {
-            Button("切換到這個分頁") { if let p = window.activePane { board.focus(p) } }
-            Button("改分頁名字…") { renameWindow() }
+            Button("切換到這個 window") { if let p = window.activePane { board.focus(p) } }
+            Button("改 window 名字…") { renameWindow() }
             Divider()
             Button("排成左右並排") { board.layout(window, "even-horizontal") }
             Button("排成上下堆疊") { board.layout(window, "even-vertical") }
@@ -425,7 +488,7 @@ struct WindowCard: View {
     }
 
     func renameWindow() {
-        prompt = Prompt(title: "分頁 [\(window.index)] 的新名字", text: window.name) { board.renameWindow(window, $0) }
+        prompt = Prompt(title: "Window [\(window.index)] 的新名字", text: window.name) { board.renameWindow(window, $0) }
     }
 }
 
@@ -466,7 +529,7 @@ struct PaneBox: View {
                     .padding(3).foregroundStyle(.primary)
             )
             .contentShape(Rectangle())
-            .help("\(label(pane))(\(pane.width)×\(pane.height))\n拖到別的分頁就會搬過去;點一下切換到這格")
+            .help("\(label(pane))(\(pane.width)×\(pane.height))\n拖到別的 window 就會搬過去;點一下切換到這個 pane")
             .onTapGesture(count: 2) { renamePane() }
             .onTapGesture { board.focus(pane) }
             .onDrag { board.beginDrag(); return NSItemProvider(object: "pane:\(pane.id)" as NSString) }
@@ -477,21 +540,26 @@ struct PaneBox: View {
                 }
             }
             .contextMenu {
-                Button("切換到這格") { board.focus(pane) }
-                Button("幫這格取名…") { renamePane() }
-                if !pane.name.isEmpty { Button("拿掉這格的名字") { board.renamePane(pane, "") } }
+                Button("切換到這個 pane") { board.focus(pane) }
+                Button("幫這個 pane 取名…") { renamePane() }
+                if !pane.name.isEmpty { Button("拿掉這個 pane 的名字") { board.renamePane(pane, "") } }
                 if let w = board.window(of: pane.id), w.panes.count > 1, let s = board.session(of: w.id) {
-                    Button("拆出去,變成新的分頁") { board.breakPane(pane.id, into: s) }
+                    Button("拆出去,變成新的 window") { board.breakPane(pane.id, into: s) }
                 }
             }
     }
 
     func renamePane() {
-        prompt = Prompt(title: "這格的名字(留空就是拿掉名字)", text: pane.name) { board.renamePane(pane, $0) }
+        prompt = Prompt(title: "這個 pane 的名字(留空就是拿掉名字)", text: pane.name) { board.renamePane(pane, $0) }
     }
 }
 
 // MARK: - 啟動
+
+// 視窗還沒在最前面時,第一下按住就能直接拖,不用先點一下視窗
+final class FirstMouseHostingView<V: View>: NSHostingView<V> {
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+}
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     var window: NSWindow!
@@ -511,13 +579,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 900, height: 620),
                           styleMask: [.titled, .closable, .resizable, .miniaturizable], backing: .buffered, defer: false)
         window.title = "tmux 排列"
-        window.contentView = NSHostingView(rootView: BoardView(board: board))
+        window.contentView = FirstMouseHostingView(rootView: BoardView(board: board))
         window.isReleasedWhenClosed = false
         window.level = .floating            // 浮在 iTerm 上面,拖曳時不會被蓋住
         window.center()
         window.setFrameAutosaveName("codenv-board")
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
+        NSApp.mainMenu = makeMenu()
+        // Esc 關掉視窗(改名框開著的時候 Esc 是取消改名,那時候按鍵是送到改名框,不會到這裡)
+        NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] e in
+            guard let w = self?.window, e.keyCode == 53, e.window === w, w.attachedSheet == nil else { return e }
+            w.performClose(nil)
+            return nil
+        }
         if let path = value("--print-window-id") {
             try? String(window.windowNumber).write(toFile: path, atomically: true, encoding: .utf8)
         }
@@ -530,6 +605,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ app: NSApplication) -> Bool { true }
+
+    // 選單列:Cmd+Q 結束、Cmd+W 關視窗,還有改名時要用的 Cmd+C / Cmd+V
+    func makeMenu() -> NSMenu {
+        let main = NSMenu()
+        func add(_ title: String, _ items: [(String, Selector, String)]) {
+            let m = NSMenu(title: title)
+            for (t, sel, key) in items { m.addItem(NSMenuItem(title: t, action: sel, keyEquivalent: key)) }
+            let top = NSMenuItem(); top.submenu = m; main.addItem(top)
+        }
+        add("tmux 排列", [("結束 tmux 排列", #selector(NSApplication.terminate(_:)), "q")])
+        add("編輯", [("還原", Selector(("undo:")), "z"), ("剪下", #selector(NSText.cut(_:)), "x"),
+                     ("拷貝", #selector(NSText.copy(_:)), "c"), ("貼上", #selector(NSText.paste(_:)), "v"),
+                     ("全選", #selector(NSText.selectAll(_:)), "a")])
+        add("視窗", [("關閉視窗", #selector(NSWindow.performClose(_:)), "w")])
+        return main
+    }
 }
 
 // 同一個 tmux 只開一個視窗:已經有的話請它出來,自己結束
