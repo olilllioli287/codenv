@@ -337,6 +337,17 @@ footer { border-top: 1px solid var(--line); }
     <h1>發行日誌</h1>
     <p class="lede">每次更新多了什麼、修了什麼。想更新到最新版，看<a href="#dl-update">下載頁的更新</a>。</p>
   </div>
+  <article class="release" id="log-1014c">
+    <time>2026-10-14</time>
+    <div class="body">
+      <h2>選單可以搬動分頁、重新編號、關掉整個工作階段</h2>
+      <ul>
+        <li><span class="tag new">新功能</span><a href="#manual-menu">Ctrl+A 兩下的選單</a>多了：列出所有分頁並切換過去（其他工作階段的分頁也列在裡面）、這個分頁往左移 / 往右移、分頁重新編號（關掉分頁後留下的空號，例如 1 2 4 變成 1 2 3）、關掉整個工作階段。</li>
+        <li><span class="tag new">新功能</span>幫分頁取名的輸入框改成空的，直接打新名字就好，不用先刪掉舊的名字；什麼都沒打就按 Enter 不會改。</li>
+        <li><span class="tag fix">改進</span>關掉整個工作階段，或關掉它最後一個分頁時，還有別的工作階段的話會直接切過去，不會跳出 tmux。</li>
+      </ul>
+    </div>
+  </article>
   <article class="release" id="log-1014b">
     <time>2026-10-14</time>
     <div class="body">
@@ -725,6 +736,9 @@ int main()
         <details><summary>不小心按到 Ctrl+A，之後打的字怪怪的</summary><div>
           <p>按一下 <kbd>Esc</kbd> 取消就好。</p>
         </div></details>
+        <details><summary>想關掉另一個工作階段（例如列表裡多出來的 1）</summary><div>
+          <p>先切過去再關：按 <kbd>Ctrl</kbd>+<kbd>A</kbd> 兩次，選「列出所有分頁,切換過去」，用 <kbd>↑</kbd> <kbd>↓</kbd> 移到那個工作階段（例如 <code>1: 1 windows</code>）按 <kbd>Enter</kbd>。左下角藍底變成它的名字後，再按 <kbd>Ctrl</kbd>+<kbd>A</kbd> 兩次，選「關掉整個工作階段」按 <kbd>Enter</kbd>，就會切回原本的工作階段。關掉前確認裡面沒有還要用的程式。</p>
+        </div></details>
         <details><summary>想用滑鼠反白執行結果的文字</summary><div>
           <p>按住 <kbd>Option</kbd> 再拖曳，然後按 <kbd>⌘ Cmd</kbd> + <kbd>C</kbd>。</p>
         </div></details>
@@ -925,7 +939,13 @@ int main()
             <div>開新分頁</div>
             <div>下一個分頁</div>
             <div>上一個分頁</div>
+            <div>列出所有分頁,切換過去</div>
             <div>幫這個分頁取名</div>
+            <div>這個分頁往左移</div>
+            <div>這個分頁往右移</div>
+            <div>分頁重新編號(補上空號)</div>
+            <hr>
+            <div>關掉整個工作階段</div>
             <hr>
             <div>開關滑鼠功能</div>
           </div>
@@ -935,6 +955,9 @@ int main()
           <li>按 <kbd>Esc</kbd> 關掉選單，什麼都不做。</li>
           <li>選「關掉這格」會再問一次，按 <kbd>Enter</kbd> 確定。</li>
           <li>選「幫這個分頁取名」，最下面會出現輸入框，直接打新名字（中文也可以）按 <kbd>Enter</kbd> 就好；什麼都沒打就按 <kbd>Enter</kbd>，或按 <kbd>Esc</kbd>，名字都不會變。改的是最下面 <code>[1] zsh</code> 這種分頁名稱。</li>
+          <li>「列出所有分頁,切換過去」會列出每個工作階段和底下的分頁，用 <kbd>↑</kbd> <kbd>↓</kbd> 選、<kbd>Enter</kbd> 切過去，<kbd>Esc</kbd> 離開。這個畫面是 tmux 內建的，所以是英文。</li>
+          <li>「往左移 / 往右移」跟旁邊的分頁交換位置，畫面會跟著移過去；「重新編號」把空號補起來，例如 1 2 4 變成 1 2 3。</li>
+          <li>「關掉整個工作階段」會關掉目前這個工作階段裡所有分頁的程式（包括 Claude Code），救不回來，所以會再問一次，按 <kbd>Enter</kbd> 確定。還有別的工作階段的話會直接切過去。</li>
         </ul>
       </div>
 
@@ -1304,6 +1327,8 @@ int main()
             <tr><td>Ctrl+S</td><td>傳給程式（終端機會停止輸出，Ctrl+Q 才恢復）</td><td>只傳給 vim 這類編輯器；其他格（包括 Claude Code，它的 Ctrl+S 會把打到一半的訊息收起來）顯示中文說明</td></tr>
             <tr><td>Home / End</td><td>直接傳給程式</td><td>轉成 Ctrl+A / Ctrl+E，vim 和命令列都會跳到行首 / 行尾</td></tr>
             <tr><td>Ctrl+Enter 這類組合鍵</td><td>不一定傳得到</td><td>開啟延伸按鍵（<code>extended-keys on</code>），給 Claude Code 用</td></tr>
+            <tr><td>關掉工作階段後</td><td>跳出 tmux，回到一般的終端機</td><td>還有別的工作階段就切過去（<code>detach-on-destroy off</code>）；選單的「關掉整個工作階段」用 <code>confirm-before</code> 再問一次</td></tr>
+            <tr><td>搬動分頁</td><td>要自己打 <code>swap-window</code>、<code>move-window -r</code></td><td>選單的往左移 / 往右移（<code>swap-window -d -t :-1</code> / <code>:+1</code>，用 <code>window_start_flag</code> / <code>window_end_flag</code> 擋住最邊邊）、重新編號（<code>move-window -r</code>）</td></tr>
             <tr><td>不在 tmux 裡輸入 codenv</td><td>—</td><td>有沒人在看的工作階段（關掉 iTerm 留下的）就接回去，新分頁開在旁邊；沒有才開新的工作階段</td></tr>
             <tr><td>自己的設定</td><td>—</td><td>最後讀取 <code>~/.tmux.conf.local</code>（<code>source-file -q</code>，沒有這個檔也不會出錯）</td></tr>
           </tbody>
