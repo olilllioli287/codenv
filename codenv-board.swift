@@ -3,7 +3,7 @@
 //   把 pane 拖到別的 window → 合併進去(join-pane);拖到「新 window」→ 拆出來(break-pane)
 //   把 window 拖到另一個 window 上 → 交換位置(swap-window);拖到別的 session → 搬過去(move-window)
 //   拖到最下面的「新 session」→ 開一個新的 session 裝它
-//   點一下 pane → 切換過去;雙擊名字或按右鍵 → 改名、換排列方式;Esc 或 Cmd+W 關掉
+//   點一下 pane → 切換過去;雙擊名字或按右鍵 → 改名、換排列方式;session 旁邊的「改名」→ 改 session 名字;Esc 或 Cmd+W 關掉
 // 用法: codenv-board [--socket tmux的socket路徑] [--client tmux的client名稱] [--daemon]
 //   沒給 --socket 時用 $TMUX 指的那個 tmux(從 tmux 選單打開時就是目前這個),
 //   連 $TMUX 都沒有就用 tmux 預設的那個(/private/tmp/tmux-<uid>/default)
@@ -212,6 +212,14 @@ final class Board: ObservableObject {
         act(["rename-window", "-t", w.id, "--", tmux.escaped(n)], "已經改名")
     }
 
+    // session 改名(2026-10-15 加):tmux 不准兩個 session 同名,名字裡的 : 和 . 會被換成 _
+    func renameSession(_ s: Session, _ name: String) {
+        let n = name.trimmingCharacters(in: .whitespaces)
+        guard !n.isEmpty, n != s.name else { return }
+        if sessions.contains(where: { $0.id != s.id && $0.name == n }) { message = "已經有叫「\(n)」的 session 了,換一個名字"; return }
+        act(["rename-session", "-t", s.id, "--", tmux.escaped(n)], "已經改名")
+    }
+
     func renamePane(_ p: Pane, _ name: String) {
         guard let w = window(of: p.id) else { return }
         let n = name.trimmingCharacters(in: .whitespaces)
@@ -317,7 +325,7 @@ struct BoardView: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .firstTextBaseline) {
                 Text("tmux 排列").font(.title2.bold())
-                Text("把 pane 拖到別的 window 就會合併,拖到「新 window」會拆出來;window 拖到 window 上會交換位置。點 pane 切換過去,雙擊名字或按右鍵可以改名。Esc 或 Cmd+W 關掉;在任何地方按 Cmd+Ctrl+A 叫出來或收起來。")
+                Text("把 pane 拖到別的 window 就會合併,拖到「新 window」會拆出來;window 拖到 window 上會交換位置。點 pane 切換過去,雙擊名字或按右鍵可以改名(session 按「改名」)。Esc 或 Cmd+W 關掉;在任何地方按 Cmd+Ctrl+A 叫出來或收起來。")
                     .font(.callout).foregroundStyle(.secondary)
                 Spacer()
                 NewSessionButton(board: board)
@@ -377,10 +385,13 @@ struct SessionView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 10) {
                 Text("Session \(session.name)").font(.headline)
+                    .onTapGesture(count: 2) { renameSession() }
+                    .help("雙擊可以改這個 session 的名字")
                 if session.attached { Text("正在看").font(.caption).padding(.horizontal, 6).padding(.vertical, 2)
                     .background(Capsule().fill(Color.accentColor.opacity(0.18))) }
                 Text("\(session.windows.count) 個 window").font(.caption).foregroundStyle(.secondary)
                 Spacer()
+                Button("改名") { renameSession() }.controlSize(.small)
                 Button("重新編號") { board.renumber(session) }.controlSize(.small)
                 Button("新增 window") { board.newWindow(session) }.controlSize(.small)
             }
@@ -397,6 +408,10 @@ struct SessionView: View {
                 NewWindowDrop(board: board, session: session)
             }
         }
+    }
+
+    func renameSession() {
+        prompt = Prompt(title: "Session \(session.name) 的新名字", text: session.name) { board.renameSession(session, $0) }
     }
 }
 
@@ -612,6 +627,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         window.isReleasedWhenClosed = false
         window.delegate = self
         window.level = .floating            // 浮在 iTerm 上面,拖曳時不會被蓋住
+        // 出現在現在看的這個桌面,前面是全螢幕的 iTerm 或別的 App 也疊在上面,不會把人拉到別的桌面(2026-10-15 改)
+        window.collectionBehavior = [.moveToActiveSpace, .fullScreenAuxiliary]
         window.center()
         window.setFrameAutosaveName("codenv-board")
         NSApp.mainMenu = makeMenu()
@@ -642,7 +659,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         board.tmux.client = client
         board.paused = false
         board.refresh(force: true)
-        NSApp.setActivationPolicy(.regular)
+        // 不切成一般 App(Dock 圖示):切了的話,前面是全螢幕 App 時會被拉到別的桌面
         NSApp.unhide(nil)
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
