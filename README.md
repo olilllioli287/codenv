@@ -39,6 +39,14 @@ zsh -c "$(curl -fsSL https://raw.githubusercontent.com/olilllioli287/codenv/main
 
 原本就有的 `~/.vimrc`、`~/.tmux.conf` 會先備份成 `檔名.bak-日期時間`。
 
+**程式要放在哪個資料夾：** 第一次安裝時會問，直接按 Enter 就是 `~/programming_language`。也可以在指令前面加上資料夾一次指定好：
+
+```
+CODENV_ROOT=~/Documents/C++作業 zsh -c "$(curl -fsSL https://raw.githubusercontent.com/olilllioli287/codenv/main/get.sh)"
+```
+
+之後想換，輸入 `codenv root`。
+
 ### 讓 F9、F10 可以直接按
 
 MacBook 最上排預設是亮度、音量，直接按 F10 是「靜音」。二選一：
@@ -145,16 +153,27 @@ zsh -c "$(curl -fsSL https://raw.githubusercontent.com/olilllioli287/codenv/main
 ## 選用設定
 
 - **tmux-kit（另外裝的小工具包）：** Ctrl+A 連按兩次的中文選單、在 iTerm 裡按 Cmd+Ctrl+A 用滑鼠排列格子、Claude Code 回完分頁反白。第一次輸入 `codenv` 時會介紹一次，也可以隨時執行 `zsh -c "$(curl -fsSL https://raw.githubusercontent.com/olilllioli287/tmux-kit/main/get.sh)"` 安裝，見 [tmux-kit](https://github.com/olilllioli287/tmux-kit)。
+- **換程式資料夾：** 輸入 `codenv root`，或直接輸入 `codenv root ~/Documents/作業`。原本資料夾裡的程式不會搬過去。
 - **換畫面格數：** 輸入 `codenv layout` 重新選，或直接輸入 `codenv layout 2`（兩格）、`codenv layout 3`（三格）。下次開 `codenv` 就會用新的排法。
 - **三格時左邊自動開 AI：** 執行 `open -e ~/.codenv.zsh`，把 `CODENV_AI=''` 改成例如 `CODENV_AI='claude'`，存檔後重開 iTerm。
 - **一樣的配色：** iTerm → Settings → Profiles → Other Actions → Import JSON Profiles，在選檔視窗按 ⌘Cmd + Shift + G，輸入 `~/.codenv-kit/iterm-profile.json`。匯入後選中 `codenv`，再按 Other Actions → Set as Default。
 
 ## 更新
 
-再執行一次第 5 步那一行。原本的設定會自動備份，`~/.codenv.zsh` 裡設定過的資料夾和 AI 指令會保留。做完把開著的 vim 關掉再打開。
+在 iTerm 再執行一次安裝的那一行。原本的設定會自動備份，`~/.codenv.zsh` 裡設定過的資料夾和 AI 指令會保留。做完把開著的 vim 關掉再打開。
 
 想換回舊版：`ls ~/.vimrc.bak-*` 找到想要的備份，用 `cp ~/.vimrc.bak-日期時間 ~/.vimrc` 複製回來。
 
+## 解除安裝
+
+```
+zsh -c "$(curl -fsSL https://raw.githubusercontent.com/olilllioli287/codenv/main/uninstall.sh)"
+```
+
+codenv 的檔案會移到 `~/codenv-removed-日期時間`（不直接刪），`~/.zshrc` 裡載入 codenv 的那行會拿掉，裝 codenv 之前原本的 `~/.vimrc`、`~/.tmux.conf` 會放回去。你寫的程式、Homebrew、編譯器、tmux、iTerm2 都不會動。想恢復就再執行一次安裝的那一行。
+
 ## 遇到問題
+
+F9、F10 沒反應：先在 iTerm 輸入 `codenv doctor`，它會檢查編譯器、tmux、vim 設定和鍵盤設定，再請你按一下 F10 測試。
 
 到 [Issues](https://github.com/olilllioli287/codenv/issues) 按 **New issue**，寫下你做了什麼、看到什麼，可以直接貼上截圖（需要 GitHub 帳號）。

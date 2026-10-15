@@ -1,6 +1,8 @@
 # ===== codenv:程式練習環境(vim 寫程式 + F10 執行結果,可選兩格或三格) =====
 # 用法:在任何地方輸入 codenv,用數字選資料夾和檔案
 #       codenv layout      重新選畫面要兩格還是三格(也可以直接打 codenv layout 2 或 3)
+#       codenv root        換程式資料夾(也可以直接打 codenv root ~/Documents/作業)
+#       codenv doctor      檢查環境,F9、F10 沒反應時先跑這個
 CODENV_ROOT=~/programming_language
 # 三格時左半邊要自動執行的 AI 指令(例如 claude);留空就是普通的終端機
 CODENV_AI=''
@@ -108,9 +110,84 @@ _codenv_welcome() {
   return 0
 }
 
+# 換程式資料夾,並記到 ~/.codenv.zsh(2026-10-16 加);原本資料夾裡的程式不會搬
+_codenv_set_root() {
+  local r=$1 conf=~/.codenv.zsh line
+  local -a lines
+  if [[ -z $r ]]; then
+    print "  現在的程式資料夾:${CODENV_ROOT/#$HOME/~}"
+    r=""; read "r?  新的資料夾(例如 ~/Documents/作業;直接按 Enter 不改): "
+    [[ -z $r ]] && return 0
+  fi
+  r=${r/#\~/$HOME}
+  [[ $r != /* ]] && r=$PWD/$r
+  [[ $r != / ]] && r=${r%/}
+  mkdir -p -- "$r" || { print "  沒辦法建立資料夾 $r"; return 1 }
+  CODENV_ROOT=$r
+  if [[ -f $conf ]]; then
+    lines=( "${(@f)$(<$conf)}" )
+    for ((i = 1; i <= $#lines; i++)); do
+      [[ ${lines[i]} == CODENV_ROOT=* ]] && lines[i]="CODENV_ROOT=\"${r/#$HOME/\$HOME}\""
+    done
+    print -rl -- "${lines[@]}" > $conf
+  fi
+  print "  已改成 ${r/#$HOME/~}。原本資料夾裡的程式不會搬過去,要的話自己搬。"
+}
+
+# F9、F10 沒反應時的檢查(2026-10-16 加):工具有沒有裝、vim 設定對不對、鍵盤送出來的是不是 F 鍵
+_codenv_doctor() {
+  local ok="  ✓" bad="  ✗" v c rest
+  print ""
+  print "codenv 環境檢查"
+  if command -v g++ >/dev/null && g++ --version >/dev/null 2>&1; then print "$ok 編譯器:$(g++ --version 2>/dev/null | head -1)"
+  else print "$bad 沒有編譯器:執行 xcode-select --install,裝好再試(F9、F10 要靠它)"; fi
+  command -v python3 >/dev/null && print "$ok python3" || print "$bad 沒有 python3(寫 Python 才需要):執行 xcode-select --install"
+  if command -v tmux >/dev/null; then
+    v=$(tmux -V 2>/dev/null)
+    print "$ok $v"
+  else print "$bad 沒有 tmux:執行 brew install tmux"; fi
+  if grep -qs 'codenv' ~/.vimrc; then print "$ok ~/.vimrc 是 codenv 的設定(F9、F10 寫在這裡)"
+  else print "$bad ~/.vimrc 不是 codenv 的設定:重新執行一次安裝的那一行"; fi
+  [[ -d ${CODENV_ROOT:-/nonexistent} ]] && print "$ok 程式資料夾:${CODENV_ROOT/#$HOME/~}" || print "$bad 程式資料夾 ${CODENV_ROOT/#$HOME/~} 不存在:輸入 codenv root 重新選"
+  case $TERM_PROGRAM in
+    (iTerm.app)      print "$ok 終端機:iTerm" ;;
+    (tmux)           print "$ok 在 tmux 裡" ;;
+    (Apple_Terminal) print "  ! 現在用的是內建的「終端機」:建議改用 iTerm(codenv 的按鍵是照 iTerm 設計的)" ;;
+  esac
+  if [[ $(defaults read -g com.apple.keyboard.fnState 2>/dev/null) == 1 ]]; then
+    print "$ok 鍵盤設定:F1、F2 等鍵是標準功能鍵,直接按 F10 就好"
+  else
+    print "  ! 鍵盤設定:最上排是亮度、音量,要一起按 fn,例如 fn + F10(或到系統設定 → 鍵盤 → 鍵盤快速鍵… → 功能鍵改掉)"
+  fi
+  print ""
+  print "  按鍵測試:現在按一下 F10(MacBook 要一起按 fn),10 秒內沒按就跳過"
+  c=""; rest=""
+  read -s -t 10 -k 1 c
+  # F 鍵是好幾個字元一起送來,一個一個讀到停下來為止(一次讀固定字數的話,字數不夠會一直等)
+  local ch
+  if [[ -n $c ]]; then
+    while read -s -t 0.2 -k 1 ch; do rest+=$ch; (( $#rest >= 8 )) && break; done
+  fi
+  case "$c$rest" in
+    ($'\e[21~'*) print "$ok 收到 F10,鍵盤沒問題。F10 在 vim 裡還是沒反應的話,截圖給作者看" ;;
+    ($'\e[20~'*) print "  ! 收到的是 F9,不是 F10;再試一次" ;;
+    ("")          print "$bad 10 秒內沒收到按鍵:F10 可能被當成「靜音」了,試試 fn + F10" ;;
+    (*)           print "$bad 收到的不是 F10(收到 ${(V)c}${(V)rest}):可能是系統或 iTerm 的快捷鍵搶走了,截圖給作者看" ;;
+  esac
+  print ""
+}
+
 codenv() {
   if [[ $1 == layout ]]; then
     _codenv_choose_layout $2
+    return
+  fi
+  if [[ $1 == root ]]; then
+    _codenv_set_root "$2"
+    return
+  fi
+  if [[ $1 == doctor ]]; then
+    _codenv_doctor
     return
   fi
   local root=$CODENV_ROOT dir file choice name ans i

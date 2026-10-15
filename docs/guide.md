@@ -89,11 +89,27 @@ codenv 安裝:缺什麼就裝什麼,已經有的會跳過
 
 原本就有的 `~/.vimrc`、`~/.tmux.conf` 會先備份成「檔名.bak-日期時間」，不會不見。
 
+程式要放在哪個資料夾：第一次安裝時會問，直接按 [Enter] 就是 `~/programming_language`。也可以在指令前面加上資料夾，一次指定好：
+
+```
+CODENV_ROOT=~/Documents/C++作業 zsh -c "$(curl -fsSL https://raw.githubusercontent.com/olilllioli287/codenv/main/get.sh)"
+```
+
+之後想換，輸入 `codenv root`。
+
 ## 更新
 
 再執行一次上面那一行就好。有變動的設定檔會先備份；你在 `~/.codenv.zsh` 設定過的程式資料夾、AI 指令、畫面格數都會保留。做完把開著的 vim 關掉再打開。
 
 以前用 AirDrop 拿 `codenv-kit.zip` 安裝的人，也是執行同一行更新。
+
+## 解除安裝
+
+執行下面這一行。codenv 的檔案會移到家目錄的 `codenv-removed-日期時間` 資料夾，不會直接刪掉；你寫的程式、Homebrew、tmux、iTerm2 都不會動。詳細說明見使用手冊的解除安裝。
+
+```
+zsh -c "$(curl -fsSL https://raw.githubusercontent.com/olilllioli287/codenv/main/uninstall.sh)"
+```
 
 ## 其他下載方式
 
@@ -173,6 +189,18 @@ Release Notes
 # 發行日誌
 
 每次更新多了什麼、修了什麼。想更新到最新版，看下載頁的更新。
+
+2026-10-16
+
+## 一行解除安裝、自己選程式資料夾、codenv doctor
+
+- 【新功能】一行解除安裝：codenv 的檔案移到 `codenv-removed-日期時間` 資料夾（不直接刪），拿掉 `~/.zshrc` 裡的那行，裝 codenv 之前原本的 `~/.vimrc`、`~/.tmux.conf` 會放回去。你寫的程式、Homebrew、tmux、iTerm2 都不會動。
+
+- 【新功能】第一次安裝時會問「寫的程式要放在哪個資料夾」，直接按 Enter 就是 `~/programming_language`。也可以在安裝指令前面加 `CODENV_ROOT=資料夾` 一次指定好。
+
+- 【新功能】`codenv root`：之後想換程式資料夾，輸入它就好。
+
+- 【新功能】`codenv doctor`：F9、F10 沒反應時，檢查編譯器、tmux、vim 設定和鍵盤設定，再請你按一下 F10，看鍵盤送出來的是不是 F10。
 
 2026-10-15
 
@@ -432,6 +460,8 @@ zsh -c "$(curl -fsSL https://raw.githubusercontent.com/olilllioli287/codenv/main
 
 - 之後什麼都不用按，等它一項一項裝完。畫面會顯示 `[1/5]` 到 `[5/5]` 做到哪裡。
 
+- 最後問「寫的程式要放在哪個資料夾」時，直接按 [Enter] 就是 `~/programming_language`；想放別的地方就打資料夾路徑，例如 `~/Documents/C++作業`。之後也可以用 `codenv root` 換。
+
 - 最後出現「完成」，iTerm 會自動打開。第一次問「確定要打開嗎？」就按「打開」。之後都用 iTerm，這個終端機視窗可以關掉。
 
 看到「完成」就成功（第一次裝的畫面，中間 Homebrew 會印很多英文，不用管）
@@ -689,6 +719,8 @@ FAQ
 
 看新手上路第 3 步，要搭配 [fn] 鍵，或改系統設定。另外確認游標在 vim 那格（先用滑鼠點一下）。
 
+還是不行的話，在 iTerm 輸入 `codenv doctor`。它會檢查編譯器、tmux、vim 設定和鍵盤設定，最後請你按一下 F10，看鍵盤送出來的是不是 F10。把整個畫面截圖給作者，就能知道卡在哪裡。
+
 **問：** 程式停不下來，一直印東西
 
 在執行結果那格按 [Ctrl]+[C] 停止程式，會出現「已用 Ctrl+C 停止程式」。通常是迴圈的條件永遠成立，例如 `for` 的第二格寫錯。
@@ -787,8 +819,10 @@ Manual
 | `codenv layout` | 重新選畫面要兩格還是三格。 |
 | `codenv layout 2` | 直接設成兩格：左邊寫程式、右邊看結果。 |
 | `codenv layout 3` | 直接設成三格：左邊 AI 或終端機、右上寫程式、右下看結果。 |
+| `codenv root` | 換程式資料夾；也可以直接打 `codenv root ~/Documents/作業`。資料夾不存在會自動建立，原本資料夾裡的程式不會搬過去。 |
+| `codenv doctor` | 檢查環境：編譯器、tmux、vim 設定、鍵盤設定，再請你按一下 F10 測試。F9、F10 沒反應時先跑這個。 |
 
-程式放在 `~/programming_language` 底下，每個資料夾是一個科目或一次作業。新檔名一定要有副檔名（`.cpp` 或 `.py`）。
+程式預設放在 `~/programming_language` 底下（安裝時可以選別的資料夾，之後用 `codenv root` 換），每個資料夾是一個科目或一次作業。新檔名一定要有副檔名（`.cpp` 或 `.py`）。
 
 2
 
@@ -1180,22 +1214,23 @@ cp ~/.vimrc.bak-日期時間 ~/.vimrc
 
 ## 解除安裝
 
-下面的做法是把 codenv 的檔案搬到家目錄的 `codenv-removed` 資料夾，不是直接刪除，想恢復時再搬回來就好。
+在 iTerm（或內建的「終端機」）執行下面這一行：
 
 ```
-mkdir -p ~/codenv-removed
-mv ~/.codenv.zsh ~/.codenv-ime ~/.codenv-ime.swift ~/.codenv-compat ~/.codenv-kit ~/codenv-removed/
+zsh -c "$(curl -fsSL https://raw.githubusercontent.com/olilllioli287/codenv/main/uninstall.sh)"
 ```
 
-有些檔案沒裝過的話，會出現 No such file 或找不到，不影響。裝了 tmux-kit 的話，另外執行 `zsh ~/.tmux-kit/uninstall.sh`。
+- codenv 的檔案（`~/.codenv.zsh`、`~/.codenv-ime`、`~/.codenv-compat`、`~/.codenv-kit`，以及 codenv 裝的 `~/.vimrc`、`~/.tmux.conf`）會移到家目錄的 `codenv-removed-日期時間` 資料夾，不會直接刪掉。
 
-- 執行 `open -e ~/.zshrc`，刪掉 `# codenv 程式練習環境` 和 `source ~/.codenv.zsh` 這兩行，存檔。
+- `~/.zshrc` 裡載入 codenv 的那行會拿掉（原本的檔案也備份在同一個資料夾）。
 
-- `~/.vimrc` 和 `~/.tmux.conf` 想換回安裝前的樣子，照換回舊版設定把最早的那份備份複製回來；安裝前本來沒有的話，可以把它們也搬進 `codenv-removed`。
+- 裝 codenv 之前原本就有 `~/.vimrc`、`~/.tmux.conf` 的話，會放回當初的那份備份。
 
-- 自己建過 `~/.vimrc.local`、`~/.tmux.conf.local` 的話，也可以一起搬走。
+- 不會動：你寫的程式（整個程式資料夾留著）、Homebrew、編譯器、tmux、iTerm2（別的程式可能也在用）。
 
-- 關掉 iTerm 再打開。寫過的程式在 `~/programming_language`，不會被動到。
+- 裝了 tmux-kit 的話不會一起拿掉，要另外執行 `zsh ~/.tmux-kit/uninstall.sh`。
+
+做完關掉 iTerm 再打開，`codenv` 指令就不見了。想恢復，再執行一次安裝的那一行就好；確定不要了，可以自己刪掉 `codenv-removed-日期時間` 資料夾。
 
 ---
 

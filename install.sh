@@ -60,6 +60,28 @@ while IFS= read -r line || [[ -n $line ]]; do
   done
   new+=("$line")
 done < codenv.zsh
+# 程式資料夾:安裝指令前面加 CODENV_ROOT=資料夾 可以指定;第一次安裝沒指定的話問一次(2026-10-16 加)
+#   例: CODENV_ROOT=~/Documents/C++作業 zsh -c "$(curl -fsSL https://raw.githubusercontent.com/olilllioli287/codenv/main/get.sh)"
+want_root=$CODENV_ROOT
+if [[ -z $want_root && ! -e ~/.codenv.zsh && -t 0 ]]; then
+  print ""
+  print "寫的程式要放在哪個資料夾?直接按 Enter 就用 ~/programming_language"
+  print "(想放別的地方就打資料夾路徑,例如 ~/Documents/C++作業;資料夾不存在會自動建立)"
+  read "want_root?> "
+fi
+if [[ -n $want_root ]]; then
+  want_root=${want_root/#\~/$HOME}
+  [[ $want_root != /* ]] && want_root=$HOME/$want_root
+  [[ $want_root != / ]] && want_root=${want_root%/}
+  if mkdir -p -- "$want_root" 2>/dev/null; then
+    for ((i = 1; i <= $#new; i++)); do
+      [[ ${new[i]} == CODENV_ROOT=* ]] && new[i]="CODENV_ROOT=\"${want_root/#$HOME/\$HOME}\""
+    done
+    print "寫的程式會放在 ${want_root/#$HOME/~}"
+  else
+    print "沒辦法建立資料夾 $want_root,先用原本的設定;之後可以輸入 codenv root 再改"
+  fi
+fi
 if [[ -e ~/.codenv.zsh ]] && [[ "$(print -rl -- "${new[@]}")" == "$(<~/.codenv.zsh)" ]]; then
   print "~/.codenv.zsh 已經是最新版"
 else
