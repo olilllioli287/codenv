@@ -1,7 +1,7 @@
 #!/bin/zsh
 # codenv 安裝 / 更新:複製 vim / tmux 設定,並讓 zsh 認得 codenv 指令
 # 原本就有的設定檔會先備份成 檔名.bak-日期時間,不會直接蓋掉
-# 已經裝過的話,~/.codenv.zsh 裡自己改過的 CODENV_ROOT、CODENV_AI、CODENV_LAYOUT、CODENV_TMUXKIT 會保留
+# 已經裝過的話,~/.codenv.zsh 裡自己改過的 CODENV_ROOT、CODENV_AI、CODENV_LAYOUT、CODENV_TMUXKIT、CODENV_WELCOME 會保留
 cd "${0:A:h}" || exit 1
 stamp=$(date +%Y%m%d-%H%M%S)
 
@@ -51,7 +51,7 @@ fi
 # codenv 指令:新版覆蓋前,先記下自己設定過的資料夾位置、AI 指令和畫面格數,裝好後填回去
 keep=()
 if [[ -e ~/.codenv.zsh ]]; then
-  keep=( ${(f)"$(grep -E '^CODENV_(ROOT|AI|LAYOUT|TMUXKIT)=' ~/.codenv.zsh)"} )
+  keep=( ${(f)"$(grep -E '^CODENV_(ROOT|AI|LAYOUT|TMUXKIT|WELCOME)=' ~/.codenv.zsh)"} )
 fi
 new=()
 while IFS= read -r line || [[ -n $line ]]; do

@@ -182,6 +182,8 @@ Release Notes
 
 - 【新功能】一行安裝會自己裝好缺少的 Homebrew、編譯器、tmux、iTerm2，再裝 codenv：打開內建的「終端機」貼一行、輸入一次開機密碼，等它跑完就好，不用再一樣一樣手動裝。已經裝過的會跳過，更新也是同一行。
 
+- 【新功能】第一次輸入 codenv 時，會提醒 F9、F10 要一起按 [fn]（或自己到系統設定改成預設就是 F 鍵，codenv 不會幫你改），再問要不要在桌面放一份說明 `readme.pdf`：常用按鍵，加上可以另外裝的外掛連結（tmux 中文選單、排列視窗、image-shelf、ShotLine）和作者的 GitHub、Threads、Dcard。直接按 Enter 就放，輸入 n 不放；桌面已經有別的 readme.pdf 時改存成 codenv-readme.pdf。只問一次。
+
 - 【新功能】第一次輸入 codenv 時會介紹 tmux-kit：輸入 y 就安裝，直接按 Enter 跳過，只出現一次。
 
 - 【修正】更新 codenv 時，舊版的排列視窗會自動關掉、移到 `~/codenv-removed`，不會跟 tmux-kit 搶 Cmd+Ctrl+A。裝了 tmux-kit 後，已經取好的格子名字會保留。
@@ -481,7 +483,7 @@ MacBook 最上面那排鍵預設是調亮度、音量，直接按 F10 其實是�
 
 - 如果 iTerm 是安裝之前就開著的，先按 [Cmd] + [Q] 完全關掉再打開；安裝完自動打開的就不用。
 
-- 輸入 `codenv` 按 [Enter]。第一次會先問畫面要幾格：輸入 [2]（左邊寫程式、右邊看結果，沒有用 AI 的話選這個）或 [3]（多一格放 AI 或終端機）。選完會記住。接著會介紹一次選用的 tmux-kit（中文選單、排列視窗），想裝就輸入 [y]，不要就直接按 [Enter]，以後不會再問。
+- 輸入 `codenv` 按 [Enter]。第一次會先問畫面要幾格：輸入 [2]（左邊寫程式、右邊看結果，沒有用 AI 的話選這個）或 [3]（多一格放 AI 或終端機）。選完會記住。接著會介紹一次選用的 tmux-kit（中文選單、排列視窗），想裝就輸入 [y]，不要就直接按 [Enter]；再提醒一次 F9、F10 要怎麼按，並問要不要在桌面放說明 `readme.pdf`（直接按 [Enter] 就放）。這些都只出現一次。
 
 - 按 [n] [Enter] 新增資料夾，輸入名稱（例如 `cpp`）。清單出現 `1) cpp` 後，輸入 [1] [Enter]。
 
@@ -1536,6 +1538,7 @@ codenv 沒有用 TPM 之類的第三方外掛，全部的改動都寫在 `~/.tmu
 | `install.sh` | 安裝 / 更新 |
 | `vimrc`、`tmux.conf`、`codenv.zsh` | 三個主要設定檔 |
 | `codenv-ime.swift` | 輸入法切換小程式的原始碼 |
+| `readme.pdf`、`docs/readme-pdf.html` | 第一次輸入 codenv 時問過再放到桌面的說明 PDF，和它的原始檔（用 Chrome 的 `--print-to-pdf` 產生） |
 | `compat/` | Windows 相容：`bits/stdc++.h`、`pause`、`cls` |
 | `iterm-profile.json` | iTerm 配色 |
 | `docs/` | README 用的示意圖與它的原始檔 |

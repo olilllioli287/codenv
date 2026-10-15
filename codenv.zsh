@@ -9,6 +9,8 @@ CODENV_AI=''
 CODENV_LAYOUT=''
 # tmux-kit(選用的中文選單、排列視窗)的介紹看過了沒:看過是 shown,想再看一次就改回空的
 CODENV_TMUXKIT=''
+# 第一次使用的提醒(F9、F10 要按 fn)和桌面說明 PDF 問過了沒:問過是 shown,想再看一次就改回空的
+CODENV_WELCOME=''
 
 # 選畫面要幾格,並記到 ~/.codenv.zsh,下次開 codenv 就照這個排
 _codenv_choose_layout() {
@@ -66,6 +68,46 @@ _codenv_tmuxkit_intro() {
   return 0
 }
 
+# 第一次使用時:提醒 F9、F10 要按 fn(要不要改系統設定由使用者決定),再問要不要在桌面放說明 readme.pdf
+# 只出現一次,問過就記到 ~/.codenv.zsh(2026-10-15 加)
+_codenv_welcome() {
+  local ans src=~/.codenv-kit/readme.pdf dst=~/Desktop/readme.pdf
+  print ""
+  print "  F9、F10 要怎麼按:MacBook 最上面那排鍵預設是調亮度、音量,直接按 F10 其實是「靜音」。"
+  print "   ・每次一起按住 fn(左下角有地球圖示那顆),例如 fn + F10"
+  print "   ・或改成預設就是 F 鍵:系統設定 → 鍵盤 → 鍵盤快速鍵… → 功能鍵 →"
+  print "     打開「將 F1、F2 等鍵作為標準功能鍵使用」(改了以後,調音量、亮度反而要按 fn)"
+  print "  這個要你自己決定、自己改,codenv 不會動它。這段提醒只出現這一次。"
+  print ""
+  print "  要在桌面放一份說明 readme.pdf 嗎?裡面有常用按鍵,還有可以另外裝的外掛連結"
+  print "  (tmux 中文選單、排列視窗、image-shelf、ShotLine)。"
+  print "  直接按 Enter 就放到桌面;不要的話輸入 n 再按 Enter。"
+  print "  (如果跳出「iTerm 想要取用『桌面』檔案夾」,按「允許」)"
+  print ""
+  ans=""; read "ans?  > "
+  CODENV_WELCOME=shown
+  local conf=~/.codenv.zsh
+  if [[ -f $conf ]]; then
+    if grep -q '^CODENV_WELCOME=' $conf; then
+      sed -i '' "s/^CODENV_WELCOME=.*/CODENV_WELCOME=shown/" $conf
+    else
+      print "CODENV_WELCOME=shown" >> $conf
+    fi
+  fi
+  [[ $ans == [nN]* ]] && { print "  好,不放。之後想看,說明在 ~/.codenv-kit/readme.pdf"; return 0 }
+  # 桌面已經有別的 readme.pdf 就不蓋掉,改用 codenv-readme.pdf
+  [[ -e $dst ]] && ! cmp -s $src $dst && dst=~/Desktop/codenv-readme.pdf
+  mkdir -p ~/Desktop
+  if [[ -f $src ]] && cp $src $dst 2>/dev/null; then
+    print "  已經放到桌面:${dst:t}"
+  elif curl -fsSL -m 20 https://raw.githubusercontent.com/olilllioli287/codenv/main/readme.pdf -o $dst 2>/dev/null; then
+    print "  已經放到桌面:${dst:t}"
+  else
+    print "  沒有放成(可能是沒有允許取用桌面,或沒有網路)。說明也在網站上:https://olilllioli287.github.io/codenv/"
+  fi
+  return 0
+}
+
 codenv() {
   if [[ $1 == layout ]]; then
     _codenv_choose_layout $2
@@ -85,6 +127,8 @@ codenv() {
   fi
   # 第一次使用:介紹選用的 tmux-kit(已經裝了就不介紹)
   [[ -z $CODENV_TMUXKIT && ! -e ~/.tmux-kit/tmux-kit.conf ]] && _codenv_tmuxkit_intro
+  # 第一次使用:F9、F10 的提醒和桌面說明 PDF(只出現一次)
+  [[ -z $CODENV_WELCOME ]] && _codenv_welcome
   [[ -d $root ]] || mkdir -p -- $root
   # 1) 選資料夾
   while true; do

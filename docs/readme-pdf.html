@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>codenv 說明</title>
+<!--
+  第一次輸入 codenv 時,問過使用者再放到桌面的 readme.pdf 的原始檔(2026-10-15 加)
+  重新產生 PDF(在 repo 根目錄執行):
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --no-pdf-header-footer \
+      --print-to-pdf=readme.pdf "file://$PWD/docs/readme-pdf.html"
+-->
+<style>
+  @page { size: A4; margin: 16mm 16mm 14mm; }
+  :root {
+    --ink: #1c2230; --muted: #5d6779; --line: #d8dde7; --accent: #2f5fd0; --soft: #edf2fc; --warn: #fff6e5; --warn-line: #e9c46a;
+    --sans: "PingFang TC", "Heiti TC", "Noto Sans TC", sans-serif;
+    --mono: Menlo, "SF Mono", monospace;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; color: var(--ink); font: 10.5pt/1.65 var(--sans); }
+  a { color: var(--accent); text-decoration: none; }
+  header { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; border-bottom: 2px solid var(--accent); padding-bottom: 8px; margin-bottom: 14px; }
+  header h1 { margin: 0; font-size: 22pt; letter-spacing: .02em; }
+  header h1 span { font-family: var(--mono); }
+  header p { margin: 0; color: var(--muted); font-size: 10pt; text-align: right; }
+  .bar { display: inline-flex; font-family: var(--mono); font-size: 8.5pt; margin-bottom: 4px; }
+  .bar b { background: var(--accent); color: #fff; padding: 0 6px; }
+  .bar i { font-style: normal; color: var(--muted); padding: 0 6px; }
+  h2 { font-size: 12.5pt; margin: 16px 0 6px; display: flex; align-items: center; gap: 8px; }
+  h2::before { content: ""; width: 6px; height: 14px; background: var(--accent); border-radius: 1px; }
+  p { margin: 4px 0; }
+  ol, ul { margin: 4px 0; padding-left: 1.3em; }
+  li { margin: 2px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 6px 0; font-size: 10pt; }
+  th, td { text-align: left; border-bottom: 1px solid var(--line); padding: 4px 6px; vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 9pt; }
+  td:first-child { white-space: nowrap; width: 9.5em; }
+  kbd, code { font-family: var(--mono); font-size: 9pt; background: var(--soft); border-radius: 3px; padding: 0 4px; }
+  pre { font-family: var(--mono); font-size: 8.6pt; background: var(--soft); border-radius: 5px; padding: 6px 8px; margin: 4px 0; white-space: pre-wrap; word-break: break-all; }
+  .note { background: var(--warn); border-left: 3px solid var(--warn-line); padding: 6px 10px; margin: 6px 0; border-radius: 0 5px 5px 0; }
+  .addons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
+  .addon { border: 1px solid var(--line); border-radius: 7px; padding: 8px 10px; break-inside: avoid; }
+  .addon h3 { margin: 0 0 2px; font-size: 10.5pt; display: flex; justify-content: space-between; gap: 6px; }
+  .addon h3 em { font-style: normal; font-size: 8pt; color: var(--muted); font-weight: 400; white-space: nowrap; }
+  .addon p { font-size: 9.5pt; }
+  .addon .link { font-family: var(--mono); font-size: 8.5pt; word-break: break-all; }
+  .me { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 6px; }
+  .me div { border: 1px solid var(--line); border-radius: 7px; padding: 6px 10px; }
+  .me b { display: block; font-size: 9pt; color: var(--muted); font-weight: 600; }
+  .me a { font-family: var(--mono); font-size: 8.8pt; word-break: break-all; }
+  footer { margin-top: 14px; color: var(--muted); font-size: 8.5pt; border-top: 1px solid var(--line); padding-top: 6px; display: flex; justify-content: space-between; gap: 8px; }
+  .page-break { break-before: page; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="bar"><b>codenv</b><i>說明</i></div>
+    <h1><span>codenv</span> 說明</h1>
+  </div>
+  <p>Mac 上寫 C++ / Python 作業的終端機環境<br>vim 寫程式，按 F10 看執行結果</p>
+</header>
+
+<h2>開始使用</h2>
+<ol>
+  <li>打開 <b>iTerm</b>，輸入 <code>codenv</code> 按 Enter。</li>
+  <li>輸入數字選資料夾和檔案；按 <kbd>n</kbd> 可以新增（檔名要有副檔名，例如 <code>hw1.cpp</code>）。</li>
+  <li>畫面會分好：寫程式的 vim，和看執行結果的那一格。按 <kbd>i</kbd> 開始打字，打完按 <kbd>Esc</kbd>。</li>
+</ol>
+<table>
+  <thead><tr><th>按鍵</th><th>做什麼</th></tr></thead>
+  <tbody>
+    <tr><td><kbd>F9</kbd></td><td>存檔並檢查有沒有打錯；錯的那行畫紅色底線，訊息直接寫「第幾行」</td></tr>
+    <tr><td><kbd>F10</kbd></td><td>存檔、編譯、執行，結果顯示在旁邊那格</td></tr>
+    <tr><td><kbd>Esc</kbd>（在結果那格）</td><td>跳回 vim</td></tr>
+    <tr><td><kbd>Ctrl</kbd>+<kbd>S</kbd> / <kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Y</kbd></td><td>存檔 / 復原 / 重做</td></tr>
+    <tr><td><kbd>Ctrl</kbd>+<kbd>C</kbd> / <kbd>Ctrl</kbd>+<kbd>V</kbd></td><td>複製 / 貼上（在結果那格，<kbd>Ctrl</kbd>+<kbd>C</kbd> 是停止跑不完的程式）</td></tr>
+    <tr><td><code>:q</code> / <code>:q!</code></td><td>關掉 vim / 不存檔直接關掉</td></tr>
+    <tr><td><code>codenv layout</code></td><td>重新選畫面要兩格還是三格</td></tr>
+  </tbody>
+</table>
+<p>Windows 上 Dev-C++ 的寫法照樣能跑：<code>#include &lt;bits/stdc++.h&gt;</code>、<code>system("pause")</code>，Big5 的中文也不會變亂碼。要存很大的整數，請用 <code>long long</code>（Windows 上的 <code>long</code> 比 Mac 小）。</p>
+
+<h2>F9、F10 要怎麼按</h2>
+<div class="note">
+  <p>MacBook 最上面那排鍵預設是調亮度、音量，直接按 F10 其實是「靜音」。選一種：</p>
+  <ul>
+    <li><b>每次一起按住 <kbd>fn</kbd></b>（左下角有地球圖示那顆），例如 <kbd>fn</kbd> + <kbd>F10</kbd>。</li>
+    <li><b>改成預設就是 F 鍵</b>：系統設定 → 鍵盤 → 鍵盤快速鍵… → 功能鍵 → 打開「將 F1、F2 等鍵作為標準功能鍵使用」。改了以後，調音量、亮度反而要按 <kbd>fn</kbd>，所以要不要改由你決定。</li>
+  </ul>
+</div>
+
+<h2>更新 codenv</h2>
+<p>在 iTerm 執行這一行（第一次安裝也是同一行，缺什麼會自動裝）：</p>
+<pre>zsh -c "$(curl -fsSL https://raw.githubusercontent.com/olilllioli287/codenv/main/get.sh)"</pre>
+<p>完整說明、常見問題：<a href="https://olilllioli287.github.io/codenv/">olilllioli287.github.io/codenv</a></p>
+
+<h2 class="page-break">可以另外裝的外掛（自由選配）</h2>
+<p>都不是必要的，不裝也能正常使用 codenv。想裝哪個就照它的說明裝。</p>
+<div class="addons">
+  <div class="addon">
+    <h3>tmux 中文優化 <em>tmux-kit</em></h3>
+    <p>Ctrl+A 連按兩次叫出中文選單：分割、關掉、放大格子，開分頁、取名，把格子搬到別的分頁、換排列方式。同一包裡還有「Claude Code 回覆完，那個分頁反白提醒」。</p>
+    <p class="link"><a href="https://github.com/olilllioli287/tmux-kit">github.com/olilllioli287/tmux-kit</a></p>
+  </div>
+  <div class="addon">
+    <h3>tmux 排版優化 <em>實驗中・tmux-kit</em></h3>
+    <p>在 iTerm 裡按 Cmd+Ctrl+A，開一個視窗，把所有分頁和格子畫成小縮圖，用滑鼠拖曳就能排好。還在測試，拖曳不一定每次都成功。安裝 tmux-kit 時第 2 項選要裝。</p>
+    <p class="link"><a href="https://github.com/olilllioli287/tmux-kit">github.com/olilllioli287/tmux-kit</a></p>
+  </div>
+  <div class="addon">
+    <h3>image-shelf <em>Claude Code 外掛</em></h3>
+    <p>在 Claude Code 貼上的圖片，排在輸入框上方顯示成真正的縮圖；點一下就能畫圈、加箭頭、寫字、裁切。iTerm2 和 tmux 裡也看得到。</p>
+    <p class="link"><a href="https://github.com/olilllioli287/claude-code-image-shelf">github.com/olilllioli287/claude-code-image-shelf</a></p>
+  </div>
+  <div class="addon">
+    <h3>ShotLine <em>截圖小工具</em></h3>
+    <p>截圖先掛在螢幕上方的曬衣繩上，點一下就能標示，過一會兒自動收進截圖檔案夾。macOS 14 以上。改自 Alejandro Buján 的 <a href="https://github.com/alejandrobujan/tendedero">Tendedero</a>（MIT 授權）。</p>
+    <p class="link"><a href="https://github.com/olilllioli287/ShotLine">github.com/olilllioli287/ShotLine</a></p>
+  </div>
+</div>
+<p style="margin-top:8px">tmux-kit 的安裝（三樣各自選要不要裝）：</p>
+<pre>zsh -c "$(curl -fsSL https://raw.githubusercontent.com/olilllioli287/tmux-kit/main/get.sh)"</pre>
+<p>image-shelf 的安裝（在 Claude Code 的輸入框打）：</p>
+<pre>/plugin install image-shelf --marketplace olilllioli287/claude-code-image-shelf</pre>
+
+<h2>作者</h2>
+<p>codenv 和這些外掛都是我做的。有問題、想要新功能，歡迎來找我，或到 GitHub 開 Issue。</p>
+<div class="me">
+  <div><b>GitHub</b><a href="https://github.com/olilllioli287">github.com/olilllioli287</a></div>
+  <div><b>Threads</b><a href="https://www.threads.com/@olilllioli287">threads.com/@olilllioli287</a></div>
+  <div><b>Dcard</b><a href="https://www.dcard.tw/@shousei">dcard.tw/@shousei</a></div>
+</div>
+
+<footer>
+  <span>codenv：<a href="https://github.com/olilllioli287/codenv">github.com/olilllioli287/codenv</a>（MIT 授權，免費）</span>
+  <span>2026-10-15</span>
+</footer>
+</body>
+</html>

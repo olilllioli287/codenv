@@ -351,6 +351,7 @@ footer { border-top: 1px solid var(--line); }
       <ul>
         <li><span class="tag new">新功能</span>Ctrl+A 兩下的中文選單、用滑鼠排列格子的視窗（Cmd+Ctrl+A）、Claude 回完分頁反白，拆成另一個小工具包 <a href="https://github.com/olilllioli287/tmux-kit">tmux-kit</a>，三樣可以各自選要不要裝，不用 codenv 的人也能單獨裝。安裝方法見<a href="#manual-menu">使用手冊第 8 節</a>。</li>
         <li><span class="tag new">新功能</span><a href="#start-auto">一行安裝</a>會自己裝好缺少的 Homebrew、編譯器、tmux、iTerm2，再裝 codenv：打開內建的「終端機」貼一行、輸入一次開機密碼，等它跑完就好，不用再一樣一樣手動裝。已經裝過的會跳過，更新也是同一行。</li>
+        <li><span class="tag new">新功能</span>第一次輸入 codenv 時，會提醒 F9、F10 要一起按 <kbd>fn</kbd>（或自己到系統設定改成預設就是 F 鍵，codenv 不會幫你改），再問要不要在桌面放一份說明 <code>readme.pdf</code>：常用按鍵，加上可以另外裝的外掛連結（tmux 中文選單、排列視窗、image-shelf、ShotLine）和作者的 GitHub、Threads、Dcard。直接按 Enter 就放，輸入 n 不放；桌面已經有別的 readme.pdf 時改存成 codenv-readme.pdf。只問一次。</li>
         <li><span class="tag new">新功能</span>第一次輸入 codenv 時會介紹 tmux-kit：輸入 y 就安裝，直接按 Enter 跳過，只出現一次。</li>
         <li><span class="tag fix">修正</span>更新 codenv 時，舊版的排列視窗會自動關掉、移到 <code>~/codenv-removed</code>，不會跟 tmux-kit 搶 Cmd+Ctrl+A。裝了 tmux-kit 後，已經取好的格子名字會保留。</li>
         <li><span class="tag fix">修正</span>兩格畫面打錯字時，訊息寫「詳細看右下角」，其實結果在右邊。現在兩格寫「詳細看右邊」。</li>
@@ -630,7 +631,7 @@ footer { border-top: 1px solid var(--line); }
         <p class="step-meta">約 5 分鐘</p>
         <ol>
           <li>如果 iTerm 是安裝之前就開著的，先按 <kbd>Cmd</kbd> + <kbd>Q</kbd> 完全關掉再打開；安裝完自動打開的就不用。</li>
-          <li>輸入 <code>codenv</code> 按 <kbd>Enter</kbd>。第一次會先問畫面要幾格：輸入 <kbd>2</kbd>（左邊寫程式、右邊看結果，沒有用 AI 的話選這個）或 <kbd>3</kbd>（多一格放 AI 或終端機）。選完會記住。接著會介紹一次選用的 tmux-kit（中文選單、排列視窗），想裝就輸入 <kbd>y</kbd>，不要就直接按 <kbd>Enter</kbd>，以後不會再問。</li>
+          <li>輸入 <code>codenv</code> 按 <kbd>Enter</kbd>。第一次會先問畫面要幾格：輸入 <kbd>2</kbd>（左邊寫程式、右邊看結果，沒有用 AI 的話選這個）或 <kbd>3</kbd>（多一格放 AI 或終端機）。選完會記住。接著會介紹一次選用的 tmux-kit（中文選單、排列視窗），想裝就輸入 <kbd>y</kbd>，不要就直接按 <kbd>Enter</kbd>；再提醒一次 F9、F10 要怎麼按，並問要不要在桌面放說明 <code>readme.pdf</code>（直接按 <kbd>Enter</kbd> 就放）。這些都只出現一次。</li>
           <li>按 <kbd>n</kbd> <kbd>Enter</kbd> 新增資料夾，輸入名稱（例如 <code>cpp</code>）。清單出現 <code>1) cpp</code> 後，輸入 <kbd>1</kbd> <kbd>Enter</kbd>。</li>
           <li>按 <kbd>n</kbd> <kbd>Enter</kbd> 新增檔案，輸入 <code>hello.cpp</code>（一定要有副檔名）。畫面會切好，vim 已經打開。</li>
           <li>按 <kbd>i</kbd> 開始打字（左下角出現 <code>-- INSERT --</code>），把下面這段打進去，打完按 <kbd>Esc</kbd>。練習的話建議自己打，不要貼。</li>
@@ -1516,6 +1517,7 @@ mv ~/.codenv.zsh ~/.codenv-ime ~/.codenv-ime.swift ~/.codenv-compat ~/.codenv-ki
             <tr><td><code>install.sh</code></td><td>安裝 / 更新</td></tr>
             <tr><td><code>vimrc</code>、<code>tmux.conf</code>、<code>codenv.zsh</code></td><td>三個主要設定檔</td></tr>
             <tr><td><code>codenv-ime.swift</code></td><td>輸入法切換小程式的原始碼</td></tr>
+            <tr><td><code>readme.pdf</code>、<code>docs/readme-pdf.html</code></td><td>第一次輸入 codenv 時問過再放到桌面的說明 PDF，和它的原始檔（用 Chrome 的 <code>--print-to-pdf</code> 產生）</td></tr>
             <tr><td><code>compat/</code></td><td>Windows 相容：<code>bits/stdc++.h</code>、<code>pause</code>、<code>cls</code></td></tr>
             <tr><td><code>iterm-profile.json</code></td><td>iTerm 配色</td></tr>
             <tr><td><code>docs/</code></td><td>README 用的示意圖與它的原始檔</td></tr>
