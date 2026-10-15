@@ -216,7 +216,8 @@ endfunction
 
 " 在 vim 下方用一行字告訴結果
 function! s:EchoStatus(err, msg)
-  let where = empty($TMUX) ? '' : ',詳細看右下角'
+  " 兩格的畫面結果在右邊,三格在右下角(2026-10-15 改)
+  let where = empty($TMUX) ? '' : (trim(system('tmux show -wv @codenv_layout')) ==# '2' ? ',詳細看右邊' : ',詳細看右下角')
   if a:err
     let at = s:first_error ? ',第 ' . s:first_error . ' 行(紅色底線)' : ''
     echohl ErrorMsg | echo 'code is error' . at . where | echohl None
