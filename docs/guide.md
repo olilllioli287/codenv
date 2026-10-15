@@ -36,7 +36,7 @@ Ctrl+S 存檔、Ctrl+Z 復原、滑鼠選取後直接打字取代、Ctrl+C / Ctr
 
 用滑鼠排列格子
 
-在任何 App 按 Cmd+Ctrl+A 叫出排列視窗，把格子、分頁拖來拖去就排好，不用記 tmux 指令。看說明
+在 iTerm 裡按 Cmd+Ctrl+A 叫出排列視窗，把格子、分頁拖來拖去就排好，不用記 tmux 指令。看說明
 
 用 AI 一步一步學
 
@@ -75,7 +75,7 @@ zsh -c "$(curl -fsSL https://raw.githubusercontent.com/olilllioli287/codenv/main
 已安裝 ~/.tmux.conf
 已安裝 ~/.codenv-ime(中文輸入法開著時,Ctrl+A 也能用)
 已安裝 ~/.codenv-board(用滑鼠排列格子的視窗)
-已設定 Cmd+Ctrl+A:在任何 App 按一下叫出排列視窗,再按一下收起來(登入時自動在背景啟動)
+已設定 Cmd+Ctrl+A:在 iTerm 裡按一下叫出排列視窗,再按一下收起來(登入時自動在背景啟動)
 已安裝 ~/.codenv-compat(Windows 寫的程式也能跑,例如 bits/stdc++.h、system("pause"))
 已安裝 ~/.codenv.zsh
 已在 ~/.zshrc 加上 source ~/.codenv.zsh
@@ -172,15 +172,15 @@ Release Notes
 
 2026-10-15
 
-## 用滑鼠排列格子的視窗、Cmd+Ctrl+A 隨時叫出來、選單可以用滑鼠點
+## 用滑鼠排列格子的視窗、在 iTerm 裡按 Cmd+Ctrl+A 叫出來、選單可以用滑鼠點
 
 - 【新功能】排列視窗：一個 Mac 視窗，把所有工作階段、分頁和格子畫成小縮圖。把格子拖到別的分頁就搬過去，拖到「新 window」就拆成新的分頁；分頁拖到另一個分頁上會交換位置，拖到別的工作階段會搬過去，也可以開新的工作階段。點一下格子切換過去，雙擊名字或按右鍵可以改名、換排列方式。
 
-- 【新功能】在任何 App 按 [Cmd]+[Ctrl]+[A] 叫出排列視窗，再按一次收起來。登入時會自動在背景準備好，不用開任何權限。從 Ctrl+A 兩下的選單選「用滑鼠排列格子」也能打開。
+- 【新功能】在 iTerm 裡按 [Cmd]+[Ctrl]+[A] 叫出排列視窗，再按一次收起來。在別的 App 按不會有反應，那個 App 自己的 Cmd+Ctrl+A 照常能用；排列視窗開著時切到別的 App，它會自動收起來。登入時會自動在背景準備好，不用開任何權限。從 Ctrl+A 兩下的選單選「用滑鼠排列格子」也能打開。
 
 - 【新功能】工作階段可以改名：在排列視窗按工作階段那一行的「改名」，或雙擊它的名字；Ctrl+A 兩下的選單也多了「幫這個工作階段取名」。改的是左下角「Session 0」那塊的名字，中文也可以。
 
-- 【修正】前面開著全螢幕的 App（例如全螢幕的 iTerm）時按 Cmd+Ctrl+A，排列視窗會跑到別的桌面，看起來像沒反應。現在會直接疊在眼前的畫面上，收起來後回到原本的 App。
+- 【修正】iTerm 開成全螢幕時按 Cmd+Ctrl+A，排列視窗會跑到別的桌面，看起來像沒反應。現在會直接疊在眼前的畫面上。
 
 - 【修正】Ctrl+A 兩下的選單用滑鼠點不到選項，而且滑鼠一移出選單，選單就消失。現在滑鼠移到哪裡選單都留著，點選項就執行，點選單外面才關掉。
 
@@ -518,7 +518,7 @@ zsh -c "$(curl -fsSL https://raw.githubusercontent.com/olilllioli287/codenv/main
 已安裝 ~/.tmux.conf
 已安裝 ~/.codenv-ime(中文輸入法開著時,Ctrl+A 也能用)
 已安裝 ~/.codenv-board(用滑鼠排列格子的視窗)
-已設定 Cmd+Ctrl+A:在任何 App 按一下叫出排列視窗,再按一下收起來(登入時自動在背景啟動)
+已設定 Cmd+Ctrl+A:在 iTerm 裡按一下叫出排列視窗,再按一下收起來(登入時自動在背景啟動)
 已安裝 ~/.codenv-compat(Windows 寫的程式也能跑,例如 bits/stdc++.h、system("pause"))
 已安裝 ~/.codenv.zsh
 已在 ~/.zshrc 加上 source ~/.codenv.zsh
@@ -701,7 +701,7 @@ FAQ
 
 別的 App 也用了 Cmd+Ctrl+A 的話，先搶到的那個才有效。這時可以從 Ctrl+A 兩下的選單選「用滑鼠排列格子」打開。
 
-舊版在全螢幕的 App 前面按，排列視窗會開在別的桌面，看起來像沒反應；更新後就會疊在眼前的畫面上。
+Cmd+Ctrl+A 只在 iTerm（或 Mac 內建的「終端機」）在最前面時有效，在別的 App 按不會有反應，這是故意的。舊版在全螢幕的 iTerm 裡按，排列視窗會開在別的桌面，看起來像沒反應；更新後就會疊在眼前的畫面上。
 
 **問：** 想用滑鼠反白執行結果的文字
 
@@ -957,7 +957,9 @@ tmux 的快捷鍵都是兩段式：先按 [Ctrl]+[A]，兩個都放開，再按�
 
 ### 打開和收起
 
-- 在任何 App 按 [Cmd]+[Ctrl]+[A] 打開，再按一次收起來。
+- 在 iTerm 裡按 [Cmd]+[Ctrl]+[A] 打開，再按一次收起來。在別的 App 按不會有反應，不會搶走那個 App 自己的快捷鍵。
+
+- 切到別的 App 時，排列視窗會自動收起來；切回 iTerm 再按一次就出現。
 
 - 也可以從 Ctrl+A 兩下的選單選「用滑鼠排列格子(開視窗,Cmd+Ctrl+A)」。
 
@@ -965,7 +967,7 @@ tmux 的快捷鍵都是兩段式：先按 [Ctrl]+[A]，兩個都放開，再按�
 
 - 視窗浮在 iTerm 上面，第一下就能直接拖，不用先點一下視窗。
 
-- 前面是全螢幕的 App（包括全螢幕的 iTerm）也一樣，視窗會疊在現在的畫面上，不會跳到別的桌面。
+- iTerm 開成全螢幕也一樣，視窗會疊在現在的畫面上，不會跳到別的桌面。
 
 ### 可以做的事
 
@@ -1322,7 +1324,7 @@ Technical Docs
 | `~/.zshrc` | 加上一行 `source ~/.codenv.zsh`，讓終端機認得 codenv |
 | `~/.codenv-ime` | 切換輸入法的小程式（安裝時從 `codenv-ime.swift` 編譯），原始碼副本在 `~/.codenv-ime.swift` |
 | `~/.codenv-board` | 排列視窗（安裝時從 `codenv-board.swift` 編譯），原始碼副本在 `~/.codenv-board.swift` |
-| `~/Library/LaunchAgents/io.github.olilllioli287.codenv-board.plist` | 登入時在背景啟動 `~/.codenv-board --daemon`，Cmd+Ctrl+A 才隨時有效 |
+| `~/Library/LaunchAgents/io.github.olilllioli287.codenv-board.plist` | 登入時在背景啟動 `~/.codenv-board --daemon`，在 iTerm 裡按 Cmd+Ctrl+A 才會有效 |
 | `~/.codenv-compat/` | 讓 Windows 寫的程式也能跑：`include/bits/stdc++.h`、`include/conio.h`（`getch()`、`kbhit()`）、讓輸出馬上顯示的 `include/codenv-unbuffered.h`，以及 `system("pause")`、`system("cls")`、`system("color …")`、`system("title …")` 用到的 `bin/pause`、`bin/cls`、`bin/color`、`bin/title` |
 | `~/.vimrc.local`、`~/.tmux.conf.local` | 自己的設定（自己建立；codenv 不會動到） |
 | `~/.codenv-kit/` | 一行安裝下載的完整安裝包，iTerm 配色檔也在這裡 |
@@ -1395,7 +1397,7 @@ Technical Docs
 
 - 同一個 tmux 只開一個視窗：用 socket 路徑算出一個 pid 檔，已經有在跑的就發 distributed notification 請它出來，自己結束。
 
-- `--daemon`：LaunchAgent 在登入時啟動（`RunAtLoad`；不正常結束時自動重啟），平常是沒有 Dock 圖示的背景 App。快捷鍵用 Carbon 的 `RegisterEventHotKey` 註冊，不需要「輔助使用」權限；認的是 A 那顆鍵的位置，輸入法開著也有效。Esc、Cmd+W、Cmd+Q 只把視窗收起來，並停止每秒更新。
+- `--daemon`：LaunchAgent 在登入時啟動（`RunAtLoad`；不正常結束時自動重啟），平常是沒有 Dock 圖示的背景 App。快捷鍵用 Carbon 的 `RegisterEventHotKey` 註冊，不需要「輔助使用」權限；認的是 A 那顆鍵的位置，輸入法開著也有效。只有 iTerm 或「終端機」（或排列視窗自己）在最前面時才註冊，看 `NSWorkspace.didActivateApplicationNotification` 換到別的 App 就 `UnregisterEventHotKey` 放掉，讓那個 App 自己用，視窗開著的話也一起收起來。Esc、Cmd+W、Cmd+Q 只把視窗收起來，並停止每秒更新。
 
 - 背景啟動時沒有 `$TMUX`，就用 tmux 預設的 socket（`/private/tmp/tmux-<uid>/default`）；也沒有 `LANG`，所以 tmux 指令都加 `-u`，中文名字才不會變成底線。從選單打開時，會把 tmux client 名稱交給背景的視窗，點格子時切換的是你按選單的那個 iTerm 視窗；用快捷鍵打開時切換最近用過的那個。
 

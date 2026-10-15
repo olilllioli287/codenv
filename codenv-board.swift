@@ -8,7 +8,8 @@
 //   沒給 --socket 時用 $TMUX 指的那個 tmux(從 tmux 選單打開時就是目前這個),
 //   連 $TMUX 都沒有就用 tmux 預設的那個(/private/tmp/tmux-<uid>/default)
 //   --daemon(2026-10-15 加):登入時由 LaunchAgent 在背景啟動,平常不顯示;
-//     在任何 App 按 Cmd+Ctrl+A 叫出來,再按一次收起來。Esc、Cmd+W、Cmd+Q 都只是收起來,快捷鍵會一直有效
+//     在 iTerm(或終端機)裡按 Cmd+Ctrl+A 叫出來,再按一次收起來。Esc、Cmd+W、Cmd+Q 都只是收起來,快捷鍵會一直有效
+//     在別的 App 裡 Cmd+Ctrl+A 不會被搶走,照樣是那個 App 自己的功能
 //     用的是 Carbon 的 RegisterEventHotKey,不需要「輔助使用」權限
 // 編譯: swiftc -O -swift-version 5 codenv-board.swift -o ~/.codenv-board
 
@@ -325,7 +326,7 @@ struct BoardView: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .firstTextBaseline) {
                 Text("tmux 排列").font(.title2.bold())
-                Text("把 pane 拖到別的 window 就會合併,拖到「新 window」會拆出來;window 拖到 window 上會交換位置。點 pane 切換過去,雙擊名字或按右鍵可以改名(session 按「改名」)。Esc 或 Cmd+W 關掉;在任何地方按 Cmd+Ctrl+A 叫出來或收起來。")
+                Text("把 pane 拖到別的 window 就會合併,拖到「新 window」會拆出來;window 拖到 window 上會交換位置。點 pane 切換過去,雙擊名字或按右鍵可以改名(session 按「改名」)。Esc 或 Cmd+W 關掉;在 iTerm 裡按 Cmd+Ctrl+A 叫出來或收起來。")
                     .font(.callout).foregroundStyle(.secondary)
                 Spacer()
                 NewSessionButton(board: board)
@@ -597,15 +598,31 @@ let daemon = CommandLine.arguments.contains("--daemon")
 // Cmd+Ctrl+A 全域快捷鍵(Carbon 的 C 函式不能抓外面的變數,所以要做的事放在全域變數)
 var hotKeyAction: (() -> Void)?
 var hotKeyRef: EventHotKeyRef?
-func registerHotKey() -> Bool {
+func installHotKeyHandler() {
     var spec = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
     InstallEventHandler(GetApplicationEventTarget(), { _, _, _ in
         DispatchQueue.main.async { hotKeyAction?() }
         return noErr
     }, 1, &spec, nil, nil)
-    // kVK_ANSI_A 是鍵盤上 A 那顆鍵的位置,開著注音也一樣
-    let id = EventHotKeyID(signature: OSType(0x63646E76), id: 1)
-    return RegisterEventHotKey(UInt32(kVK_ANSI_A), UInt32(cmdKey | controlKey), id, GetApplicationEventTarget(), 0, &hotKeyRef) == noErr
+}
+// 只在 iTerm / 終端機 / 排列視窗自己在最前面時佔用 Cmd+Ctrl+A,換到別的 App 就放掉,讓那個 App 自己用(2026-10-15 改)
+func setHotKey(_ on: Bool) {
+    if on, hotKeyRef == nil {
+        // kVK_ANSI_A 是鍵盤上 A 那顆鍵的位置,開著注音也一樣
+        let id = EventHotKeyID(signature: OSType(0x63646E76), id: 1)
+        if RegisterEventHotKey(UInt32(kVK_ANSI_A), UInt32(cmdKey | controlKey), id, GetApplicationEventTarget(), 0, &hotKeyRef) != noErr {
+            hotKeyRef = nil
+            FileHandle.standardError.write("codenv-board: Cmd+Ctrl+A 已經被別的程式用掉了\n".data(using: .utf8)!)
+        }
+    } else if !on, let ref = hotKeyRef {
+        UnregisterEventHotKey(ref)
+        hotKeyRef = nil
+    }
+}
+let terminalApps: Set<String> = ["com.googlecode.iterm2", "com.apple.Terminal"]
+func hotKeyWanted(_ app: NSRunningApplication?) -> Bool {
+    guard let app = app else { return false }
+    return app.processIdentifier == getpid() || terminalApps.contains(app.bundleIdentifier ?? "")
 }
 
 final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
@@ -635,7 +652,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         if daemon {
             board.paused = true
             hotKeyAction = { [weak self] in self?.toggle() }
-            if !registerHotKey() { FileHandle.standardError.write("codenv-board: Cmd+Ctrl+A 已經被別的程式用掉了\n".data(using: .utf8)!) }
+            installHotKeyHandler()
+            setHotKey(hotKeyWanted(NSWorkspace.shared.frontmostApplication))
+            NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main) { [weak self] note in
+                let app = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication
+                let wanted = hotKeyWanted(app)
+                setHotKey(wanted)
+                // 換到別的 App 時順便收起來,不然浮在最上層的視窗會擋住那個 App
+                if !wanted, let self = self, self.window.isVisible { self.hide() }
+            }
         } else {
             window.makeKeyAndOrderFront(nil)
             NSApp.activate(ignoringOtherApps: true)

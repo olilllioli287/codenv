@@ -232,7 +232,7 @@ footer { border-top: 1px solid var(--line); }
     <div class="feature"><b>跟 Windows 編輯器一樣的操作</b><p>Ctrl+S 存檔、Ctrl+Z 復原、滑鼠選取後直接打字取代、Ctrl+C / Ctrl+V 複製貼上、Tab 整塊縮排。</p></div>
     <div class="feature"><b>兩格或三格</b><p>第一次開 codenv 時選。沒有用 AI 就選兩格；有的話選三格，左邊多一格放 AI。</p></div>
     <div class="feature"><b>中文輸入法開著也能用</b><p>注音、威注音開著時按 Ctrl+A，會自動切成英文，tmux 指令做完再切回來。</p></div>
-    <div class="feature"><b>用滑鼠排列格子</b><p>在任何 App 按 Cmd+Ctrl+A 叫出排列視窗，把格子、分頁拖來拖去就排好，不用記 tmux 指令。<a href="#manual-board">看說明</a></p></div>
+    <div class="feature"><b>用滑鼠排列格子</b><p>在 iTerm 裡按 Cmd+Ctrl+A 叫出排列視窗，把格子、分頁拖來拖去就排好，不用記 tmux 指令。<a href="#manual-board">看說明</a></p></div>
     <div class="feature"><b>用 AI 一步一步學</b><p>一段給 Gemini、ChatGPT、Claude 的記憶，讓 AI 知道你是剛學 C++ 的新生，不會一次丟一整支程式。<a href="#manual-ai">拿這段記憶</a></p></div>
     <div class="feature"><b>搭配工具：圖片預覽 image-shelf</b><p>三格模式左邊用 Claude Code 的話，貼上的截圖會顯示成縮圖，點一下還能畫圈標註。<a href="#dl-tools">看介紹</a></p></div>
     <div class="feature"><b>自動補括號</b><p>打 <code>(</code> <code>[</code> <code>"</code> 自動補另一半，<code>{</code> 再按 Enter 自動補上 <code>}</code>；貼上的程式碼縮排不會亂。</p></div>
@@ -257,7 +257,7 @@ footer { border-top: 1px solid var(--line); }
 已安裝 ~/.tmux.conf
 已安裝 ~/.codenv-ime(中文輸入法開著時,Ctrl+A 也能用)
 已安裝 ~/.codenv-board(用滑鼠排列格子的視窗)
-已設定 Cmd+Ctrl+A:在任何 App 按一下叫出排列視窗,再按一下收起來(登入時自動在背景啟動)
+已設定 Cmd+Ctrl+A:在 iTerm 裡按一下叫出排列視窗,再按一下收起來(登入時自動在背景啟動)
 已安裝 ~/.codenv-compat(Windows 寫的程式也能跑,例如 bits/stdc++.h、system("pause"))
 已安裝 ~/.codenv.zsh
 已在 ~/.zshrc 加上 source ~/.codenv.zsh
@@ -343,12 +343,12 @@ footer { border-top: 1px solid var(--line); }
   <article class="release" id="log-1015">
     <time>2026-10-15</time>
     <div class="body">
-      <h2>用滑鼠排列格子的視窗、Cmd+Ctrl+A 隨時叫出來、選單可以用滑鼠點</h2>
+      <h2>用滑鼠排列格子的視窗、在 iTerm 裡按 Cmd+Ctrl+A 叫出來、選單可以用滑鼠點</h2>
       <ul>
         <li><span class="tag new">新功能</span><a href="#manual-board">排列視窗</a>：一個 Mac 視窗，把所有工作階段、分頁和格子畫成小縮圖。把格子拖到別的分頁就搬過去，拖到「新 window」就拆成新的分頁；分頁拖到另一個分頁上會交換位置，拖到別的工作階段會搬過去，也可以開新的工作階段。點一下格子切換過去，雙擊名字或按右鍵可以改名、換排列方式。</li>
-        <li><span class="tag new">新功能</span>在任何 App 按 <kbd>Cmd</kbd>+<kbd>Ctrl</kbd>+<kbd>A</kbd> 叫出排列視窗，再按一次收起來。登入時會自動在背景準備好，不用開任何權限。從 <a href="#manual-menu">Ctrl+A 兩下的選單</a>選「用滑鼠排列格子」也能打開。</li>
+        <li><span class="tag new">新功能</span>在 iTerm 裡按 <kbd>Cmd</kbd>+<kbd>Ctrl</kbd>+<kbd>A</kbd> 叫出排列視窗，再按一次收起來。在別的 App 按不會有反應，那個 App 自己的 Cmd+Ctrl+A 照常能用；排列視窗開著時切到別的 App，它會自動收起來。登入時會自動在背景準備好，不用開任何權限。從 <a href="#manual-menu">Ctrl+A 兩下的選單</a>選「用滑鼠排列格子」也能打開。</li>
         <li><span class="tag new">新功能</span>工作階段可以改名：在<a href="#manual-board">排列視窗</a>按工作階段那一行的「改名」，或雙擊它的名字；<a href="#manual-menu">Ctrl+A 兩下的選單</a>也多了「幫這個工作階段取名」。改的是左下角「Session 0」那塊的名字，中文也可以。</li>
-        <li><span class="tag fix">修正</span>前面開著全螢幕的 App（例如全螢幕的 iTerm）時按 Cmd+Ctrl+A，排列視窗會跑到別的桌面，看起來像沒反應。現在會直接疊在眼前的畫面上，收起來後回到原本的 App。</li>
+        <li><span class="tag fix">修正</span>iTerm 開成全螢幕時按 Cmd+Ctrl+A，排列視窗會跑到別的桌面，看起來像沒反應。現在會直接疊在眼前的畫面上。</li>
         <li><span class="tag fix">修正</span>Ctrl+A 兩下的選單用滑鼠點不到選項，而且滑鼠一移出選單，選單就消失。現在滑鼠移到哪裡選單都留著，點選項就執行，點選單外面才關掉。</li>
       </ul>
     </div>
@@ -621,7 +621,7 @@ eval "$(/opt/homebrew/bin/brew shellenv zsh)"</pre><button type="button">複製<
 已安裝 ~/.tmux.conf
 已安裝 ~/.codenv-ime(中文輸入法開著時,Ctrl+A 也能用)
 已安裝 ~/.codenv-board(用滑鼠排列格子的視窗)
-已設定 Cmd+Ctrl+A:在任何 App 按一下叫出排列視窗,再按一下收起來(登入時自動在背景啟動)
+已設定 Cmd+Ctrl+A:在 iTerm 裡按一下叫出排列視窗,再按一下收起來(登入時自動在背景啟動)
 已安裝 ~/.codenv-compat(Windows 寫的程式也能跑,例如 bits/stdc++.h、system("pause"))
 已安裝 ~/.codenv.zsh
 已在 ~/.zshrc 加上 source ~/.codenv.zsh
@@ -773,7 +773,7 @@ int main()
         <details><summary>按 Cmd+Ctrl+A 沒有出現排列視窗</summary><div>
           <p>先執行一次<a href="#dl-update">更新</a>，看安裝的訊息：有「已設定 Cmd+Ctrl+A」或「Cmd+Ctrl+A(叫出排列視窗)已經設定好了」才是裝好了；出現「~/.codenv-board 沒有裝成」代表缺編譯器，照<a href="#start-2">新手上路第 2 步</a>補裝。</p>
           <p>別的 App 也用了 Cmd+Ctrl+A 的話，先搶到的那個才有效。這時可以從 Ctrl+A 兩下的選單選「用滑鼠排列格子」打開。</p>
-          <p>舊版在全螢幕的 App 前面按，排列視窗會開在別的桌面，看起來像沒反應；更新後就會疊在眼前的畫面上。</p>
+          <p>Cmd+Ctrl+A 只在 iTerm（或 Mac 內建的「終端機」）在最前面時有效，在別的 App 按不會有反應，這是故意的。舊版在全螢幕的 iTerm 裡按，排列視窗會開在別的桌面，看起來像沒反應；更新後就會疊在眼前的畫面上。</p>
         </div></details>
         <details><summary>想用滑鼠反白執行結果的文字</summary><div>
           <p>按住 <kbd>Option</kbd> 再拖曳，然後按 <kbd>⌘ Cmd</kbd> + <kbd>C</kbd>。</p>
@@ -1017,11 +1017,12 @@ int main()
         <p>格子、分頁多起來以後，用快捷鍵搬來搬去不好記。排列視窗把每個工作階段、分頁和格子畫成小縮圖，直接用滑鼠拖。</p>
         <h3>打開和收起</h3>
         <ul>
-          <li>在任何 App 按 <kbd>Cmd</kbd>+<kbd>Ctrl</kbd>+<kbd>A</kbd> 打開，再按一次收起來。</li>
+          <li>在 iTerm 裡按 <kbd>Cmd</kbd>+<kbd>Ctrl</kbd>+<kbd>A</kbd> 打開，再按一次收起來。在別的 App 按不會有反應，不會搶走那個 App 自己的快捷鍵。</li>
+          <li>切到別的 App 時，排列視窗會自動收起來；切回 iTerm 再按一次就出現。</li>
           <li>也可以從 <a href="#manual-menu">Ctrl+A 兩下的選單</a>選「用滑鼠排列格子(開視窗,Cmd+Ctrl+A)」。</li>
           <li>按 <kbd>Esc</kbd>、<kbd>Cmd</kbd>+<kbd>W</kbd> 或左上角的紅色按鈕都是收起來，下次按 Cmd+Ctrl+A 馬上出現。</li>
           <li>視窗浮在 iTerm 上面，第一下就能直接拖，不用先點一下視窗。</li>
-          <li>前面是全螢幕的 App（包括全螢幕的 iTerm）也一樣，視窗會疊在現在的畫面上，不會跳到別的桌面。</li>
+          <li>iTerm 開成全螢幕也一樣，視窗會疊在現在的畫面上，不會跳到別的桌面。</li>
         </ul>
         <h3>可以做的事</h3>
         <div class="tbl"><table>
@@ -1347,7 +1348,7 @@ mv ~/Library/LaunchAgents/io.github.olilllioli287.codenv-board.plist ~/.codenv.z
             <tr><td><code>~/.zshrc</code></td><td>加上一行 <code>source ~/.codenv.zsh</code>，讓終端機認得 codenv</td></tr>
             <tr><td><code>~/.codenv-ime</code></td><td>切換輸入法的小程式（安裝時從 <code>codenv-ime.swift</code> 編譯），原始碼副本在 <code>~/.codenv-ime.swift</code></td></tr>
             <tr><td><code>~/.codenv-board</code></td><td>排列視窗（安裝時從 <code>codenv-board.swift</code> 編譯），原始碼副本在 <code>~/.codenv-board.swift</code></td></tr>
-            <tr><td><code>~/Library/LaunchAgents/io.github.olilllioli287.codenv-board.plist</code></td><td>登入時在背景啟動 <code>~/.codenv-board --daemon</code>，Cmd+Ctrl+A 才隨時有效</td></tr>
+            <tr><td><code>~/Library/LaunchAgents/io.github.olilllioli287.codenv-board.plist</code></td><td>登入時在背景啟動 <code>~/.codenv-board --daemon</code>，在 iTerm 裡按 Cmd+Ctrl+A 才會有效</td></tr>
             <tr><td><code>~/.codenv-compat/</code></td><td>讓 Windows 寫的程式也能跑：<code>include/bits/stdc++.h</code>、<code>include/conio.h</code>（<code>getch()</code>、<code>kbhit()</code>）、讓輸出馬上顯示的 <code>include/codenv-unbuffered.h</code>，以及 <code>system("pause")</code>、<code>system("cls")</code>、<code>system("color …")</code>、<code>system("title …")</code> 用到的 <code>bin/pause</code>、<code>bin/cls</code>、<code>bin/color</code>、<code>bin/title</code></td></tr>
             <tr><td><code>~/.vimrc.local</code>、<code>~/.tmux.conf.local</code></td><td>自己的設定（自己建立；codenv 不會動到）</td></tr>
             <tr><td><code>~/.codenv-kit/</code></td><td>一行安裝下載的完整安裝包，iTerm 配色檔也在這裡</td></tr>
@@ -1402,7 +1403,7 @@ mv ~/Library/LaunchAgents/io.github.olilllioli287.codenv-board.plist ~/.codenv.z
           <li>SwiftUI 寫的 Mac App，原始碼只有一個檔案 <code>codenv-board.swift</code>。每秒用 <code>tmux list-panes -a -F …</code> 讀出所有工作階段、分頁、格子的位置和大小，畫成縮圖；拖曳中暫停更新，免得拖到一半目標不見。</li>
           <li>放開滑鼠後執行對應的 tmux 指令：<code>join-pane</code>（搬格子）、<code>break-pane</code>（拆成新分頁）、<code>swap-window</code> / <code>move-window</code>（交換或搬分頁）、<code>new-session</code>（新的工作階段）、<code>select-layout</code>、<code>rename-window</code>；格子名字寫進 <code>@codenv-pane-name</code>，跟選單的模塊化排列共用。</li>
           <li>同一個 tmux 只開一個視窗：用 socket 路徑算出一個 pid 檔，已經有在跑的就發 distributed notification 請它出來，自己結束。</li>
-          <li><code>--daemon</code>：LaunchAgent 在登入時啟動（<code>RunAtLoad</code>；不正常結束時自動重啟），平常是沒有 Dock 圖示的背景 App。快捷鍵用 Carbon 的 <code>RegisterEventHotKey</code> 註冊，不需要「輔助使用」權限；認的是 A 那顆鍵的位置，輸入法開著也有效。Esc、Cmd+W、Cmd+Q 只把視窗收起來，並停止每秒更新。</li>
+          <li><code>--daemon</code>：LaunchAgent 在登入時啟動（<code>RunAtLoad</code>；不正常結束時自動重啟），平常是沒有 Dock 圖示的背景 App。快捷鍵用 Carbon 的 <code>RegisterEventHotKey</code> 註冊，不需要「輔助使用」權限；認的是 A 那顆鍵的位置，輸入法開著也有效。只有 iTerm 或「終端機」（或排列視窗自己）在最前面時才註冊，看 <code>NSWorkspace.didActivateApplicationNotification</code> 換到別的 App 就 <code>UnregisterEventHotKey</code> 放掉，讓那個 App 自己用，視窗開著的話也一起收起來。Esc、Cmd+W、Cmd+Q 只把視窗收起來，並停止每秒更新。</li>
           <li>背景啟動時沒有 <code>$TMUX</code>，就用 tmux 預設的 socket（<code>/private/tmp/tmux-&lt;uid&gt;/default</code>）；也沒有 <code>LANG</code>，所以 tmux 指令都加 <code>-u</code>，中文名字才不會變成底線。從選單打開時，會把 tmux client 名稱交給背景的視窗，點格子時切換的是你按選單的那個 iTerm 視窗；用快捷鍵打開時切換最近用過的那個。</li>
         </ul>
       </div>

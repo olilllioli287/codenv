@@ -37,7 +37,7 @@ else
   print "~/.codenv-board 沒有裝成(需要第 1 步的編譯器):排列格子改用選單裡的「模塊化排列」"
 fi
 
-# Cmd+Ctrl+A 在任何地方叫出排列視窗(2026-10-15 加):登入時在背景啟動 ~/.codenv-board --daemon
+# 在 iTerm 裡按 Cmd+Ctrl+A 叫出排列視窗(2026-10-15 加;別的 App 在前面時不佔用這個鍵):登入時在背景啟動 ~/.codenv-board --daemon
 # 不要的話執行這兩行就會關掉、以後也不會再啟動:
 #   launchctl bootout gui/$UID/io.github.olilllioli287.codenv-board
 #   rm ~/Library/LaunchAgents/io.github.olilllioli287.codenv-board.plist
@@ -63,7 +63,7 @@ if [[ -x ~/.codenv-board ]] && [[ $HOME == "$(dscl . -read /Users/$(id -un) NFSH
     print -r -- "$want" > $plist
     launchctl bootout gui/$UID/$agent 2>/dev/null
     if launchctl bootstrap gui/$UID $plist; then
-      print "已設定 Cmd+Ctrl+A:在任何 App 按一下叫出排列視窗,再按一下收起來(登入時自動在背景啟動)"
+      print "已設定 Cmd+Ctrl+A:在 iTerm 裡按一下叫出排列視窗,再按一下收起來(登入時自動在背景啟動)"
     else
       print "Cmd+Ctrl+A 沒有設定成功:排列視窗還是可以從 Ctrl+A 兩下的選單打開"
     fi
