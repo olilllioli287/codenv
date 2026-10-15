@@ -249,10 +249,16 @@ footer { border-top: 1px solid var(--line); }
   <div class="prose">
     <div class="block" id="dl-install">
       <h2>一行安裝</h2>
-      <p>工具都裝好之後，在 <b>iTerm</b> 執行下面這一行。它會從 GitHub 下載最新版的 codenv，放在 <code>~/.codenv-kit</code>，再自動安裝。</p>
+      <p>在內建的「終端機」或 iTerm 執行下面這一行。缺 Homebrew、編譯器、tmux、iTerm2 的話會先自動裝好（第一次要輸入一次開機密碼，大約 15～40 分鐘），再從 GitHub 下載最新版的 codenv，放在 <code>~/.codenv-kit</code> 並安裝。一步一步的說明見<a href="#start-auto">新手上路</a>。</p>
       <div class="cmd"><pre>zsh -c "$(curl -fsSL https://raw.githubusercontent.com/olilllioli287/codenv/main/get.sh)"</pre><button type="button">複製</button></div>
       <div class="expect"><span class="label">看到類似這樣就成功</span>
-<pre class="out"><span class="dim">下載 codenv 最新版…</span>
+<pre class="out"><span class="dim">codenv 安裝:缺什麼就裝什麼,已經有的會跳過
+  Homebrew、編譯器、tmux、iTerm2 都已經裝好了,直接更新 codenv 的設定
+[1/5] Homebrew 已經裝好了
+[2/5] 編譯器已經裝好了
+[3/5] tmux 已經裝好了
+[4/5] iTerm2 已經裝好了
+[5/5] 下載 codenv 最新版…</span>
 已安裝 ~/.vimrc
 已安裝 ~/.tmux.conf
 已安裝 ~/.codenv-ime(中文輸入法開著時,Ctrl+A 也能用)
@@ -260,7 +266,7 @@ footer { border-top: 1px solid var(--line); }
 已安裝 ~/.codenv.zsh
 已在 ~/.zshrc 加上 source ~/.codenv.zsh
 
-完成。關掉 iTerm(⌘Q)重開,輸入 codenv 就能使用</pre></div>
+完成。關掉 iTerm(Cmd+Q)重開,輸入 codenv 就能使用</pre></div>
       <p>原本就有的 <code>~/.vimrc</code>、<code>~/.tmux.conf</code> 會先備份成「檔名.bak-日期時間」，不會不見。</p>
     </div>
     <div class="block" id="dl-update">
@@ -307,9 +313,9 @@ footer { border-top: 1px solid var(--line); }
         <thead><tr><th>項目</th><th>需要什麼</th><th>怎麼裝</th></tr></thead>
         <tbody>
           <tr><td>作業系統</td><td>macOS（Apple 晶片或 Intel 都可以）</td><td>—</td></tr>
-          <tr><td>編譯器</td><td>Command Line Tools（含 g++、swiftc、python3）</td><td><a href="#start-2">新手上路第 2 步</a></td></tr>
-          <tr><td>tmux</td><td>3.4 以上</td><td><a href="#start-4">新手上路第 4 步</a></td></tr>
-          <tr><td>終端機</td><td>iTerm2</td><td><a href="#start-4">新手上路第 4 步</a></td></tr>
+          <tr><td>編譯器</td><td>Command Line Tools（含 g++、swiftc、python3）</td><td><a href="#start-auto">一行安裝自動裝</a></td></tr>
+          <tr><td>tmux</td><td>3.4 以上</td><td><a href="#start-auto">一行安裝自動裝</a></td></tr>
+          <tr><td>終端機</td><td>iTerm2</td><td><a href="#start-auto">一行安裝自動裝</a></td></tr>
         </tbody>
       </table></div>
     </div>
@@ -341,9 +347,10 @@ footer { border-top: 1px solid var(--line); }
   <article class="release" id="log-1015b">
     <time>2026-10-15</time>
     <div class="body">
-      <h2>中文選單、排列視窗搬到 tmux-kit（選用安裝）</h2>
+      <h2>一行裝好全部、中文選單和排列視窗搬到 tmux-kit（選用）</h2>
       <ul>
         <li><span class="tag new">新功能</span>Ctrl+A 兩下的中文選單、用滑鼠排列格子的視窗（Cmd+Ctrl+A）、Claude 回完分頁反白，拆成另一個小工具包 <a href="https://github.com/olilllioli287/tmux-kit">tmux-kit</a>，三樣可以各自選要不要裝，不用 codenv 的人也能單獨裝。安裝方法見<a href="#manual-menu">使用手冊第 8 節</a>。</li>
+        <li><span class="tag new">新功能</span><a href="#start-auto">一行安裝</a>會自己裝好缺少的 Homebrew、編譯器、tmux、iTerm2，再裝 codenv：打開內建的「終端機」貼一行、輸入一次開機密碼，等它跑完就好，不用再一樣一樣手動裝。已經裝過的會跳過，更新也是同一行。</li>
         <li><span class="tag new">新功能</span>第一次輸入 codenv 時會介紹 tmux-kit：輸入 y 就安裝，直接按 Enter 跳過，只出現一次。</li>
         <li><span class="tag fix">修正</span>更新 codenv 時，舊版的排列視窗會自動關掉、移到 <code>~/codenv-removed</code>，不會跟 tmux-kit 搶 Cmd+Ctrl+A。裝了 tmux-kit 後，已經取好的格子名字會保留。</li>
         <li><span class="tag fix">修正</span>兩格畫面打錯字時，訊息寫「詳細看右下角」，其實結果在右邊。現在兩格寫「詳細看右邊」。</li>
@@ -530,36 +537,35 @@ footer { border-top: 1px solid var(--line); }
   <div class="page-head">
     <p class="eyebrow">Onboarding</p>
     <h1>新手上路：從零開始安裝</h1>
-    <p class="lede">照順序做，前面的沒裝好，後面的會裝不起來。不用一次做完：下次回來，看看自己做到哪一步，每一步最後都有確認的方法。</p>
+    <p class="lede">打開內建的「終端機」，貼上一行指令，剩下的它會自己裝好：Homebrew、編譯器、tmux、iTerm2，最後是 codenv。已經裝過的會跳過。一行裝不起來時，再照最後面的手動安裝一步一步做。</p>
   </div>
   <div class="doc">
     <nav class="toc" aria-label="新手上路目錄">
       <b>目錄</b>
       <a href="#start-0">開始前先準備</a>
       <a href="#start-1">1. 打開終端機</a>
-      <a href="#start-2">2. 安裝編譯器</a>
-      <a href="#start-3">3. 安裝 Homebrew</a>
-      <a href="#start-4">4. 安裝 tmux 和 iTerm2</a>
-      <a href="#start-5">5. 安裝 codenv</a>
-      <a href="#start-6">6. 讓 F9、F10 可以直接按</a>
-      <a href="#start-7">7. 第一次使用</a>
-      <a href="#start-8">8. 選用設定</a>
+      <a href="#start-auto">2. 貼上一行，全部裝好</a>
+      <a href="#start-6">3. 讓 F9、F10 可以直接按</a>
+      <a href="#start-7">4. 第一次使用</a>
+      <a href="#start-8">5. 選用設定</a>
+      <a href="#start-manual">手動安裝（一行裝不起來時）</a>
     </nav>
     <div class="prose">
       <div class="block" id="start-0">
         <h2>開始前先準備</h2>
         <ul>
-          <li>電腦接上電源，連上穩定的 Wi-Fi。第 2、3 步要下載 1～2 GB，可能要 20～60 分鐘。</li>
+          <li>電腦接上電源，連上穩定的 Wi-Fi。第一次安裝要下載 1～2 GB，大約 15～40 分鐘。</li>
           <li>知道這台 Mac 的開機密碼。過程中會要你輸入。<b>輸入密碼時畫面不會出現任何字</b>，連星號都沒有，打完直接按 <kbd>Enter</kbd>。</li>
-          <li>每個指令右邊有「複製」按鈕。按下去後，到終端機按 <kbd>⌘ Cmd</kbd> + <kbd>V</kbd> 貼上，再按 <kbd>Enter</kbd>。<b>一次只做一行，等它跑完、出現新的一行 <code>%</code> 再做下一行。</b></li>
+          <li>指令右邊有「複製」按鈕。按下去後，到終端機按 <kbd>Cmd</kbd> + <kbd>V</kbd> 貼上，再按 <kbd>Enter</kbd>。<b>等它跑完、出現新的一行 <code>%</code> 再做下一件事。</b></li>
         </ul>
         <div class="tbl"><table>
-          <thead><tr><th>步驟</th><th>要裝什麼</th><th>必須先完成</th></tr></thead>
+          <thead><tr><th>順序</th><th>一行指令會自動裝</th><th>做什麼用</th></tr></thead>
           <tbody>
-            <tr><td>2</td><td>編譯器（Command Line Tools）</td><td>無，最先裝</td></tr>
-            <tr><td>3</td><td>Homebrew</td><td>第 2 步</td></tr>
-            <tr><td>4</td><td>tmux、iTerm2</td><td>第 3 步</td></tr>
-            <tr><td>5</td><td>codenv</td><td>第 2～4 步，而且要在 iTerm 裡做</td></tr>
+            <tr><td>1</td><td>Homebrew</td><td>用一行指令安裝軟體的工具；沒有編譯器的話會順便裝</td></tr>
+            <tr><td>2</td><td>編譯器（Command Line Tools）</td><td>把 C++ 翻譯成電腦能執行的程式</td></tr>
+            <tr><td>3</td><td>tmux</td><td>把一個視窗切成兩格或三格</td></tr>
+            <tr><td>4</td><td>iTerm2</td><td>之後寫程式用的終端機 App</td></tr>
+            <tr><td>5</td><td>codenv</td><td>vim、tmux 的設定和 <code>codenv</code> 指令</td></tr>
           </tbody>
         </table></div>
       </div>
@@ -574,72 +580,43 @@ footer { border-top: 1px solid var(--line); }
         </ol>
       </div>
 
-      <div class="block" id="start-2">
-        <h2><span class="no">2</span>安裝編譯器（Command Line Tools）</h2>
-        <p class="step-meta">10～30 分鐘，大部分時間在下載</p>
-        <p>編譯器負責把你寫的 C++ 翻譯成電腦能執行的程式，也附帶第 5 步要用的工具。第 3 步的 Homebrew 沒有它就裝不起來，所以最先裝。</p>
-        <div class="cmd"><pre>xcode-select --install</pre><button type="button">複製</button></div>
-        <ol>
-          <li>跳出小視窗後按「<b>安裝</b>」，再按「<b>同意</b>」。</li>
-          <li>等進度條跑完，出現「已安裝軟體」後按「完成」。</li>
-        </ol>
-        <div class="expect"><span class="label">確認有裝好</span></div>
-        <div class="cmd"><pre>clang++ --version</pre><button type="button">複製</button></div>
-        <div class="expect"><span class="label">看到類似這樣就成功</span><pre class="out">Apple clang version 17.0.0 (clang-1700.0.13.5)</pre></div>
-        <div class="note"><span class="label">如果出現 already installed</span><p>代表這台電腦本來就裝過了，直接做第 3 步。</p></div>
-      </div>
 
-      <div class="block" id="start-3">
-        <h2><span class="no">3</span>安裝 Homebrew</h2>
-        <p class="step-meta">5～15 分鐘</p>
-        <p>Homebrew 是 Mac 上「用一行指令安裝軟體」的工具，第 4 步要靠它。</p>
-        <div class="cmd"><pre>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</pre><button type="button">複製</button></div>
-        <ol>
-          <li>出現 <code>Password:</code> 時，輸入開機密碼，按 <kbd>Enter</kbd>。</li>
-          <li>出現 <code>Press RETURN/ENTER to continue</code> 時，按 <kbd>Enter</kbd>。</li>
-          <li>之後什麼都不要按，等到出現 <code>==&gt; Installation successful!</code>。</li>
-        </ol>
-        <div class="note"><span class="label">最重要的一步，很多人漏掉</span><p>成功訊息下面的 <code>==&gt; Next steps:</code> 有兩三行指令，<b>要複製貼上執行</b>，不然終端機找不到 brew。M 系列晶片的 Mac 通常是下面這三行（以你畫面上的為準），可以一起貼上：</p></div>
-        <div class="cmd"><pre class="multi">echo >> ~/.zprofile
-echo 'eval "$(/opt/homebrew/bin/brew shellenv zsh)"' >> ~/.zprofile
-eval "$(/opt/homebrew/bin/brew shellenv zsh)"</pre><button type="button">複製</button></div>
-        <div class="expect"><span class="label">確認有裝好</span></div>
-        <div class="cmd"><pre>brew --version</pre><button type="button">複製</button></div>
-        <div class="expect"><span class="label">看到類似這樣就成功</span><pre class="out">Homebrew 4.x.x</pre></div>
-      </div>
 
-      <div class="block" id="start-4">
-        <h2><span class="no">4</span>安裝 tmux 和 iTerm2</h2>
-        <p class="step-meta">3～5 分鐘</p>
-        <p><b>tmux</b> 負責把一個視窗切成兩格或三格。<b>iTerm2</b> 是比較好用的終端機 App，之後都用它取代內建的「終端機」。</p>
-        <div class="cmd"><pre>brew install tmux</pre><button type="button">複製</button></div>
-        <p>跑完、出現新的 <code>%</code> 後，再執行：</p>
-        <div class="cmd"><pre>brew install --cask iterm2</pre><button type="button">複製</button></div>
-        <div class="expect"><span class="label">確認有裝好</span></div>
-        <div class="cmd"><pre>tmux -V</pre><button type="button">複製</button></div>
-        <div class="expect"><span class="label">看到類似這樣就成功</span><pre class="out">tmux 3.5a</pre></div>
-        <p>到「應用程式」資料夾找到 <b>iTerm</b>，點兩下打開。第一次打開如果問「確定要打開嗎？」，按「打開」。</p>
-      </div>
 
-      <div class="block" id="start-5">
-        <h2><span class="no">5</span>安裝 codenv</h2>
-        <p class="step-meta">約 1 分鐘，要在 iTerm 裡做</p>
-        <p>在 <b>iTerm</b> 裡執行下面這一行。它會從 GitHub 下載最新版的 codenv 並自動安裝：</p>
+
+      <div class="block" id="start-auto">
+        <h2><span class="no">2</span>貼上一行，全部裝好</h2>
+        <p class="step-meta">第一次 15～40 分鐘，大部分時間在下載</p>
+        <p>在終端機貼上下面這一行，按 <kbd>Enter</kbd>：</p>
         <div class="cmd"><pre>zsh -c "$(curl -fsSL https://raw.githubusercontent.com/olilllioli287/codenv/main/get.sh)"</pre><button type="button">複製</button></div>
-        <div class="expect"><span class="label">看到最後一行「完成」就成功</span>
-<pre class="out">已安裝 ~/.vimrc
+        <ol>
+          <li>出現 <code>Password:</code> 時，輸入開機密碼，按 <kbd>Enter</kbd>。打字時畫面不會出現任何字，這是正常的。只要輸入這一次。</li>
+          <li>之後什麼都不用按，等它一項一項裝完。畫面會顯示 <code>[1/5]</code> 到 <code>[5/5]</code> 做到哪裡。</li>
+          <li>最後出現「完成」，iTerm 會自動打開。第一次問「確定要打開嗎？」就按「打開」。<b>之後都用 iTerm</b>，這個終端機視窗可以關掉。</li>
+        </ol>
+        <div class="expect"><span class="label">看到「完成」就成功（第一次裝的畫面，中間 Homebrew 會印很多英文，不用管）</span>
+<pre class="out">codenv 安裝:缺什麼就裝什麼,已經有的會跳過
+  這次要裝:Homebrew、編譯器、tmux、iTerm2,最後再裝 codenv 的設定
+[1/5] 安裝 Homebrew(用一行指令安裝軟體的工具;沒有編譯器的話會順便裝)…
+[2/5] 編譯器已經裝好了
+[3/5] 安裝 tmux(把視窗切成好幾格的工具)…
+[4/5] 安裝 iTerm2(codenv 的按鍵是照它設計的終端機)…
+[5/5] 下載 codenv 最新版…
+已安裝 ~/.vimrc
 已安裝 ~/.tmux.conf
 已安裝 ~/.codenv-ime(中文輸入法開著時,Ctrl+A 也能用)
 已安裝 ~/.codenv-compat(Windows 寫的程式也能跑,例如 bits/stdc++.h、system("pause"))
 已安裝 ~/.codenv.zsh
 已在 ~/.zshrc 加上 source ~/.codenv.zsh
+完成。
 
-完成。關掉 iTerm(⌘Q)重開,輸入 codenv 就能使用</pre></div>
-        <div class="note"><span class="label">最後出現「還缺 tmux」或「還缺編譯器」</span><p>代表第 4 步或第 2 步沒裝好。回去補裝，再執行一次上面那行。</p></div>
+接下來改用 iTerm:已經幫你打開了(在「應用程式」資料夾裡)。</pre></div>
+        <div class="note"><span class="label">中途停下來或出現錯誤</span><p>再執行一次同一行，已經裝好的會跳過，從沒裝好的地方接著做。還是不行，照最後面的<a href="#start-manual">手動安裝</a>一步一步補，或到 <a href="https://github.com/olilllioli287/codenv/issues">GitHub Issues</a> 附上截圖發問。</p></div>
+        <div class="note"><span class="label">以後要更新</span><p>在 iTerm 執行同一行就好。工具都裝好了，所以只會更新 codenv 的設定，大約 1 分鐘。</p></div>
       </div>
 
       <div class="block" id="start-6">
-        <h2><span class="no">6</span>讓 F9、F10 可以直接按</h2>
+        <h2><span class="no">3</span>讓 F9、F10 可以直接按</h2>
         <p class="step-meta">約 1 分鐘</p>
         <p>MacBook 最上面那排鍵預設是調亮度、音量，直接按 F10 其實是「靜音」。選一種解法：</p>
         <ol>
@@ -649,10 +626,10 @@ eval "$(/opt/homebrew/bin/brew shellenv zsh)"</pre><button type="button">複製<
       </div>
 
       <div class="block" id="start-7">
-        <h2><span class="no">7</span>第一次使用：寫一支 Hello</h2>
+        <h2><span class="no">4</span>第一次使用：寫一支 Hello</h2>
         <p class="step-meta">約 5 分鐘</p>
         <ol>
-          <li>按 <kbd>⌘ Cmd</kbd> + <kbd>Q</kbd> 完全關掉 iTerm，再重新打開。</li>
+          <li>如果 iTerm 是安裝之前就開著的，先按 <kbd>Cmd</kbd> + <kbd>Q</kbd> 完全關掉再打開；安裝完自動打開的就不用。</li>
           <li>輸入 <code>codenv</code> 按 <kbd>Enter</kbd>。第一次會先問畫面要幾格：輸入 <kbd>2</kbd>（左邊寫程式、右邊看結果，沒有用 AI 的話選這個）或 <kbd>3</kbd>（多一格放 AI 或終端機）。選完會記住。接著會介紹一次選用的 tmux-kit（中文選單、排列視窗），想裝就輸入 <kbd>y</kbd>，不要就直接按 <kbd>Enter</kbd>，以後不會再問。</li>
           <li>按 <kbd>n</kbd> <kbd>Enter</kbd> 新增資料夾，輸入名稱（例如 <code>cpp</code>）。清單出現 <code>1) cpp</code> 後，輸入 <kbd>1</kbd> <kbd>Enter</kbd>。</li>
           <li>按 <kbd>n</kbd> <kbd>Enter</kbd> 新增檔案，輸入 <code>hello.cpp</code>（一定要有副檔名）。畫面會切好，vim 已經打開。</li>
@@ -674,11 +651,77 @@ int main()
       </div>
 
       <div class="block" id="start-8">
-        <h2><span class="no">8</span>選用設定</h2>
+        <h2><span class="no">5</span>選用設定</h2>
         <p><b>換畫面格數</b>：輸入 <code>codenv layout</code> 重新選，或直接打 <code>codenv layout 2</code>、<code>codenv layout 3</code>。</p>
         <p><b>三格時左邊自動開 AI</b>：執行下面這行，用「文字編輯」打開設定檔，把 <code>CODENV_AI=''</code> 改成例如 <code>CODENV_AI='claude'</code>，存檔後重開 iTerm。</p>
         <div class="cmd"><pre>open -e ~/.codenv.zsh</pre><button type="button">複製</button></div>
         <p><b>一樣的配色</b>：iTerm 選單 → Settings → Profiles → 左下角 Other Actions → Import JSON Profiles，在選檔視窗按 <kbd>⌘ Cmd</kbd> + <kbd>Shift</kbd> + <kbd>G</kbd>，輸入 <code>~/.codenv-kit/iterm-profile.json</code>。匯入後選中 <code>codenv</code>，再按 Other Actions → Set as Default。</p>
+      </div>
+
+      <div class="block" id="start-manual">
+        <h2>手動安裝（一行裝不起來時）</h2>
+        <p>第 2 步那一行會自動做下面這四步。它中途失敗、或你想自己一步一步來，就照順序做完這四步，結果一樣。一次只做一行，等它跑完、出現新的一行 <code>%</code> 再做下一行。</p>
+      </div>
+
+      <div class="block" id="start-2">
+        <h2>手動 1　安裝編譯器（Command Line Tools）</h2>
+        <p class="step-meta">10～30 分鐘，大部分時間在下載</p>
+        <p>編譯器負責把你寫的 C++ 翻譯成電腦能執行的程式，也附帶 codenv 要用的工具。下一步的 Homebrew 沒有它就裝不起來，所以最先裝。</p>
+        <div class="cmd"><pre>xcode-select --install</pre><button type="button">複製</button></div>
+        <ol>
+          <li>跳出小視窗後按「<b>安裝</b>」，再按「<b>同意</b>」。</li>
+          <li>等進度條跑完，出現「已安裝軟體」後按「完成」。</li>
+        </ol>
+        <div class="expect"><span class="label">確認有裝好</span></div>
+        <div class="cmd"><pre>clang++ --version</pre><button type="button">複製</button></div>
+        <div class="expect"><span class="label">看到類似這樣就成功</span><pre class="out">Apple clang version 17.0.0 (clang-1700.0.13.5)</pre></div>
+        <div class="note"><span class="label">如果出現 already installed</span><p>代表這台電腦本來就裝過了，直接做下一步。</p></div>
+      </div>
+      <div class="block" id="start-3">
+        <h2>手動 2　安裝 Homebrew</h2>
+        <p class="step-meta">5～15 分鐘</p>
+        <p>Homebrew 是 Mac 上「用一行指令安裝軟體」的工具，下一步要靠它。</p>
+        <div class="cmd"><pre>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</pre><button type="button">複製</button></div>
+        <ol>
+          <li>出現 <code>Password:</code> 時，輸入開機密碼，按 <kbd>Enter</kbd>。</li>
+          <li>出現 <code>Press RETURN/ENTER to continue</code> 時，按 <kbd>Enter</kbd>。</li>
+          <li>之後什麼都不要按，等到出現 <code>==&gt; Installation successful!</code>。</li>
+        </ol>
+        <div class="note"><span class="label">最重要的一步，很多人漏掉</span><p>成功訊息下面的 <code>==&gt; Next steps:</code> 有兩三行指令，<b>要複製貼上執行</b>，不然終端機找不到 brew。M 系列晶片的 Mac 通常是下面這三行（以你畫面上的為準），可以一起貼上：</p></div>
+        <div class="cmd"><pre class="multi">echo >> ~/.zprofile
+echo 'eval "$(/opt/homebrew/bin/brew shellenv zsh)"' >> ~/.zprofile
+eval "$(/opt/homebrew/bin/brew shellenv zsh)"</pre><button type="button">複製</button></div>
+        <div class="expect"><span class="label">確認有裝好</span></div>
+        <div class="cmd"><pre>brew --version</pre><button type="button">複製</button></div>
+        <div class="expect"><span class="label">看到類似這樣就成功</span><pre class="out">Homebrew 4.x.x</pre></div>
+      </div>
+      <div class="block" id="start-4">
+        <h2>手動 3　安裝 tmux 和 iTerm2</h2>
+        <p class="step-meta">3～5 分鐘</p>
+        <p><b>tmux</b> 負責把一個視窗切成兩格或三格。<b>iTerm2</b> 是比較好用的終端機 App，之後都用它取代內建的「終端機」。</p>
+        <div class="cmd"><pre>brew install tmux</pre><button type="button">複製</button></div>
+        <p>跑完、出現新的 <code>%</code> 後，再執行：</p>
+        <div class="cmd"><pre>brew install --cask iterm2</pre><button type="button">複製</button></div>
+        <div class="expect"><span class="label">確認有裝好</span></div>
+        <div class="cmd"><pre>tmux -V</pre><button type="button">複製</button></div>
+        <div class="expect"><span class="label">看到類似這樣就成功</span><pre class="out">tmux 3.5a</pre></div>
+        <p>到「應用程式」資料夾找到 <b>iTerm</b>，點兩下打開。第一次打開如果問「確定要打開嗎？」，按「打開」。</p>
+      </div>
+      <div class="block" id="start-5">
+        <h2>手動 4　安裝 codenv</h2>
+        <p class="step-meta">約 1 分鐘，要在 iTerm 裡做</p>
+        <p>在 <b>iTerm</b> 裡執行下面這一行。前面三步都裝好了，所以它只會從 GitHub 下載最新版的 codenv 並安裝：</p>
+        <div class="cmd"><pre>zsh -c "$(curl -fsSL https://raw.githubusercontent.com/olilllioli287/codenv/main/get.sh)"</pre><button type="button">複製</button></div>
+        <div class="expect"><span class="label">看到最後一行「完成」就成功</span>
+<pre class="out">已安裝 ~/.vimrc
+已安裝 ~/.tmux.conf
+已安裝 ~/.codenv-ime(中文輸入法開著時,Ctrl+A 也能用)
+已安裝 ~/.codenv-compat(Windows 寫的程式也能跑,例如 bits/stdc++.h、system("pause"))
+已安裝 ~/.codenv.zsh
+已在 ~/.zshrc 加上 source ~/.codenv.zsh
+
+完成。關掉 iTerm(Cmd+Q)重開,輸入 codenv 就能使用</pre></div>
+        <div class="note"><span class="label">中途出現錯誤</span><p>看畫面上寫哪一樣沒裝成，回去補裝那一步，再執行一次上面那行。</p></div>
       </div>
     </div>
   </div>
@@ -709,20 +752,20 @@ int main()
           <p>停在 <code>Downloading Command Line Tools</code> 很久是正常的，這一包很大。只要沒有出現紅字或 <code>Error</code>，就繼續等。今天沒時間等完，可以直接關掉視窗，下次重新做那一步就好，已經裝好的部分不會重來。</p>
         </div></details>
         <details><summary>codenv: command not found</summary><div>
-          <p>新設定還沒生效。按 <kbd>⌘ Cmd</kbd> + <kbd>Q</kbd> 完全關掉 iTerm 再打開。還是不行的話，確認第 5 步最後有出現「完成」。</p>
+          <p>新設定還沒生效。按 <kbd>⌘ Cmd</kbd> + <kbd>Q</kbd> 完全關掉 iTerm 再打開。還是不行的話，確認安裝最後有出現「完成」。</p>
         </div></details>
-        <details><summary>第 5 步出現「下載失敗」或 Could not resolve host</summary><div>
+        <details><summary>安裝時出現「下載失敗」或 Could not resolve host</summary><div>
           <p>代表連不上 GitHub。確認 Wi-Fi 有連上，等一下再執行一次同一行。學校網路連不上的話，可以改用手機熱點試試。</p>
         </div></details>
-        <details><summary>第 5 步最後出現「還缺 tmux」或「還缺編譯器」</summary><div>
-          <p>代表第 4 步或第 2 步沒裝好。回去補裝，再執行一次第 5 步那行。</p>
+        <details><summary>安裝時出現「沒有裝成」</summary><div>
+          <p>畫面上會寫哪一樣沒裝成（Homebrew、編譯器、tmux 或 iTerm2）。先再執行一次同一行，常常是網路斷掉，重跑就好；還是不行，照<a href="#start-manual">新手上路的手動安裝</a>補裝那一樣，再執行一次。</p>
         </div></details>
       </div>
 
       <div class="block" id="faq-use">
         <h2>使用</h2>
         <details><summary>按 F10 沒反應，或音量跳出來</summary><div>
-          <p>看<a href="#start-6">新手上路第 6 步</a>，要搭配 <kbd>fn</kbd> 鍵，或改系統設定。另外確認游標在 vim 那格（先用滑鼠點一下）。</p>
+          <p>看<a href="#start-6">新手上路第 3 步</a>，要搭配 <kbd>fn</kbd> 鍵，或改系統設定。另外確認游標在 vim 那格（先用滑鼠點一下）。</p>
         </div></details>
         <details><summary>程式停不下來，一直印東西</summary><div>
           <p>在執行結果那格按 <kbd>Ctrl</kbd>+<kbd>C</kbd> 停止程式，會出現「已用 Ctrl+C 停止程式」。通常是迴圈的條件永遠成立，例如 <code>for</code> 的第二格寫錯。</p>
@@ -779,7 +822,7 @@ int main()
           <p>中文選單搬到選用的 tmux-kit 了，沒裝的話，Ctrl+A 兩下只會在最下面顯示去哪裡裝。照<a href="#manual-menu">使用手冊第 8 節</a>安裝就好。裝了以後用滑鼠點不到、或一動滑鼠就不見，代表 tmux-kit 太舊，再執行一次它的安裝指令更新。</p>
         </div></details>
         <details><summary>按 Cmd+Ctrl+A 沒有出現排列視窗</summary><div>
-          <p>排列視窗搬到選用的 tmux-kit 了，要先安裝（見<a href="#manual-menu">使用手冊第 8 節</a>），安裝時第 2 項選要裝。安裝訊息有「已設定 Cmd+Ctrl+A」或「Cmd+Ctrl+A 已經設定好了」才是裝好了；出現「排列視窗沒有裝成」代表缺編譯器，照<a href="#start-2">新手上路第 2 步</a>補裝。</p>
+          <p>排列視窗搬到選用的 tmux-kit 了，要先安裝（見<a href="#manual-menu">使用手冊第 8 節</a>），安裝時第 2 項選要裝。安裝訊息有「已設定 Cmd+Ctrl+A」或「Cmd+Ctrl+A 已經設定好了」才是裝好了；出現「排列視窗沒有裝成」代表缺編譯器，照<a href="#start-2">新手上路的手動安裝</a>補裝編譯器。</p>
           <p>別的 App 也用了 Cmd+Ctrl+A 的話，先搶到的那個才有效。這時可以從 Ctrl+A 兩下的選單選「用滑鼠排列格子」打開。</p>
           <p>Cmd+Ctrl+A 只在 iTerm（或 Mac 內建的「終端機」）在最前面時有效，在別的 App 按不會有反應，這是故意的。</p>
         </div></details>
@@ -1366,7 +1409,8 @@ mv ~/.codenv.zsh ~/.codenv-ime ~/.codenv-ime.swift ~/.codenv-compat ~/.codenv-ki
       <div class="block" id="tech-install">
         <h2><span class="no">2</span>一行安裝的流程</h2>
         <ol>
-          <li><code>get.sh</code> 從 GitHub 下載 main 分支的壓縮檔，解到 <code>~/.codenv-kit</code>（舊的會先移除），再執行裡面的 <code>install.sh</code>。</li>
+          <li><code>get.sh</code> 先檢查 Homebrew、編譯器、tmux、iTerm2，缺的照順序裝：要裝 Homebrew 或編譯器時先 <code>sudo -v</code> 問一次密碼，背景每 50 秒延長一次；Homebrew 用官方安裝程式加 <code>NONINTERACTIVE=1</code>（它會順便用 <code>softwareupdate</code> 裝編譯器），裝完把 <code>brew shellenv</code> 寫進 <code>~/.zprofile</code>；tmux 用 <code>brew install</code>、iTerm2 用 <code>brew install --cask</code>。測試時可以設 <code>CODENV_DRYRUN=1</code>（只印出要做的事）和 <code>CODENV_PRETEND_MISSING</code>（假裝哪些沒裝）。</li>
+          <li>接著從 GitHub 下載 main 分支的壓縮檔，解到 <code>~/.codenv-kit</code>（舊的會先移除），再執行裡面的 <code>install.sh</code>。在內建的「終端機」執行的話，最後會打開 iTerm。</li>
           <li><code>install.sh</code> 比對 <code>vimrc</code>、<code>tmux.conf</code>：內容一樣就跳過，不一樣就先備份再覆蓋。</li>
           <li>用 <code>swiftc</code> 編譯 <code>codenv-ime.swift</code>；原始碼沒變就不重編，沒有編譯器就跳過（其他功能不受影響）。</li>
           <li>舊版裝過排列視窗（<code>~/.codenv-board</code> 和它的 LaunchAgent）的話，用 <code>launchctl bootout</code> 關掉，檔案移到 <code>~/codenv-removed</code>；排列視窗和中文選單已經搬到 tmux-kit。</li>

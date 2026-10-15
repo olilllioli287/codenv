@@ -60,7 +60,7 @@ Download
 
 ## 一行安裝
 
-工具都裝好之後，在 iTerm 執行下面這一行。它會從 GitHub 下載最新版的 codenv，放在 `~/.codenv-kit`，再自動安裝。
+在內建的「終端機」或 iTerm 執行下面這一行。缺 Homebrew、編譯器、tmux、iTerm2 的話會先自動裝好（第一次要輸入一次開機密碼，大約 15～40 分鐘），再從 GitHub 下載最新版的 codenv，放在 `~/.codenv-kit` 並安裝。一步一步的說明見新手上路。
 
 ```
 zsh -c "$(curl -fsSL https://raw.githubusercontent.com/olilllioli287/codenv/main/get.sh)"
@@ -68,7 +68,13 @@ zsh -c "$(curl -fsSL https://raw.githubusercontent.com/olilllioli287/codenv/main
 
 看到類似這樣就成功
 
-下載 codenv 最新版…
+codenv 安裝:缺什麼就裝什麼,已經有的會跳過
+  Homebrew、編譯器、tmux、iTerm2 都已經裝好了,直接更新 codenv 的設定
+[1/5] Homebrew 已經裝好了
+[2/5] 編譯器已經裝好了
+[3/5] tmux 已經裝好了
+[4/5] iTerm2 已經裝好了
+[5/5] 下載 codenv 最新版…
 
 ```
 已安裝 ~/.vimrc
@@ -78,7 +84,7 @@ zsh -c "$(curl -fsSL https://raw.githubusercontent.com/olilllioli287/codenv/main
 已安裝 ~/.codenv.zsh
 已在 ~/.zshrc 加上 source ~/.codenv.zsh
 
-完成。關掉 iTerm(⌘Q)重開,輸入 codenv 就能使用
+完成。關掉 iTerm(Cmd+Q)重開,輸入 codenv 就能使用
 ```
 
 原本就有的 `~/.vimrc`、`~/.tmux.conf` 會先備份成「檔名.bak-日期時間」，不會不見。
@@ -132,9 +138,9 @@ GitHub 上每個專案的頁面都長得差不多，要下載東西看這三個�
 | 項目 | 需要什麼 | 怎麼裝 |
 | --- | --- | --- |
 | 作業系統 | macOS（Apple 晶片或 Intel 都可以） | — |
-| 編譯器 | Command Line Tools（含 g++、swiftc、python3） | 新手上路第 2 步 |
-| tmux | 3.4 以上 | 新手上路第 4 步 |
-| 終端機 | iTerm2 | 新手上路第 4 步 |
+| 編譯器 | Command Line Tools（含 g++、swiftc、python3） | 一行安裝自動裝 |
+| tmux | 3.4 以上 | 一行安裝自動裝 |
+| 終端機 | iTerm2 | 一行安裝自動裝 |
 
 ---
 
@@ -170,9 +176,11 @@ Release Notes
 
 2026-10-15
 
-## 中文選單、排列視窗搬到 tmux-kit（選用安裝）
+## 一行裝好全部、中文選單和排列視窗搬到 tmux-kit（選用）
 
 - 【新功能】Ctrl+A 兩下的中文選單、用滑鼠排列格子的視窗（Cmd+Ctrl+A）、Claude 回完分頁反白，拆成另一個小工具包 tmux-kit（https://github.com/olilllioli287/tmux-kit），三樣可以各自選要不要裝，不用 codenv 的人也能單獨裝。安裝方法見使用手冊第 8 節。
+
+- 【新功能】一行安裝會自己裝好缺少的 Homebrew、編譯器、tmux、iTerm2，再裝 codenv：打開內建的「終端機」貼一行、輸入一次開機密碼，等它跑完就好，不用再一樣一樣手動裝。已經裝過的會跳過，更新也是同一行。
 
 - 【新功能】第一次輸入 codenv 時會介紹 tmux-kit：輸入 y 就安裝，直接按 Enter 跳過，只出現一次。
 
@@ -376,22 +384,23 @@ Onboarding
 
 # 新手上路：從零開始安裝
 
-照順序做，前面的沒裝好，後面的會裝不起來。不用一次做完：下次回來，看看自己做到哪一步，每一步最後都有確認的方法。
+打開內建的「終端機」，貼上一行指令，剩下的它會自己裝好：Homebrew、編譯器、tmux、iTerm2，最後是 codenv。已經裝過的會跳過。一行裝不起來時，再照最後面的手動安裝一步一步做。
 
 ## 開始前先準備
 
-- 電腦接上電源，連上穩定的 Wi-Fi。第 2、3 步要下載 1～2 GB，可能要 20～60 分鐘。
+- 電腦接上電源，連上穩定的 Wi-Fi。第一次安裝要下載 1～2 GB，大約 15～40 分鐘。
 
 - 知道這台 Mac 的開機密碼。過程中會要你輸入。輸入密碼時畫面不會出現任何字，連星號都沒有，打完直接按 [Enter]。
 
-- 每個指令右邊有「複製」按鈕。按下去後，到終端機按 [⌘ Cmd] + [V] 貼上，再按 [Enter]。一次只做一行，等它跑完、出現新的一行 `%` 再做下一行。
+- 指令右邊有「複製」按鈕。按下去後，到終端機按 [Cmd] + [V] 貼上，再按 [Enter]。等它跑完、出現新的一行 `%` 再做下一件事。
 
-| 步驟 | 要裝什麼 | 必須先完成 |
+| 順序 | 一行指令會自動裝 | 做什麼用 |
 | --- | --- | --- |
-| 2 | 編譯器（Command Line Tools） | 無，最先裝 |
-| 3 | Homebrew | 第 2 步 |
-| 4 | tmux、iTerm2 | 第 3 步 |
-| 5 | codenv | 第 2～4 步，而且要在 iTerm 裡做 |
+| 1 | Homebrew | 用一行指令安裝軟體的工具；沒有編譯器的話會順便裝 |
+| 2 | 編譯器（Command Line Tools） | 把 C++ 翻譯成電腦能執行的程式 |
+| 3 | tmux | 把一個視窗切成兩格或三格 |
+| 4 | iTerm2 | 之後寫程式用的終端機 App |
+| 5 | codenv | vim、tmux 的設定和 `codenv` 指令 |
 
 1
 
@@ -407,11 +416,121 @@ Onboarding
 
 2
 
-## 安裝編譯器（Command Line Tools）
+## 貼上一行，全部裝好
+
+第一次 15～40 分鐘，大部分時間在下載
+
+在終端機貼上下面這一行，按 [Enter]：
+
+```
+zsh -c "$(curl -fsSL https://raw.githubusercontent.com/olilllioli287/codenv/main/get.sh)"
+```
+
+- 出現 `Password:` 時，輸入開機密碼，按 [Enter]。打字時畫面不會出現任何字，這是正常的。只要輸入這一次。
+
+- 之後什麼都不用按，等它一項一項裝完。畫面會顯示 `[1/5]` 到 `[5/5]` 做到哪裡。
+
+- 最後出現「完成」，iTerm 會自動打開。第一次問「確定要打開嗎？」就按「打開」。之後都用 iTerm，這個終端機視窗可以關掉。
+
+看到「完成」就成功（第一次裝的畫面，中間 Homebrew 會印很多英文，不用管）
+
+```
+codenv 安裝:缺什麼就裝什麼,已經有的會跳過
+  這次要裝:Homebrew、編譯器、tmux、iTerm2,最後再裝 codenv 的設定
+[1/5] 安裝 Homebrew(用一行指令安裝軟體的工具;沒有編譯器的話會順便裝)…
+[2/5] 編譯器已經裝好了
+[3/5] 安裝 tmux(把視窗切成好幾格的工具)…
+[4/5] 安裝 iTerm2(codenv 的按鍵是照它設計的終端機)…
+[5/5] 下載 codenv 最新版…
+已安裝 ~/.vimrc
+已安裝 ~/.tmux.conf
+已安裝 ~/.codenv-ime(中文輸入法開著時,Ctrl+A 也能用)
+已安裝 ~/.codenv-compat(Windows 寫的程式也能跑,例如 bits/stdc++.h、system("pause"))
+已安裝 ~/.codenv.zsh
+已在 ~/.zshrc 加上 source ~/.codenv.zsh
+完成。
+
+接下來改用 iTerm:已經幫你打開了(在「應用程式」資料夾裡)。
+```
+
+中途停下來或出現錯誤
+
+再執行一次同一行，已經裝好的會跳過，從沒裝好的地方接著做。還是不行，照最後面的手動安裝一步一步補，或到 GitHub Issues 附上截圖發問。
+
+以後要更新
+
+在 iTerm 執行同一行就好。工具都裝好了，所以只會更新 codenv 的設定，大約 1 分鐘。
+
+3
+
+## 讓 F9、F10 可以直接按
+
+約 1 分鐘
+
+MacBook 最上面那排鍵預設是調亮度、音量，直接按 F10 其實是「靜音」。選一種解法：
+
+- 每次一起按住 [fn]（左下角有地球圖示那顆），例如 [fn] + [F10]。
+
+- 改成預設就是 F 鍵：系統設定 → 鍵盤 → 鍵盤快速鍵… → 功能鍵 → 打開「將 F1、F2 等鍵作為標準功能鍵使用」。改了以後，調音量反而要按 [fn]。
+
+4
+
+## 第一次使用：寫一支 Hello
+
+約 5 分鐘
+
+- 如果 iTerm 是安裝之前就開著的，先按 [Cmd] + [Q] 完全關掉再打開；安裝完自動打開的就不用。
+
+- 輸入 `codenv` 按 [Enter]。第一次會先問畫面要幾格：輸入 [2]（左邊寫程式、右邊看結果，沒有用 AI 的話選這個）或 [3]（多一格放 AI 或終端機）。選完會記住。接著會介紹一次選用的 tmux-kit（中文選單、排列視窗），想裝就輸入 [y]，不要就直接按 [Enter]，以後不會再問。
+
+- 按 [n] [Enter] 新增資料夾，輸入名稱（例如 `cpp`）。清單出現 `1) cpp` 後，輸入 [1] [Enter]。
+
+- 按 [n] [Enter] 新增檔案，輸入 `hello.cpp`（一定要有副檔名）。畫面會切好，vim 已經打開。
+
+- 按 [i] 開始打字（左下角出現 `-- INSERT --`），把下面這段打進去，打完按 [Esc]。練習的話建議自己打，不要貼。
+
+```
+#include <iostream>
+using namespace std;
+
+int main()
+{
+	cout << "Hello C++" << endl;
+	return 0;
+}
+```
+
+- 按 [F9] 存檔並檢查，按 [F10] 編譯並執行。
+
+- 執行結果那格（兩格是右邊、三格是右下）出現 `Hello C++` 就成功了。在那格按 [Esc] 會跳回 vim。
+
+程式有錯的時候
+
+程式不會執行，錯誤訊息出現在執行結果那格，vim 裡錯的地方畫紅色底線。怎麼看錯誤訊息，請看使用手冊的 F9 與 F10。
+
+5
+
+## 選用設定
+
+換畫面格數：輸入 `codenv layout` 重新選，或直接打 `codenv layout 2`、`codenv layout 3`。
+
+三格時左邊自動開 AI：執行下面這行，用「文字編輯」打開設定檔，把 `CODENV_AI=''` 改成例如 `CODENV_AI='claude'`，存檔後重開 iTerm。
+
+```
+open -e ~/.codenv.zsh
+```
+
+一樣的配色：iTerm 選單 → Settings → Profiles → 左下角 Other Actions → Import JSON Profiles，在選檔視窗按 [⌘ Cmd] + [Shift] + [G]，輸入 `~/.codenv-kit/iterm-profile.json`。匯入後選中 `codenv`，再按 Other Actions → Set as Default。
+
+## 手動安裝（一行裝不起來時）
+
+第 2 步那一行會自動做下面這四步。它中途失敗、或你想自己一步一步來，就照順序做完這四步，結果一樣。一次只做一行，等它跑完、出現新的一行 `%` 再做下一行。
+
+## 手動 1　安裝編譯器（Command Line Tools）
 
 10～30 分鐘，大部分時間在下載
 
-編譯器負責把你寫的 C++ 翻譯成電腦能執行的程式，也附帶第 5 步要用的工具。第 3 步的 Homebrew 沒有它就裝不起來，所以最先裝。
+編譯器負責把你寫的 C++ 翻譯成電腦能執行的程式，也附帶 codenv 要用的工具。下一步的 Homebrew 沒有它就裝不起來，所以最先裝。
 
 ```
 xcode-select --install
@@ -435,15 +554,13 @@ Apple clang version 17.0.0 (clang-1700.0.13.5)
 
 如果出現 already installed
 
-代表這台電腦本來就裝過了，直接做第 3 步。
+代表這台電腦本來就裝過了，直接做下一步。
 
-3
-
-## 安裝 Homebrew
+## 手動 2　安裝 Homebrew
 
 5～15 分鐘
 
-Homebrew 是 Mac 上「用一行指令安裝軟體」的工具，第 4 步要靠它。
+Homebrew 是 Mac 上「用一行指令安裝軟體」的工具，下一步要靠它。
 
 ```
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -477,9 +594,7 @@ brew --version
 Homebrew 4.x.x
 ```
 
-4
-
-## 安裝 tmux 和 iTerm2
+## 手動 3　安裝 tmux 和 iTerm2
 
 3～5 分鐘
 
@@ -509,13 +624,11 @@ tmux 3.5a
 
 到「應用程式」資料夾找到 iTerm，點兩下打開。第一次打開如果問「確定要打開嗎？」，按「打開」。
 
-5
-
-## 安裝 codenv
+## 手動 4　安裝 codenv
 
 約 1 分鐘，要在 iTerm 裡做
 
-在 iTerm 裡執行下面這一行。它會從 GitHub 下載最新版的 codenv 並自動安裝：
+在 iTerm 裡執行下面這一行。前面三步都裝好了，所以它只會從 GitHub 下載最新版的 codenv 並安裝：
 
 ```
 zsh -c "$(curl -fsSL https://raw.githubusercontent.com/olilllioli287/codenv/main/get.sh)"
@@ -531,73 +644,12 @@ zsh -c "$(curl -fsSL https://raw.githubusercontent.com/olilllioli287/codenv/main
 已安裝 ~/.codenv.zsh
 已在 ~/.zshrc 加上 source ~/.codenv.zsh
 
-完成。關掉 iTerm(⌘Q)重開,輸入 codenv 就能使用
+完成。關掉 iTerm(Cmd+Q)重開,輸入 codenv 就能使用
 ```
 
-最後出現「還缺 tmux」或「還缺編譯器」
+中途出現錯誤
 
-代表第 4 步或第 2 步沒裝好。回去補裝，再執行一次上面那行。
-
-6
-
-## 讓 F9、F10 可以直接按
-
-約 1 分鐘
-
-MacBook 最上面那排鍵預設是調亮度、音量，直接按 F10 其實是「靜音」。選一種解法：
-
-- 每次一起按住 [fn]（左下角有地球圖示那顆），例如 [fn] + [F10]。
-
-- 改成預設就是 F 鍵：系統設定 → 鍵盤 → 鍵盤快速鍵… → 功能鍵 → 打開「將 F1、F2 等鍵作為標準功能鍵使用」。改了以後，調音量反而要按 [fn]。
-
-7
-
-## 第一次使用：寫一支 Hello
-
-約 5 分鐘
-
-- 按 [⌘ Cmd] + [Q] 完全關掉 iTerm，再重新打開。
-
-- 輸入 `codenv` 按 [Enter]。第一次會先問畫面要幾格：輸入 [2]（左邊寫程式、右邊看結果，沒有用 AI 的話選這個）或 [3]（多一格放 AI 或終端機）。選完會記住。接著會介紹一次選用的 tmux-kit（中文選單、排列視窗），想裝就輸入 [y]，不要就直接按 [Enter]，以後不會再問。
-
-- 按 [n] [Enter] 新增資料夾，輸入名稱（例如 `cpp`）。清單出現 `1) cpp` 後，輸入 [1] [Enter]。
-
-- 按 [n] [Enter] 新增檔案，輸入 `hello.cpp`（一定要有副檔名）。畫面會切好，vim 已經打開。
-
-- 按 [i] 開始打字（左下角出現 `-- INSERT --`），把下面這段打進去，打完按 [Esc]。練習的話建議自己打，不要貼。
-
-```
-#include <iostream>
-using namespace std;
-
-int main()
-{
-	cout << "Hello C++" << endl;
-	return 0;
-}
-```
-
-- 按 [F9] 存檔並檢查，按 [F10] 編譯並執行。
-
-- 執行結果那格（兩格是右邊、三格是右下）出現 `Hello C++` 就成功了。在那格按 [Esc] 會跳回 vim。
-
-程式有錯的時候
-
-程式不會執行，錯誤訊息出現在執行結果那格，vim 裡錯的地方畫紅色底線。怎麼看錯誤訊息，請看使用手冊的 F9 與 F10。
-
-8
-
-## 選用設定
-
-換畫面格數：輸入 `codenv layout` 重新選，或直接打 `codenv layout 2`、`codenv layout 3`。
-
-三格時左邊自動開 AI：執行下面這行，用「文字編輯」打開設定檔，把 `CODENV_AI=''` 改成例如 `CODENV_AI='claude'`，存檔後重開 iTerm。
-
-```
-open -e ~/.codenv.zsh
-```
-
-一樣的配色：iTerm 選單 → Settings → Profiles → 左下角 Other Actions → Import JSON Profiles，在選檔視窗按 [⌘ Cmd] + [Shift] + [G]，輸入 `~/.codenv-kit/iterm-profile.json`。匯入後選中 `codenv`，再按 Other Actions → Set as Default。
+看畫面上寫哪一樣沒裝成，回去補裝那一步，再執行一次上面那行。
 
 ---
 
@@ -619,21 +671,21 @@ FAQ
 
 **問：** codenv: command not found
 
-新設定還沒生效。按 [⌘ Cmd] + [Q] 完全關掉 iTerm 再打開。還是不行的話，確認第 5 步最後有出現「完成」。
+新設定還沒生效。按 [⌘ Cmd] + [Q] 完全關掉 iTerm 再打開。還是不行的話，確認安裝最後有出現「完成」。
 
-**問：** 第 5 步出現「下載失敗」或 Could not resolve host
+**問：** 安裝時出現「下載失敗」或 Could not resolve host
 
 代表連不上 GitHub。確認 Wi-Fi 有連上，等一下再執行一次同一行。學校網路連不上的話，可以改用手機熱點試試。
 
-**問：** 第 5 步最後出現「還缺 tmux」或「還缺編譯器」
+**問：** 安裝時出現「沒有裝成」
 
-代表第 4 步或第 2 步沒裝好。回去補裝，再執行一次第 5 步那行。
+畫面上會寫哪一樣沒裝成（Homebrew、編譯器、tmux 或 iTerm2）。先再執行一次同一行，常常是網路斷掉，重跑就好；還是不行，照新手上路的手動安裝補裝那一樣，再執行一次。
 
 ## 使用
 
 **問：** 按 F10 沒反應，或音量跳出來
 
-看新手上路第 6 步，要搭配 [fn] 鍵，或改系統設定。另外確認游標在 vim 那格（先用滑鼠點一下）。
+看新手上路第 3 步，要搭配 [fn] 鍵，或改系統設定。另外確認游標在 vim 那格（先用滑鼠點一下）。
 
 **問：** 程式停不下來，一直印東西
 
@@ -705,7 +757,7 @@ FAQ
 
 **問：** 按 Cmd+Ctrl+A 沒有出現排列視窗
 
-排列視窗搬到選用的 tmux-kit 了，要先安裝（見使用手冊第 8 節），安裝時第 2 項選要裝。安裝訊息有「已設定 Cmd+Ctrl+A」或「Cmd+Ctrl+A 已經設定好了」才是裝好了；出現「排列視窗沒有裝成」代表缺編譯器，照新手上路第 2 步補裝。
+排列視窗搬到選用的 tmux-kit 了，要先安裝（見使用手冊第 8 節），安裝時第 2 項選要裝。安裝訊息有「已設定 Cmd+Ctrl+A」或「Cmd+Ctrl+A 已經設定好了」才是裝好了；出現「排列視窗沒有裝成」代表缺編譯器，照新手上路的手動安裝補裝編譯器。
 
 別的 App 也用了 Cmd+Ctrl+A 的話，先搶到的那個才有效。這時可以從 Ctrl+A 兩下的選單選「用滑鼠排列格子」打開。
 
@@ -1349,7 +1401,9 @@ Technical Docs
 
 ## 一行安裝的流程
 
-- `get.sh` 從 GitHub 下載 main 分支的壓縮檔，解到 `~/.codenv-kit`（舊的會先移除），再執行裡面的 `install.sh`。
+- `get.sh` 先檢查 Homebrew、編譯器、tmux、iTerm2，缺的照順序裝：要裝 Homebrew 或編譯器時先 `sudo -v` 問一次密碼，背景每 50 秒延長一次；Homebrew 用官方安裝程式加 `NONINTERACTIVE=1`（它會順便用 `softwareupdate` 裝編譯器），裝完把 `brew shellenv` 寫進 `~/.zprofile`；tmux 用 `brew install`、iTerm2 用 `brew install --cask`。測試時可以設 `CODENV_DRYRUN=1`（只印出要做的事）和 `CODENV_PRETEND_MISSING`（假裝哪些沒裝）。
+
+- 接著從 GitHub 下載 main 分支的壓縮檔，解到 `~/.codenv-kit`（舊的會先移除），再執行裡面的 `install.sh`。在內建的「終端機」執行的話，最後會打開 iTerm。
 
 - `install.sh` 比對 `vimrc`、`tmux.conf`：內容一樣就跳過，不一樣就先備份再覆蓋。
 

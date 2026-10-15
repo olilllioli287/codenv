@@ -79,4 +79,9 @@ fi
 print ""
 command -v tmux >/dev/null || print "還缺 tmux:請執行 brew install tmux"
 command -v g++  >/dev/null || print "還缺編譯器:請執行 xcode-select --install"
-print "完成。關掉 iTerm(Cmd+Q)重開,輸入 codenv 就能使用;已經開著的 vim 要關掉再打開才會用到新設定。"
+# 在內建的「終端機」裝的話,get.sh 接著會打開 iTerm,不用叫人重開
+if [[ $TERM_PROGRAM == Apple_Terminal ]]; then
+  print "完成。"
+else
+  print "完成。關掉 iTerm(Cmd+Q)重開,輸入 codenv 就能使用;已經開著的 vim 要關掉再打開才會用到新設定。"
+fi
