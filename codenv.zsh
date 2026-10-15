@@ -7,6 +7,8 @@ CODENV_AI=''
 # 畫面:2 = 左邊寫程式、右邊看結果;3 = 左邊 AI 或終端機、右上寫程式、右下看結果
 # 留空的話,第一次輸入 codenv 時會問,選完記在這裡
 CODENV_LAYOUT=''
+# tmux-kit(選用的中文選單、排列視窗)的介紹看過了沒:看過是 shown,想再看一次就改回空的
+CODENV_TMUXKIT=''
 
 # 選畫面要幾格,並記到 ~/.codenv.zsh,下次開 codenv 就照這個排
 _codenv_choose_layout() {
@@ -36,6 +38,34 @@ _codenv_choose_layout() {
   print "  已設定成$( (( n == 2 )) && print 兩格 || print 三格)。之後想換,輸入 codenv layout"
 }
 
+# 第一次使用時介紹選用的 tmux-kit,只出現一次;看過就記到 ~/.codenv.zsh(2026-10-15 加)
+_codenv_tmuxkit_intro() {
+  local ans get='zsh -c "$(curl -fsSL https://raw.githubusercontent.com/olilllioli287/tmux-kit/main/get.sh)"'
+  print ""
+  print "  推薦一個選用的小工具:tmux-kit(不裝也能正常使用 codenv)"
+  print ""
+  print "   ・Ctrl+A 連按兩次:叫出中文選單,分割、搬動、取名格子都用選的"
+  print "   ・Cmd+Ctrl+A:開一個視窗,用滑鼠拖曳排列格子和分頁"
+  print "   ・有用 Claude Code 的話:Claude 回覆完,下面那個分頁會反白提醒"
+  print ""
+  print "  想現在裝就輸入 y 再按 Enter(大約 1 分鐘,三樣可以各自選要不要);"
+  print "  直接按 Enter 繼續使用 codenv。以後想裝,執行:"
+  print "    $get"
+  print ""
+  ans=""; read "ans?  > "
+  CODENV_TMUXKIT=shown
+  local conf=~/.codenv.zsh
+  if [[ -f $conf ]]; then
+    if grep -q '^CODENV_TMUXKIT=' $conf; then
+      sed -i '' "s/^CODENV_TMUXKIT=.*/CODENV_TMUXKIT=shown/" $conf
+    else
+      print "CODENV_TMUXKIT=shown" >> $conf
+    fi
+  fi
+  [[ $ans == [yY]* ]] && eval "$get"
+  return 0
+}
+
 codenv() {
   if [[ $1 == layout ]]; then
     _codenv_choose_layout $2
@@ -53,6 +83,8 @@ codenv() {
     print "\n  第一次使用 codenv,先選畫面的排法。"
     _codenv_choose_layout || return
   fi
+  # 第一次使用:介紹選用的 tmux-kit(已經裝了就不介紹)
+  [[ -z $CODENV_TMUXKIT && ! -e ~/.tmux-kit/tmux-kit.conf ]] && _codenv_tmuxkit_intro
   [[ -d $root ]] || mkdir -p -- $root
   # 1) 選資料夾
   while true; do

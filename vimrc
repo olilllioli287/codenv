@@ -348,7 +348,7 @@ augroup codestate
 augroup END
 
 " 找執行結果那格:優先用這個 vim 上次用的那格(有 @cppvim 標記),沒有才用右下角那格(2026-10-12 改)
-" 這格被放大(Ctrl+A 選單的「放大這格」)時先還原,不然看不到結果,右下角也會找成 vim 自己而多開一格
+" 這格被放大(Ctrl+A z,或 tmux-kit 選單的「放大這格」)時先還原,不然看不到結果,右下角也會找成 vim 自己而多開一格
 function! s:RunPane()
   if trim(system('tmux display -p -t ' . $TMUX_PANE . ' "#{window_zoomed_flag}"')) ==# '1'
     call system('tmux resize-pane -Z -t ' . $TMUX_PANE)

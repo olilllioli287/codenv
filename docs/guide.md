@@ -36,7 +36,7 @@ Ctrl+S 存檔、Ctrl+Z 復原、滑鼠選取後直接打字取代、Ctrl+C / Ctr
 
 用滑鼠排列格子
 
-在 iTerm 裡按 Cmd+Ctrl+A 叫出排列視窗，把格子、分頁拖來拖去就排好，不用記 tmux 指令。看說明
+Ctrl+A 兩下的中文選單、Cmd+Ctrl+A 用滑鼠排列格子、Claude 回完分頁反白，想要再另外裝。看說明
 
 用 AI 一步一步學
 
@@ -74,8 +74,6 @@ zsh -c "$(curl -fsSL https://raw.githubusercontent.com/olilllioli287/codenv/main
 已安裝 ~/.vimrc
 已安裝 ~/.tmux.conf
 已安裝 ~/.codenv-ime(中文輸入法開著時,Ctrl+A 也能用)
-已安裝 ~/.codenv-board(用滑鼠排列格子的視窗)
-已設定 Cmd+Ctrl+A:在 iTerm 裡按一下叫出排列視窗,再按一下收起來(登入時自動在背景啟動)
 已安裝 ~/.codenv-compat(Windows 寫的程式也能跑,例如 bits/stdc++.h、system("pause"))
 已安裝 ~/.codenv.zsh
 已在 ~/.zshrc 加上 source ~/.codenv.zsh
@@ -169,6 +167,18 @@ Release Notes
 # 發行日誌
 
 每次更新多了什麼、修了什麼。想更新到最新版，看下載頁的更新。
+
+2026-10-15
+
+## 中文選單、排列視窗搬到 tmux-kit（選用安裝）
+
+- 【新功能】Ctrl+A 兩下的中文選單、用滑鼠排列格子的視窗（Cmd+Ctrl+A）、Claude 回完分頁反白，拆成另一個小工具包 tmux-kit（https://github.com/olilllioli287/tmux-kit），三樣可以各自選要不要裝，不用 codenv 的人也能單獨裝。安裝方法見使用手冊第 8 節。
+
+- 【新功能】第一次輸入 codenv 時會介紹 tmux-kit：輸入 y 就安裝，直接按 Enter 跳過，只出現一次。
+
+- 【修正】更新 codenv 時，舊版的排列視窗會自動關掉、移到 `~/codenv-removed`，不會跟 tmux-kit 搶 Cmd+Ctrl+A。裝了 tmux-kit 後，已經取好的格子名字會保留。
+
+- 【修正】兩格畫面打錯字時，訊息寫「詳細看右下角」，其實結果在右邊。現在兩格寫「詳細看右邊」。
 
 2026-10-15
 
@@ -517,8 +527,6 @@ zsh -c "$(curl -fsSL https://raw.githubusercontent.com/olilllioli287/codenv/main
 已安裝 ~/.vimrc
 已安裝 ~/.tmux.conf
 已安裝 ~/.codenv-ime(中文輸入法開著時,Ctrl+A 也能用)
-已安裝 ~/.codenv-board(用滑鼠排列格子的視窗)
-已設定 Cmd+Ctrl+A:在 iTerm 裡按一下叫出排列視窗,再按一下收起來(登入時自動在背景啟動)
 已安裝 ~/.codenv-compat(Windows 寫的程式也能跑,例如 bits/stdc++.h、system("pause"))
 已安裝 ~/.codenv.zsh
 已在 ~/.zshrc 加上 source ~/.codenv.zsh
@@ -550,7 +558,7 @@ MacBook 最上面那排鍵預設是調亮度、音量，直接按 F10 其實是�
 
 - 按 [⌘ Cmd] + [Q] 完全關掉 iTerm，再重新打開。
 
-- 輸入 `codenv` 按 [Enter]。第一次會先問畫面要幾格：輸入 [2]（左邊寫程式、右邊看結果，沒有用 AI 的話選這個）或 [3]（多一格放 AI 或終端機）。選完會記住。
+- 輸入 `codenv` 按 [Enter]。第一次會先問畫面要幾格：輸入 [2]（左邊寫程式、右邊看結果，沒有用 AI 的話選這個）或 [3]（多一格放 AI 或終端機）。選完會記住。接著會介紹一次選用的 tmux-kit（中文選單、排列視窗），想裝就輸入 [y]，不要就直接按 [Enter]，以後不會再問。
 
 - 按 [n] [Enter] 新增資料夾，輸入名稱（例如 `cpp`）。清單出現 `1) cpp` 後，輸入 [1] [Enter]。
 
@@ -681,7 +689,7 @@ FAQ
 
 **問：** 中文輸入法開著時，Ctrl+A 之後按的字沒反應
 
-新版會在按下 Ctrl+A 時自動切成英文。按完 Ctrl+A 稍等一下再按下一個鍵比較保險；如果還是沒反應，改按 [Ctrl]+[A] 兩次叫出選單，用 ↑↓ 和 Enter 操作，不受輸入法影響。
+新版會在按下 Ctrl+A 時自動切成英文。按完 Ctrl+A 稍等一下再按下一個鍵比較保險；如果還是沒反應，先把輸入法切成英文再按；裝了 tmux-kit 的話，也可以按 [Ctrl]+[A] 兩次叫出選單，用 ↑↓ 和 Enter 操作，不受輸入法影響。
 
 **問：** 不小心按到 Ctrl+A，之後打的字怪怪的
 
@@ -689,19 +697,19 @@ FAQ
 
 **問：** 想關掉另一個工作階段（例如列表裡多出來的 1）
 
-先切過去再關：按 [Ctrl]+[A] 兩次，選「列出所有分頁,切換過去」，用 [↑] [↓] 移到那個工作階段（例如 `1: 1 windows`）按 [Enter]。左下角藍底變成它的名字後，再按 [Ctrl]+[A] 兩次，選「關掉整個工作階段」按 [Enter]，就會切回原本的工作階段。關掉前確認裡面沒有還要用的程式。
+在沒有在用的一格輸入 `tmux kill-session -t 1` 按 [Enter]（`1` 換成那個工作階段的名字）。裝了 tmux-kit 的話，也可以按 [Ctrl]+[A] 兩次，用「列出所有分頁,切換過去」切過去，再選「關掉整個工作階段」。關掉前確認裡面沒有還要用的程式。
 
-**問：** Ctrl+A 兩下的選單，用滑鼠點不到，或一動滑鼠就不見
+**問：** Ctrl+A 兩下沒有出現選單
 
-舊版的問題，執行一次更新就好。tmux 開著的話會直接載入新設定，不用重開。
+中文選單搬到選用的 tmux-kit 了，沒裝的話，Ctrl+A 兩下只會在最下面顯示去哪裡裝。照使用手冊第 8 節安裝就好。裝了以後用滑鼠點不到、或一動滑鼠就不見，代表 tmux-kit 太舊，再執行一次它的安裝指令更新。
 
 **問：** 按 Cmd+Ctrl+A 沒有出現排列視窗
 
-先執行一次更新，看安裝的訊息：有「已設定 Cmd+Ctrl+A」或「Cmd+Ctrl+A(叫出排列視窗)已經設定好了」才是裝好了；出現「~/.codenv-board 沒有裝成」代表缺編譯器，照新手上路第 2 步補裝。
+排列視窗搬到選用的 tmux-kit 了，要先安裝（見使用手冊第 8 節），安裝時第 2 項選要裝。安裝訊息有「已設定 Cmd+Ctrl+A」或「Cmd+Ctrl+A 已經設定好了」才是裝好了；出現「排列視窗沒有裝成」代表缺編譯器，照新手上路第 2 步補裝。
 
 別的 App 也用了 Cmd+Ctrl+A 的話，先搶到的那個才有效。這時可以從 Ctrl+A 兩下的選單選「用滑鼠排列格子」打開。
 
-Cmd+Ctrl+A 只在 iTerm（或 Mac 內建的「終端機」）在最前面時有效，在別的 App 按不會有反應，這是故意的。舊版在全螢幕的 iTerm 裡按，排列視窗會開在別的桌面，看起來像沒反應；更新後就會疊在眼前的畫面上。
+Cmd+Ctrl+A 只在 iTerm（或 Mac 內建的「終端機」）在最前面時有效，在別的 App 按不會有反應，這是故意的。
 
 **問：** 想用滑鼠反白執行結果的文字
 
@@ -877,7 +885,7 @@ tmux 的快捷鍵都是兩段式：先按 [Ctrl]+[A]，兩個都放開，再按�
 
 | 按鍵 | 做什麼 |
 | --- | --- |
-| [Ctrl]+[A] 連按兩次 | 叫出中文選單，見下一節 |
+| [Ctrl]+[A] 連按兩次 | 叫出中文選單（要另外裝 tmux-kit），見下一節 |
 | [Ctrl]+[A] → [d] | 暫時離開 tmux（程式繼續在背景跑），用 `tmux attach` 回來 |
 | [Ctrl]+[A] → [[] | 捲動模式，往上看之前的輸出，[q] 離開 |
 | [Ctrl]+[A] → [m]，或 [F5] | 開關滑鼠功能（預設是開的） |
@@ -888,7 +896,15 @@ tmux 的快捷鍵都是兩段式：先按 [Ctrl]+[A]，兩個都放開，再按�
 
 8
 
-## Ctrl+A 兩下的選單
+## Ctrl+A 兩下的選單（tmux-kit）
+
+要另外裝 tmux-kit
+
+這個選單和下一節的排列視窗，2026-10-15 起搬到選用的小工具包 tmux-kit（https://github.com/olilllioli287/tmux-kit）。沒裝的話，Ctrl+A 兩下只會在最下面顯示去哪裡裝。想裝就在 iTerm 執行下面這行，它會一樣一樣問你要不要裝（中文選單、排列視窗、Claude 回完反白），直接按 Enter 就是要；以後想更新也是同一行。
+
+```
+zsh -c "$(curl -fsSL https://raw.githubusercontent.com/olilllioli287/tmux-kit/main/get.sh)"
+```
 
 連按兩次 [Ctrl]+[A]，畫面中間會跳出這個選單。不用記快捷鍵，也不受中文輸入法影響：
 
@@ -951,7 +967,11 @@ tmux 的快捷鍵都是兩段式：先按 [Ctrl]+[A]，兩個都放開，再按�
 
 9
 
-## 用滑鼠排列格子（排列視窗）
+## 用滑鼠排列格子（tmux-kit）
+
+要另外裝 tmux-kit
+
+排列視窗是 tmux-kit 的功能，安裝方法見上一節，安裝時第 2 項選要裝。
 
 格子、分頁多起來以後，用快捷鍵搬來搬去不好記。排列視窗把每個工作階段、分頁和格子畫成小縮圖，直接用滑鼠拖。
 
@@ -986,13 +1006,12 @@ tmux 的快捷鍵都是兩段式：先按 [Ctrl]+[A]，兩個都放開，再按�
 
 視窗裡的 session、window、pane 就是 tmux 的工作階段、分頁、格子（見 tmux 入門）。分頁名字旁邊的橘色小點代表那裡有新的動靜，例如 Claude 回覆完了。
 
-不想要 Cmd+Ctrl+A
+不想要了
 
-在 iTerm 執行下面兩行，就會關掉、以後登入也不會再啟動；排列視窗還是可以從選單打開。想恢復，再執行一次一行安裝就好。
+執行 tmux-kit 的解除安裝。檔案會移到家目錄的 `tmux-kit-removed-日期時間` 資料夾，不會直接刪掉。
 
 ```
-launchctl bootout gui/$UID/io.github.olilllioli287.codenv-board
-mkdir -p ~/codenv-removed && mv ~/Library/LaunchAgents/io.github.olilllioli287.codenv-board.plist ~/codenv-removed/
+zsh ~/.tmux-kit/uninstall.sh
 ```
 
 10
@@ -1003,7 +1022,7 @@ mkdir -p ~/codenv-removed && mv ~/Library/LaunchAgents/io.github.olilllioli287.c
 
 - Ctrl+A 指令：按下 Ctrl+A 的瞬間自動切成英文，指令做完再切回原本的輸入法。按完 Ctrl+A 稍等一下再按下一個鍵比較保險。
 
-- 選單：Ctrl+A 連按兩次叫出的選單只用方向鍵、Enter、Esc，完全不受輸入法影響。
+- 選單：裝了 tmux-kit 的話，Ctrl+A 連按兩次叫出的選單只用方向鍵、Enter、Esc，完全不受輸入法影響。
 
 - vim 的快捷鍵：Ctrl+S、Ctrl+Z、F9、F10 這些組合鍵和功能鍵，輸入法不會攔，照常能用。
 
@@ -1013,7 +1032,7 @@ mkdir -p ~/codenv-removed && mv ~/Library/LaunchAgents/io.github.olilllioli287.c
 
 - 點一下切換到那一格；滾輪上下捲動；拖曳格子之間的分隔線調整大小。
 
-- 想把格子搬到別的分頁、交換分頁位置，按 [Cmd]+[Ctrl]+[A] 用排列視窗拖曳。
+- 想把格子搬到別的分頁、交換分頁位置，可以裝 tmux-kit，按 [Cmd]+[Ctrl]+[A] 用排列視窗拖曳。
 
 - 在 vim 裡點一下移動游標，拖曳或雙擊選取文字，再按 Ctrl+C 複製。
 
@@ -1111,11 +1130,10 @@ cp ~/.vimrc.bak-日期時間 ~/.vimrc
 
 ```
 mkdir -p ~/codenv-removed
-launchctl bootout gui/$UID/io.github.olilllioli287.codenv-board
-mv ~/Library/LaunchAgents/io.github.olilllioli287.codenv-board.plist ~/.codenv.zsh ~/.codenv-ime ~/.codenv-ime.swift ~/.codenv-board ~/.codenv-board.swift ~/.codenv-compat ~/.codenv-kit ~/codenv-removed/
+mv ~/.codenv.zsh ~/.codenv-ime ~/.codenv-ime.swift ~/.codenv-compat ~/.codenv-kit ~/codenv-removed/
 ```
 
-第二行關掉在背景等 Cmd+Ctrl+A 的排列視窗。有些檔案沒裝過的話，會出現 No such file 或找不到，不影響。
+有些檔案沒裝過的話，會出現 No such file 或找不到，不影響。裝了 tmux-kit 的話，另外執行 `zsh ~/.tmux-kit/uninstall.sh`。
 
 - 執行 `open -e ~/.zshrc`，刪掉 `# codenv 程式練習環境` 和 `source ~/.codenv.zsh` 這兩行，存檔。
 
@@ -1296,7 +1314,7 @@ codenv 在 vim 上加了 Windows 編輯器的習慣（見使用手冊的編輯�
 
 ## 用 vimtutor 練習
 
-vim 內建一份互動練習 vimtutor，有中文版。照著做大約 30 分鐘，練習用的是複製出來的檔案，不會動到你的程式。在沒有在用的一格（例如三格模式左邊那格，或用 Ctrl+A 兩下的選單開新分頁）輸入：
+vim 內建一份互動練習 vimtutor，有中文版。照著做大約 30 分鐘，練習用的是複製出來的檔案，不會動到你的程式。在沒有在用的一格（例如三格模式左邊那格，或按 [Ctrl]+[A] → [c] 開新分頁）輸入：
 
 ```
 LANG=zh_TW.UTF-8 vimtutor
@@ -1323,8 +1341,6 @@ Technical Docs
 | `~/.codenv.zsh` | `codenv` 指令本體，以及 `CODENV_ROOT`、`CODENV_AI`、`CODENV_LAYOUT` 三個設定 |
 | `~/.zshrc` | 加上一行 `source ~/.codenv.zsh`，讓終端機認得 codenv |
 | `~/.codenv-ime` | 切換輸入法的小程式（安裝時從 `codenv-ime.swift` 編譯），原始碼副本在 `~/.codenv-ime.swift` |
-| `~/.codenv-board` | 排列視窗（安裝時從 `codenv-board.swift` 編譯），原始碼副本在 `~/.codenv-board.swift` |
-| `~/Library/LaunchAgents/io.github.olilllioli287.codenv-board.plist` | 登入時在背景啟動 `~/.codenv-board --daemon`，在 iTerm 裡按 Cmd+Ctrl+A 才會有效 |
 | `~/.codenv-compat/` | 讓 Windows 寫的程式也能跑：`include/bits/stdc++.h`、`include/conio.h`（`getch()`、`kbhit()`）、讓輸出馬上顯示的 `include/codenv-unbuffered.h`，以及 `system("pause")`、`system("cls")`、`system("color …")`、`system("title …")` 用到的 `bin/pause`、`bin/cls`、`bin/color`、`bin/title` |
 | `~/.vimrc.local`、`~/.tmux.conf.local` | 自己的設定（自己建立；codenv 不會動到） |
 | `~/.codenv-kit/` | 一行安裝下載的完整安裝包，iTerm 配色檔也在這裡 |
@@ -1339,11 +1355,11 @@ Technical Docs
 
 - 用 `swiftc` 編譯 `codenv-ime.swift`；原始碼沒變就不重編，沒有編譯器就跳過（其他功能不受影響）。
 
-- 同樣編譯 `codenv-board.swift`，再寫入 LaunchAgent 的 plist，用 `launchctl bootstrap` 啟動；排列視窗重編過或 plist 改過才重新啟動。用假的 `HOME` 測試安裝時不會設定 LaunchAgent。
+- 舊版裝過排列視窗（`~/.codenv-board` 和它的 LaunchAgent）的話，用 `launchctl bootout` 關掉，檔案移到 `~/codenv-removed`；排列視窗和中文選單已經搬到 tmux-kit。
 
 - 把 `compat/` 複製成 `~/.codenv-compat`（內容一樣就跳過；不一樣就整個資料夾換成新版，新版刪掉的檔案不會留下來）。
 
-- 安裝新的 `codenv.zsh` 前，先讀出舊檔裡的 `CODENV_ROOT`、`CODENV_AI`、`CODENV_LAYOUT`，裝好後填回去。
+- 安裝新的 `codenv.zsh` 前，先讀出舊檔裡的 `CODENV_ROOT`、`CODENV_AI`、`CODENV_LAYOUT`、`CODENV_TMUXKIT`，裝好後填回去。
 
 - tmux 正在執行的話，直接 `source-file` 載入新設定。
 
@@ -1389,17 +1405,9 @@ Technical Docs
 
 5
 
-## 排列視窗（codenv-board）
+## 排列視窗（已搬到 tmux-kit）
 
-- SwiftUI 寫的 Mac App，原始碼只有一個檔案 `codenv-board.swift`。每秒用 `tmux list-panes -a -F …` 讀出所有工作階段、分頁、格子的位置和大小，畫成縮圖；拖曳中暫停更新，免得拖到一半目標不見。
-
-- 放開滑鼠後執行對應的 tmux 指令：`join-pane`（搬格子）、`break-pane`（拆成新分頁）、`swap-window` / `move-window`（交換或搬分頁）、`new-session`（新的工作階段）、`select-layout`、`rename-window`；格子名字寫進 `@codenv-pane-name`，跟選單的模塊化排列共用。
-
-- 同一個 tmux 只開一個視窗：用 socket 路徑算出一個 pid 檔，已經有在跑的就發 distributed notification 請它出來，自己結束。
-
-- `--daemon`：LaunchAgent 在登入時啟動（`RunAtLoad`；不正常結束時自動重啟），平常是沒有 Dock 圖示的背景 App。快捷鍵用 Carbon 的 `RegisterEventHotKey` 註冊，不需要「輔助使用」權限；認的是 A 那顆鍵的位置，輸入法開著也有效。只有 iTerm 或「終端機」（或排列視窗自己）在最前面時才註冊，看 `NSWorkspace.didActivateApplicationNotification` 換到別的 App 就 `UnregisterEventHotKey` 放掉，讓那個 App 自己用，視窗開著的話也一起收起來。Esc、Cmd+W、Cmd+Q 只把視窗收起來，並停止每秒更新。
-
-- 背景啟動時沒有 `$TMUX`，就用 tmux 預設的 socket（`/private/tmp/tmux-<uid>/default`）；也沒有 `LANG`，所以 tmux 指令都加 `-u`，中文名字才不會變成底線。從選單打開時，會把 tmux client 名稱交給背景的視窗，點格子時切換的是你按選單的那個 iTerm 視窗；用快捷鍵打開時切換最近用過的那個。
+排列視窗（原本的 `codenv-board`）、中文選單和格子取名，2026-10-15 起搬到 tmux-kit，原始碼和技術說明都在那邊。codenv 的 `tmux.conf` 最後有一行 `source-file -q ~/.tmux-kit/tmux-kit.conf`：裝了 tmux-kit 就載入它，沒裝就什麼都不做；沒裝時 Ctrl+A 兩下綁到一行提示。第一次輸入 codenv 會介紹一次 tmux-kit，看過就在 `~/.codenv.zsh` 記下 `CODENV_TMUXKIT=shown`。
 
 6
 
@@ -1410,14 +1418,14 @@ codenv 沒有用 TPM 之類的第三方外掛，全部的改動都寫在 `~/.tmu
 | 項目 | 原版 tmux | codenv |
 | --- | --- | --- |
 | 指令鍵 | Ctrl+B | Ctrl+A，按下時自動把中文輸入法切成英文（`bind -n C-a` 加上 `codenv-ime`） |
-| 中文選單 | 沒有 | Ctrl+A 連按兩次（`display-menu -O -M`）。用鍵盤叫出的選單 tmux 預設不收滑鼠，`-M` 讓它收；tmux 把滑鼠移動當成「沒按鍵的放開」，沒有 `-O` 的話滑鼠一移出選單就會關掉 |
+| 中文選單 | 沒有 | 在選用的 tmux-kit 裡（Ctrl+A 連按兩次）；沒裝時 Ctrl+A 兩下顯示去哪裡裝 |
 | 左右 / 上下分割 | `%` / `"`，新格子回到家目錄 | `|` / `-`，新格子留在目前的資料夾 |
 | 移動到旁邊那格 | 方向鍵 | 方向鍵，加上 `h` `j` `k` `l` |
 | 調整格子大小 | Ctrl+方向鍵 | Ctrl+`h` `j` `k` `l`，可以連按 |
 | 關掉格子 / 分頁的確認 | 打 `y` | 按 Enter（`confirm-before -y`），中文輸入法開著也能確定 |
 | 滑鼠 | 關 | 開（點選格子、滾輪捲動、拖曳邊界）；Ctrl+A m 或 F5 切換 |
-| 分頁改名 | Ctrl+B `,`，英文提示 | Ctrl+A `,` 或選單的「幫這個分頁取名」，中文提示。名字先存進 `@codenv-name` 再用 `#{@codenv-name}` 取出，名字裡有 `#` 也照原樣顯示（選單裡的指令會先被展開一次，所以那邊寫成 `##`） |
-| 工作階段改名 | Ctrl+B `$`，英文提示 | 選單的「幫這個工作階段取名」，中文提示，做法跟分頁改名一樣（暫存在 `@codenv-sname`）。排列視窗的「改名」用 `rename-session` |
+| 分頁改名 | Ctrl+B `,`，英文提示 | Ctrl+A `,`，中文提示。名字先存進 `@codenv-name` 再用 `#{@codenv-name}` 取出，名字裡有 `#` 也照原樣顯示 |
+| 工作階段改名 | Ctrl+B `$`，英文提示 | 同左；中文提示的版本在 tmux-kit 的選單裡 |
 | 分頁編號 | 從 0 開始 | 從 1 開始，跟鍵盤數字鍵的順序一樣 |
 | 捲動紀錄 | 2000 行 | 10000 行 |
 | 捲動模式的按鍵 | emacs 風格 | vi 風格（跟 vim 一樣用 h j k l） |
@@ -1427,10 +1435,8 @@ codenv 沒有用 TPM 之類的第三方外掛，全部的改動都寫在 `~/.tmu
 | Ctrl+S | 傳給程式（終端機會停止輸出，Ctrl+Q 才恢復） | 只傳給 vim 這類編輯器；其他格（包括 Claude Code，它的 Ctrl+S 會把打到一半的訊息收起來）顯示中文說明 |
 | Home / End | 直接傳給程式 | 轉成 Ctrl+A / Ctrl+E，vim 和命令列都會跳到行首 / 行尾 |
 | Ctrl+Enter 這類組合鍵 | 不一定傳得到 | 開啟延伸按鍵（`extended-keys on`），給 Claude Code 用 |
-| 關掉工作階段後 | 跳出 tmux，回到一般的終端機 | 還有別的工作階段就切過去（`detach-on-destroy off`）；選單的「關掉整個工作階段」用 `confirm-before` 再問一次 |
-| 搬動分頁 | 要自己打 `swap-window`、`move-window -r` | 選單的往左移 / 往右移（`swap-window -d -t :-1` / `:+1`，用 `window_start_flag` / `window_end_flag` 擋住最邊邊）、重新編號（`move-window -r`） |
-| 模塊化排列 | 要自己打 `join-pane`、`break-pane`、`select-layout` | 選單裡的第二層選單（`display-menu` 裡再開 `display-menu`，指令會被展開兩次，要留到最後才展開的 `#` 寫成 `####`）。搬格子用 `choose-tree` 選目的地，這一格用 `@視窗代號.格子編號` 指定，因為 `choose-tree` 會把指令裡的 `%1` 這類字換成選到的項目，會跟 `%格子代號` 撞在一起 |
-| 格子名字 | 上方沒有名字列 | 名字存在格子的 `@codenv-pane-name`，`pane-border-format` 顯示名字（沒取名的顯示編號）；`window-layout-changed` hook 檢查分頁裡有沒有取名的格子，有才開 `pane-border-status top` |
+| 關掉工作階段後 | 跳出 tmux，回到一般的終端機 | 還有別的工作階段就切過去（`detach-on-destroy off`） |
+| 搬動分頁、模塊化排列、格子名字 | 要自己打 tmux 指令 | 在選用的 tmux-kit 裡 |
 | 不在 tmux 裡輸入 codenv | — | 有沒人在看的工作階段（關掉 iTerm 留下的）就接回去，新分頁開在旁邊；沒有才開新的工作階段 |
 | 自己的設定 | — | 最後讀取 `~/.tmux.conf.local`（`source-file -q`，沒有這個檔也不會出錯） |
 
@@ -1476,7 +1482,6 @@ codenv 沒有用 TPM 之類的第三方外掛，全部的改動都寫在 `~/.tmu
 | `install.sh` | 安裝 / 更新 |
 | `vimrc`、`tmux.conf`、`codenv.zsh` | 三個主要設定檔 |
 | `codenv-ime.swift` | 輸入法切換小程式的原始碼 |
-| `codenv-board.swift` | 排列視窗的原始碼 |
 | `compat/` | Windows 相容：`bits/stdc++.h`、`pause`、`cls` |
 | `iterm-profile.json` | iTerm 配色 |
 | `docs/` | README 用的示意圖與它的原始檔 |

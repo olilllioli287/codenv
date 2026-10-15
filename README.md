@@ -123,15 +123,14 @@ MacBook 最上排預設是亮度、音量，直接按 F10 是「靜音」。二�
 | Ctrl+C | 執行結果那格 | 停止跑不完的程式 |
 | Ctrl+A 放開再按 `\|` / `-` | tmux | 左右 / 上下切格 |
 | Ctrl+A 放開再按 `h` `j` `k` `l` 或方向鍵 | tmux | 移到左 / 下 / 上 / 右那格 |
-| Ctrl+A 連按兩次 | tmux | 叫出中文選單（分割、關掉這格、放大、分頁），↑↓ 選或滑鼠點、Enter 執行 |
-| Cmd+Ctrl+A | iTerm 裡 | 叫出排列視窗：用滑鼠把格子拖到別的分頁、交換分頁位置、改名(工作階段也能改)；再按一次收起來 |
 
-**開著注音等中文輸入法時也能直接用 Ctrl+A**：按下 Ctrl+A 的瞬間會自動切成英文，指令做完再切回原本的輸入法（由安裝時編譯的小程式 `~/.codenv-ime` 負責）。按完 Ctrl+A 稍等一下再按下一個鍵比較保險；萬一沒裝成，改用 Ctrl+A 連按兩次的選單。
+**開著注音等中文輸入法時也能直接用 Ctrl+A**：按下 Ctrl+A 的瞬間會自動切成英文，指令做完再切回原本的輸入法（由安裝時編譯的小程式 `~/.codenv-ime` 負責）。按完 Ctrl+A 稍等一下再按下一個鍵比較保險；萬一沒裝成，按 Ctrl+A 之前先切成英文。
 
 滑鼠可以點選格子、滾輪捲動、拖曳分隔線。vim 以外的格子（例如執行結果）要反白複製文字時，按住 Option 再拖曳，再按 Cmd+C。
 
 ## 選用設定
 
+- **tmux-kit（另外裝的小工具包）：** Ctrl+A 連按兩次的中文選單、在 iTerm 裡按 Cmd+Ctrl+A 用滑鼠排列格子、Claude Code 回完分頁反白。第一次輸入 `codenv` 時會介紹一次，也可以隨時執行 `zsh -c "$(curl -fsSL https://raw.githubusercontent.com/olilllioli287/tmux-kit/main/get.sh)"` 安裝，見 [tmux-kit](https://github.com/olilllioli287/tmux-kit)。
 - **換畫面格數：** 輸入 `codenv layout` 重新選，或直接輸入 `codenv layout 2`（兩格）、`codenv layout 3`（三格）。下次開 `codenv` 就會用新的排法。
 - **三格時左邊自動開 AI：** 執行 `open -e ~/.codenv.zsh`，把 `CODENV_AI=''` 改成例如 `CODENV_AI='claude'`，存檔後重開 iTerm。
 - **一樣的配色：** iTerm → Settings → Profiles → Other Actions → Import JSON Profiles，在選檔視窗按 ⌘Cmd + Shift + G，輸入 `~/.codenv-kit/iterm-profile.json`。匯入後選中 `codenv`，再按 Other Actions → Set as Default。
